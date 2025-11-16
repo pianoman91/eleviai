@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EleviAI — Microcorsi AI personalizzati</title>
+  <meta name="description" content="EleviAI: microcorsi generati da AI, su misura per la tua carriera. Impara in 30 minuti, ottieni un badge." />
+  <meta property="og:title" content="EleviAI — Microcorsi AI personalizzati" />
+  <meta property="og:description" content="Impara in 30 minuti. Corsi su misura generati dall'AI, con quiz e badge." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="container header">
+    <a class="logo" href="#home">EleviAI</a>
+    <nav class="nav">
+      <a href="#funziona">Come funziona</a>
+      <a href="#vantaggi">Vantaggi</a>
+      <a href="#pricing">Prezzi</a>
+      <a href="#cta" class="btn small">Early Access</a>
+    </nav>
+  </header>
+
+  <main id="home">
+    <section class="hero container">
+      <h1>Microcorsi AI su misura. <br/>Impara in 30 minuti.</h1>
+      <p class="lead">
+        EleviAI genera lezioni, quiz e badge in base al tuo profilo.
+        Niente corsi infiniti: solo ciò che ti serve, quando ti serve.
+      </p>
+      <div class="actions">
+        <a href="#cta" class="btn">Richiedi Early Access</a>
+        <a href="#funziona" class="btn ghost">Scopri di più</a>
+      </div>
+      <div class="hero-card">
+        <h3>Esempio di microcorso</h3>
+        <ul>
+          <li>Tema: Basi di CFD per ingegneri</li>
+          <li>Durata: 25 minuti</li>
+          <li>Output: lezione + 5 quiz + badge</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="funziona" class="container grid-3">
+      <div class="card">
+        <h3>1) Profilo</h3>
+        <p>Descrivi obiettivi e competenze (o collega LinkedIn).</p>
+      </div>
+      <div class="card">
+        <h3>2) Generazione</h3>
+        <p>AI crea una lezione breve con esempi pratici e quiz.</p>
+      </div>
+      <div class="card">
+        <h3>3) Badge</h3>
+        <p>Completi il quiz e ottieni una credenziale condivisibile.</p>
+      </div>
+    </section>
+
+    <section id="vantaggi" class="band">
+      <div class="container grid-3">
+        <div class="card">
+          <h4>Personalizzato</h4>
+          <p>Contenuti adattati al tuo livello e al tempo disponibile.</p>
+        </div>
+        <div class="card">
+          <h4>Rapido</h4>
+          <p>Moduli da 15–30 minuti. Zero sprechi di tempo.</p>
+        </div>
+        <div class="card">
+          <h4>Verificabile</h4>
+          <p>Quiz con spiegazioni e badge digitale al termine.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing" class="container pricing">
+      <h2>Prezzi (MVP)</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Free</h3>
+          <p>1 microcorso di prova</p>
+          <p class="price">0 €</p>
+          <a href="#cta" class="btn small">Prova</a>
+        </div>
+        <div class="card highlight">
+          <h3>Starter</h3>
+          <p>Microcorsi illimitati</p>
+          <p class="price">19 €/mese</p>
+          <a href="#cta" class="btn small">Inizia</a>
+        </div>
+        <div class="card">
+          <h3>Team</h3>
+          <p>Per aziende (5+ utenti)</p>
+          <p class="price">Su richiesta</p>
+          <a href="#cta" class="btn small">Contattaci</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="cta" class="container cta">
+      <h2>Richiedi l’accesso in anteprima</h2>
+      <p>Lascia la tua email: ti invieremo l’invito quando la beta è pronta.</p>
+      <form id="early-form">
+        <input type="email" id="email" placeholder="la-tua@email.com" required />
+        <button type="submit" class="btn">Invia</button>
+      </form>
+      <p class="form-note">Niente spam. Potrai annullare quando vuoi.</p>
+      <p class="tiny">Oppure scrivici: <a href="mailto:founders@eleviai.com">founders@eleviai.com</a></p>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <span>© <span id="y"></span> EleviAI</span>
+    <a href="#home">Torna su ↑</a>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
