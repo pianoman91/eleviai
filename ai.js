@@ -1,5 +1,5 @@
 // ⚠️ NON usare questa chiave in produzione
-const API_KEY = "INSERISCI_LA_TUA_API_KEY_DI_TEST";
+const API_KEY = "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";
 
 document.getElementById("generate").addEventListener("click", async () => {
   const kw = document.getElementById("keywords").value.trim();
