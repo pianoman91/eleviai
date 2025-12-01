@@ -1,39 +1,25 @@
-export const config = {
-  runtime: "nodejs",
-};
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Only POST allowed" });
+    res.status(405).json({ error: "Only POST method is allowed" });
     return;
   }
 
   const { keywords } = req.body || {};
-  if (!keywords) {
+  if (!keywords || typeof keywords !== "string" || !keywords.trim()) {
     res.status(400).json({ error: "Missing keywords" });
     return;
   }
 
-  // LEGGIAMO LE VARIABILI
   const apiKey = process.env.OPENAI_API_KEY;
-  const projectId = process.env.OPENAI_PROJECT_ID;
-  const orgId = process.env.OPENAI_ORG_ID;
 
-  // ✅ NUOVO: SPECIFICHIAMO QUALI MANCANO
-  const missing = [];
-  if (!apiKey) missing.push("OPENAI_API_KEY");
-  if (!projectId) missing.push("OPENAI_PROJECT_ID");
-  if (!orgId) missing.push("OPENAI_ORG_ID");
-
-  if (missing.length > 0) {
-    res
-      .status(500)
-      .json({ error: "Missing env vars: " + missing.join(", ") });
+  // controlliamo SOLO questa variabile
+  if (!apiKey) {
+    res.status(500).json({ error: "Missing env var: OPENAI_API_KEY" });
     return;
   }
 
   const prompt = `
-Genera un microcorso breve e chiaro basato su queste parole chiave: ${keywords}.
+Sei EleviAI. Genera un microcorso breve e chiaro basato su queste parole chiave: ${keywords}.
 Struttura richiesta:
 - Titolo del microcorso
 - Durata stimata (minuti)
@@ -47,9 +33,7 @@ Struttura richiesta:
       method: "POST",
       headers: {
         "Authorization": "Bearer " + apiKey,
-        "Content-Type": "application/json",
-        "OpenAI-Project": projectId,
-        "OpenAI-Organization": orgId
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
@@ -61,20 +45,21 @@ Struttura richiesta:
     const data = await response.json();
 
     if (!response.ok) {
-      res
-        .status(500)
-        .json({ error: data?.error?.message || "API error" });
+      res.status(500).json({
+        error: data?.error?.message || `API error (status ${response.status})`
+      });
       return;
     }
 
     const text = data?.choices?.[0]?.message?.content;
     if (!text) {
-      res.status(500).json({ error: "No content from AI" });
+      res.status(500).json({ error: "No content returned from AI" });
       return;
     }
 
     res.status(200).json({ content: text });
   } catch (err) {
-    res.status(500).json({ error: "Network error" });
+    console.error("Network/Server error:", err);
+    res.status(500).json({ error: "Network error or server error" });
   }
 }
