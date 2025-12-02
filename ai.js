@@ -46,7 +46,24 @@ btn.addEventListener("click", async () => {
       return;
     }
 
-    output.innerHTML = `<pre style="white-space: pre-wrap;">${data.content}</pre>`;
+   const now = new Date().toLocaleDateString("it-IT");
+const courseText = data.content;
+
+output.innerHTML = `
+  <pre style="white-space: pre-wrap; margin-bottom: 16px;">${courseText}</pre>
+  <div class="badge-card">
+    <div class="badge-icon">✓</div>
+    <div class="badge-text">
+      <div class="badge-title">Badge EleviAI – Corso verificato</div>
+      <div class="badge-body">
+        Argomento: ${kw}<br/>
+        Verificato il: ${now}<br/>
+        ID verifica: EAI-${Date.now().toString().slice(-6)}
+      </div>
+    </div>
+  </div>
+`;
+
   } catch (err) {
     output.innerHTML = "<p><strong>Errore di rete:</strong> controlla la connessione o l'URL dell'API.</p>";
     console.error("Network error:", err);
