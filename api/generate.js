@@ -1,3 +1,5 @@
+// API per generare un microcorso usando OpenRouter
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Only POST method is allowed" });
@@ -10,11 +12,9 @@ export default async function handler(req, res) {
     return;
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-
-  // controlliamo SOLO questa variabile
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: "Missing env var: OPENAI_API_KEY" });
+    res.status(500).json({ error: "Missing env var: OPENROUTER_API_KEY" });
     return;
   }
 
@@ -29,15 +29,20 @@ Struttura richiesta:
   `;
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": "Bearer " + apiKey,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        // opzionale ma consigliato da OpenRouter per attribution
+        "HTTP-Referer": "https://eleviai.vercel.app",
+        "X-Title": "EleviAI MVP"
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
+        model: "openai/gpt-4o-mini", // modello OpenAI via OpenRouter :contentReference[oaicite:2]{index=2}
+        messages: [
+          { role: "user", content: prompt }
+        ],
         max_tokens: 700
       })
     });
