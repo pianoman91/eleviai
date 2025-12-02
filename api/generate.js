@@ -19,14 +19,47 @@ export default async function handler(req, res) {
   }
 
   const prompt = `
-Sei EleviAI. Genera un microcorso breve e chiaro basato su queste parole chiave: ${keywords}.
-Struttura richiesta:
-- Titolo del microcorso
-- Durata stimata (minuti)
-- Obiettivi del corso
-- Lezione (max 5 paragrafi)
-- 5 Quiz con risposte corrette.
-  `;
+Sei EleviAI, un sistema che crea corsi tecnici per professionisti.
+
+Genera un corso ESTESO e ben strutturato basato su queste parole chiave: ${keywords}.
+
+Requisiti:
+- Lingua: italiano
+- Stile: chiaro, professionale, ma accessibile
+- Lunghezza: circa 1.500–2.000 parole
+- Target: professionista che conosce le basi ma vuole approfondire
+
+Usa ESATTAMENTE questa struttura (mantieni le intestazioni):
+
+Titolo del corso:
+Durata stimata:
+Obiettivi di apprendimento:
+
+Modulo 1 – Fondamenta:
+[spiega i concetti chiave di base]
+
+Modulo 2 – Strumenti e metodi:
+[descrivi strumenti, workflow, approcci tipici]
+
+Modulo 3 – Applicazioni pratiche:
+[fornisci esempi concreti, casi d'uso reali]
+
+Modulo 4 – Approfondimenti avanzati:
+[introduci concetti più evoluti, limiti, errori comuni]
+
+Esempio pratico guidato:
+[guidare il lettore passo passo in un mini-esercizio]
+
+Mini-progetto finale:
+[proponi un piccolo progetto applicativo con obiettivi chiari]
+
+Quiz finale (10 domande a scelta multipla con risposta corretta evidenziata):
+[scrivi 10 domande, per ciascuna 3 opzioni A/B/C e indica chiaramente la risposta corretta]
+
+Badge di completamento (testo):
+[una frase breve (2–3 righe) che descrive le competenze acquisite e che può essere usata come testo per un badge/certificato]
+
+Non aggiungere testo al di fuori di questa struttura.`;
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
