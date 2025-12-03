@@ -3,6 +3,12 @@
 const btn = document.getElementById("generate");
 const output = document.getElementById("output");
 const textarea = document.getElementById("keywords");
+const suggestBtn = document.getElementById("suggest");
+const suggestionsBox = document.getElementById("suggestions");
+const linkedinInput = document.getElementById("linkedin");
+const firstNameInput = document.getElementById("firstName");
+const lastNameInput = document.getElementById("lastName");
+const jobTitleInput = document.getElementById("jobTitle");
 
 // Sostituisci questo con il tuo URL Vercel se necessario
 // Se la pagina prova.html gira su Vercel, puoi usare direttamente "/api/generate"
