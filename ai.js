@@ -37,6 +37,58 @@ btn.addEventListener("click", async () => {
       body: JSON.stringify({ keywords: kw })
     });
 
+// Handler del bottone "Suggerisci 3 corsi per la mia carriera"
+suggestBtn?.addEventListener("click", async () => {
+  const linkedin = linkedinInput.value.trim();
+  const firstName = firstNameInput.value.trim();
+  const lastName = lastNameInput.value.trim();
+  const jobTitle = jobTitleInput.value.trim();
+
+  // Controllo: deve esserci o LinkedIn, oppure Nome+Cogome+Job Title
+  if (!linkedin && !(firstName && lastName && jobTitle)) {
+    suggestionsBox.innerHTML = "<p>Inserisci il link LinkedIn <strong>oppure</strong> Nome, Cognome e Job title.</p>";
+    return;
+  }
+
+  suggestionsBox.innerHTML = "<p>Analizzo il profilo e calcolo i migliori corsi per la tua carriera... ⏳</p>";
+
+  try {
+    const response = await fetch(`/api/suggest`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        linkedin,
+        firstName,
+        lastName,
+        jobTitle
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const msg = data?.error || `Errore HTTP ${response.status}`;
+      suggestionsBox.innerHTML = `<p><strong>Errore server:</strong> ${msg}</p>`;
+      console.error("Suggest API error:", data);
+      return;
+    }
+
+    if (!data.suggestions) {
+      suggestionsBox.innerHTML = "<p>Nessun suggerimento ricevuto dall'AI.</p>";
+      console.error("No suggestions content:", data);
+      return;
+    }
+
+    suggestionsBox.innerHTML = `
+      <pre style="white-space: pre-wrap; margin:0;">${data.suggestions}</pre>
+    `;
+  } catch (err) {
+    suggestionsBox.innerHTML = "<p><strong>Errore di rete:</strong> controlla la connessione e riprova.</p>";
+    console.error("Network error (suggest):", err);
+  }
+});
+
+    
     const data = await response.json();
 
     if (!response.ok) {
