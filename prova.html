@@ -21,6 +21,55 @@
 
     <h2>Risultato:</h2>
     <div id="output" class="box"></div>
+
+<hr style="margin: 32px 0; border-color: #2a3145;">
+
+<h2>Suggerimenti corsi dalla tua carriera</h2>
+<p>
+  In alternativa alle parole chiave, puoi:
+  <br>- inserire il link al tuo profilo LinkedIn, oppure
+  <br>- inserire Nome, Cognome e Job title.
+</p>
+
+<div class="box">
+  <label for="linkedin"><strong>Link profilo LinkedIn (opzionale)</strong></label><br/>
+  <input
+    type="text"
+    id="linkedin"
+    placeholder="https://www.linkedin.com/in/tuo-profilo"
+    style="width:100%; margin:8px 0 16px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white;"
+  />
+
+  <p style="margin: 0 0 8px;"><strong>Oppure inserisci i tuoi dati:</strong></p>
+
+  <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+    <input
+      type="text"
+      id="firstName"
+      placeholder="Nome"
+      style="flex:1 1 120px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white;"
+    />
+    <input
+      type="text"
+      id="lastName"
+      placeholder="Cognome"
+      style="flex:1 1 120px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white;"
+    />
+    <input
+      type="text"
+      id="jobTitle"
+      placeholder="Job title (es: Mechanical Design Engineer)"
+      style="flex:1 1 220px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white;"
+    />
+  </div>
+
+  <button class="btn small" id="suggest">Suggerisci 3 corsi per la mia carriera</button>
+</div>
+
+<h3 style="margin-top:18px;">Suggerimenti di corso:</h3>
+<div id="suggestions" class="box"></div>
+
+    
   </div>
 
   <script src="ai.js"></script>
