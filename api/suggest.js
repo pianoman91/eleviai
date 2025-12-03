@@ -66,12 +66,10 @@ Formato di output (mantienilo esattamente così):
       "https://openrouter.ai/api/v1/chat/completions",
       {
         method: "POST",
-        headers: {
-          Authorization: "Bearer " + apiKey,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://eleviai.vercel.app",
-          "X-Title": "EleviAI Career Suggestions"
-        },
+       headers: {
+  Authorization: "Bearer " + apiKey,
+  "Content-Type": "application/json"
+},
         body: JSON.stringify({
           model: "openai/gpt-4o-mini",
           messages: [{ role: "user", content: prompt }],
