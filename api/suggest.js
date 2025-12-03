@@ -36,12 +36,13 @@ export default async function handler(req, res) {
   }
 
   const prompt = `
-Sei un career coach specializzato in profili tecnici (ingegneri, designer, data, tech).
+Sei un career coach specializzato in profili professionali (ingegneri, designer, data, tech, finanza, HR, accounting, informatica).
 
 In base a questo profilo:
 ${profileDescription}
 
 Proponi ESATTAMENTE 3 titoli di micro-corsi (non corsi generici), focalizzati su competenze che possono aiutare questa persona a far crescere la propria carriera nei prossimi 12 mesi.
+Per individuare i microcorsi, fai un confronto con le competenze che altri utenti di LinkedIn con lo stesso job o simile hanno.
 
 Requisiti:
 - Lingua: italiano
