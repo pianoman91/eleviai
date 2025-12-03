@@ -69,7 +69,7 @@ Formato di output (mantienilo esattamente così):
           Authorization: "Bearer " + apiKey,
           "Content-Type": "application/json",
           "HTTP-Referer": "https://eleviai.vercel.app",
-          "X-Title": "EleviAI – Career Suggestions"
+          "X-Title": "EleviAI Career Suggestions"
         },
         body: JSON.stringify({
           model: "openai/gpt-4o-mini",
