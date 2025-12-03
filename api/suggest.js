@@ -13,21 +13,24 @@ export default async function handler(req, res) {
     !(firstName && lastName && jobTitle)
   ) {
     res.status(400).json({
-      error: "Inserisci il link LinkedIn oppure Nome, Cognome e Job title."
+      error:
+        "Inserisci il link LinkedIn oppure Nome, Cognome e Job title."
     });
     return;
   }
 
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: "Missing env var: OPENROUTER_API_KEY" });
+    res
+      .status(500)
+      .json({ error: "Missing env var: OPENROUTER_API_KEY" });
     return;
   }
 
-  // Costruiamo una descrizione testuale del profilo
+  // Costruzione descrizione profilo
   let profileDescription;
   if (linkedin && linkedin.trim()) {
-    profileDescription = `Profilo LinkedIn: ${linkedin.trim()}`;
+    profileDescription = `Profilo LinkedIn (non analizzato automaticamente, solo contesto): ${linkedin.trim()}`;
   } else {
     profileDescription = `Nome: ${firstName} ${lastName}, ruolo attuale: ${jobTitle}`;
   }
@@ -38,7 +41,7 @@ Sei un career coach specializzato in profili tecnici (ingegneri, designer, data,
 In base a questo profilo:
 ${profileDescription}
 
-Proponi ESATTAMENTE 3 titoli di micro-corsi (non di corsi generici), focalizzati su competenze che possono aiutare questa persona a far crescere la propria carriera nei prossimi 12 mesi.
+Proponi ESATTAMENTE 3 titoli di micro-corsi (non corsi generici), focalizzati su competenze che possono aiutare questa persona a far crescere la propria carriera nei prossimi 12 mesi.
 
 Requisiti:
 - Lingua: italiano
@@ -58,41 +61,66 @@ Formato di output (mantienilo esattamente così):
 `;
 
   try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + apiKey,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://eleviai.vercel.app",
-        "X-Title": "EleviAI – Career Suggestions"
-      },
-      body: JSON.stringify({
-        model: "openai/gpt-4o-mini",
-        messages: [
-          { role: "user", content: prompt }
-        ],
-        max_tokens: 500
-      })
-    });
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + apiKey,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://eleviai.vercel.app",
+          "X-Title": "EleviAI – Career Suggestions"
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-4o-mini",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 500
+        })
+      }
+    );
 
-    const data = await response.json();
+    const rawText = await response.text();
+    let data;
+
+    // Proviamo a fare il parse della risposta in JSON;
+    // se non è JSON (es. HTML di errore), lo segnaliamo.
+    try {
+      data = JSON.parse(rawText);
+    } catch (parseErr) {
+      res.status(500).json({
+        error:
+          "Risposta non valida dall'AI (parse error): " +
+          parseErr.message +
+          " — Primo pezzo di risposta: " +
+          rawText.slice(0, 200)
+      });
+      return;
+    }
 
     if (!response.ok) {
       res.status(500).json({
-        error: data?.error?.message || `API error (status ${response.status})`
+        error:
+          data?.error?.message ||
+          `API error (status ${response.status})`
       });
       return;
     }
 
     const text = data?.choices?.[0]?.message?.content;
     if (!text) {
-      res.status(500).json({ error: "No suggestions returned from AI" });
+      res
+        .status(500)
+        .json({ error: "No suggestions returned from AI" });
       return;
     }
 
     res.status(200).json({ suggestions: text });
   } catch (err) {
     console.error("Network/Server error (suggest):", err);
-    res.status(500).json({ error: "Network error or server error" });
+    res.status(500).json({
+      error:
+        "Errore di rete lato server: " +
+        (err?.message || String(err))
+    });
   }
 }
