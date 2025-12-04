@@ -6,7 +6,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { keywords } = req.body || {};
+  const { keywords, language } = req.body || {};
+
   if (!keywords || typeof keywords !== "string" || !keywords.trim()) {
     res.status(400).json({ error: "Missing keywords" });
     return;
@@ -18,18 +19,23 @@ export default async function handler(req, res) {
     return;
   }
 
+  const courseLanguage =
+    (language && typeof language === "string" && language.trim()) ||
+    "Italiano";
+
   const prompt = `
 Sei EleviAI, un sistema che crea corsi tecnici per professionisti.
+
+Lingua del corso: ${courseLanguage}.
+Scrivi TUTTO il corso in questa lingua, senza traduzioni aggiuntive o cambi di lingua.
 
 Genera un corso ESTESO e ben strutturato basato su queste parole chiave: ${keywords}.
 
 Requisiti:
-- Lingua: italiano
-- Stile: chiaro, professionale, ma accessibile
 - Lunghezza: circa 1.500–2.000 parole
-- Target: professionista che conosce le basi ma vuole approfondire
+- Target: professionista tecnico / ingegnere che conosce le basi ma vuole approfondire
 
-Usa ESATTAMENTE questa struttura (mantieni le intestazioni):
+Usa ESATTAMENTE questa struttura (mantieni le intestazioni, tradotte nella lingua scelta):
 
 Titolo del corso:
 Durata stimata:
@@ -66,16 +72,11 @@ Non aggiungere testo al di fuori di questa struttura.`;
       method: "POST",
       headers: {
         "Authorization": "Bearer " + apiKey,
-        "Content-Type": "application/json",
-        // opzionale ma consigliato da OpenRouter per attribution
-        "HTTP-Referer": "https://eleviai.vercel.app",
-        "X-Title": "EleviAI MVP"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openai/gpt-4o-mini", // modello OpenAI via OpenRouter :contentReference[oaicite:2]{index=2}
-        messages: [
-          { role: "user", content: prompt }
-        ],
+        model: "openai/gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
         max_tokens: 1500
       })
     });
