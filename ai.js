@@ -2,6 +2,8 @@
 const generateBtn = document.getElementById("generate");
 const output = document.getElementById("output");
 const textarea = document.getElementById("keywords");
+const courseLangInput = document.getElementById("courseLanguage");
+
 
 // NUOVI ELEMENTI (suggerimenti carriera)
 const suggestBtn = document.getElementById("suggest");
@@ -18,6 +20,13 @@ console.log("suggestBtn:", suggestBtn);
 // === HANDLER: GENERA MICROCORSO DA KEYWORDS ===
 generateBtn?.addEventListener("click", async () => {
   const kw = textarea.value.trim();
+  const langPrefRaw = courseLangInput ? courseLangInput.value.trim() : "";
+  const uiLang = document.documentElement.getAttribute("data-lang") || "it";
+
+  // se l'utente non scrive nulla, usiamo la lingua dell'interfaccia
+  const langPref =
+    langPrefRaw ||
+    (uiLang === "en" ? "English" : "Italiano");
 
   if (!kw) {
     output.innerHTML = "<p>Inserisci almeno una parola chiave.</p>";
@@ -30,8 +39,13 @@ generateBtn?.addEventListener("click", async () => {
     const response = await fetch(`/api/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ keywords: kw })
+      body: JSON.stringify({
+        keywords: kw,
+        language: langPref
+      })
     });
+    // ...
+
 
     const data = await response.json();
 
