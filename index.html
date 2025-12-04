@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it">
+<html lang="it" data-lang="it">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -10,117 +10,295 @@
   <meta property="og:type" content="website" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- CSS minimo per gestione lingue -->
+  <style>
+    .lang-it { display: inline; }
+    .lang-en { display: none; }
+
+    html[data-lang="en"] .lang-it { display: none; }
+    html[data-lang="en"] .lang-en { display: inline; }
+
+    .lang-switch {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 16px 8px;
+      font-size: 12px;
+    }
+
+    .lang-btn {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #2a3145;
+      background: #0b0f1c;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    .lang-btn.active {
+      border-color: var(--brand-2, #31d0aa);
+      background: rgba(49, 208, 170, 0.12);
+      opacity: 1;
+    }
+  </style>
 </head>
 <body>
   <header class="container header">
     <a class="logo" href="#home">EleviAI</a>
     <nav class="nav">
-      <a href="#funziona">Come funziona</a>
-      <a href="#vantaggi">Vantaggi</a>
-      <a href="#pricing">Prezzi</a>
-      <a href="#cta" class="btn small">Early Access</a>
-      <a href="prova.html" class="btn ghost">Prova gratuita</a>
+      <a href="#funziona">
+        <span class="lang-it">Come funziona</span>
+        <span class="lang-en">How it works</span>
+      </a>
+      <a href="#vantaggi">
+        <span class="lang-it">Vantaggi</span>
+        <span class="lang-en">Benefits</span>
+      </a>
+      <a href="#pricing">
+        <span class="lang-it">Prezzi</span>
+        <span class="lang-en">Pricing</span>
+      </a>
+      <a href="#cta" class="btn small">
+        <span class="lang-it">Early Access</span>
+        <span class="lang-en">Early Access</span>
+      </a>
+      <a href="prova.html" class="btn ghost">
+        <span class="lang-it">Prova gratuita</span>
+        <span class="lang-en">Free trial</span>
+      </a>
     </nav>
   </header>
   
-<div class="lang-switch">
-  <button class="lang-btn active" data-lang="it">IT</button>
-  <button class="lang-btn" data-lang="en">EN</button>
-</div>
+  <div class="lang-switch">
+    <button class="lang-btn active" data-lang="it">IT</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+  </div>
 
   <main id="home">
     <section class="hero container">
-      <h1>Microcorsi AI su misura. <br/>Impara in 30 minuti.</h1>
+      <h1>
+        <span class="lang-it">Microcorsi AI su misura. <br/>Impara in 30 minuti.</span>
+        <span class="lang-en">Tailored AI micro-courses. <br/>Learn in 30 minutes.</span>
+      </h1>
       <p class="lead">
-        EleviAI genera lezioni, quiz e badge in base al tuo profilo.
-        Niente corsi infiniti: solo ciò che ti serve, quando ti serve.
+        <span class="lang-it">
+          EleviAI genera lezioni, quiz e badge in base al tuo profilo.
+          Niente corsi infiniti: solo ciò che ti serve, quando ti serve.
+        </span>
+        <span class="lang-en">
+          EleviAI generates lessons, quizzes and badges based on your profile.
+          No endless courses: only what you need, when you need it.
+        </span>
       </p>
       <div class="actions">
-        <a href="#cta" class="btn">Richiedi Early Access</a>
-        <a href="#funziona" class="btn ghost">Scopri di più</a>
+        <a href="#cta" class="btn">
+          <span class="lang-it">Richiedi Early Access</span>
+          <span class="lang-en">Request Early Access</span>
+        </a>
+        <a href="#funziona" class="btn ghost">
+          <span class="lang-it">Scopri di più</span>
+          <span class="lang-en">Learn more</span>
+        </a>
       </div>
       <div class="hero-card">
-        <h3>Esempio di microcorso</h3>
+        <h3>
+          <span class="lang-it">Esempio di microcorso</span>
+          <span class="lang-en">Example micro-course</span>
+        </h3>
         <ul>
-          <li>Tema: Basi di CFD per ingegneri</li>
-          <li>Durata: 25 minuti</li>
-          <li>Output: lezione + 5 quiz + badge</li>
+          <li>
+            <span class="lang-it">Tema: Basi di CFD per ingegneri</span>
+            <span class="lang-en">Topic: CFD basics for engineers</span>
+          </li>
+          <li>
+            <span class="lang-it">Durata: 25 minuti</span>
+            <span class="lang-en">Duration: 25 minutes</span>
+          </li>
+          <li>
+            <span class="lang-it">Output: lezione + 5 quiz + badge</span>
+            <span class="lang-en">Output: lesson + 5 quizzes + badge</span>
+          </li>
         </ul>
       </div>
     </section>
 
     <section id="funziona" class="container grid-3">
       <div class="card">
-        <h3>1) Profilo</h3>
-        <p>Descrivi obiettivi e competenze (o collega LinkedIn).</p>
+        <h3>
+          <span class="lang-it">1) Profilo</span>
+          <span class="lang-en">1) Profile</span>
+        </h3>
+        <p>
+          <span class="lang-it">Descrivi obiettivi e competenze (o collega LinkedIn).</span>
+          <span class="lang-en">Describe goals and skills (or connect LinkedIn).</span>
+        </p>
       </div>
       <div class="card">
-        <h3>2) Generazione</h3>
-        <p>AI crea una lezione breve con esempi pratici e quiz.</p>
+        <h3>
+          <span class="lang-it">2) Generazione</span>
+          <span class="lang-en">2) Generation</span>
+        </h3>
+        <p>
+          <span class="lang-it">AI crea una lezione breve con esempi pratici e quiz.</span>
+          <span class="lang-en">AI creates a short lesson with practical examples and quizzes.</span>
+        </p>
       </div>
       <div class="card">
-        <h3>3) Badge</h3>
-        <p>Completi il quiz e ottieni una credenziale condivisibile.</p>
+        <h3>
+          <span class="lang-it">3) Badge</span>
+          <span class="lang-en">3) Badge</span>
+        </h3>
+        <p>
+          <span class="lang-it">Completi il quiz e ottieni una credenziale condivisibile.</span>
+          <span class="lang-en">Complete the quiz and earn a shareable credential.</span>
+        </p>
       </div>
     </section>
 
     <section id="vantaggi" class="band">
       <div class="container grid-3">
         <div class="card">
-          <h4>Personalizzato</h4>
-          <p>Contenuti adattati al tuo livello e al tempo disponibile.</p>
+          <h4>
+            <span class="lang-it">Personalizzato</span>
+            <span class="lang-en">Personalized</span>
+          </h4>
+          <p>
+            <span class="lang-it">Contenuti adattati al tuo livello e al tempo disponibile.</span>
+            <span class="lang-en">Content tailored to your level and available time.</span>
+          </p>
         </div>
         <div class="card">
-          <h4>Rapido</h4>
-          <p>Moduli da 15–30 minuti. Zero sprechi di tempo.</p>
+          <h4>
+            <span class="lang-it">Rapido</span>
+            <span class="lang-en">Fast</span>
+          </h4>
+          <p>
+            <span class="lang-it">Moduli da 15–30 minuti. Zero sprechi di tempo.</span>
+            <span class="lang-en">15–30 minute modules. No time wasted.</span>
+          </p>
         </div>
         <div class="card">
-          <h4>Verificabile</h4>
-          <p>Quiz con spiegazioni e badge digitale al termine.</p>
+          <h4>
+            <span class="lang-it">Verificabile</span>
+            <span class="lang-en">Verifiable</span>
+          </h4>
+          <p>
+            <span class="lang-it">Quiz con spiegazioni e badge digitale al termine.</span>
+            <span class="lang-en">Quizzes with explanations and a digital badge at the end.</span>
+          </p>
         </div>
       </div>
     </section>
 
     <section id="pricing" class="container pricing">
-      <h2>Prezzi (MVP)</h2>
+      <h2>
+        <span class="lang-it">Prezzi (MVP)</span>
+        <span class="lang-en">Pricing (MVP)</span>
+      </h2>
       <div class="grid-3">
         <div class="card">
           <h3>Free</h3>
-          <p>1 microcorso di prova</p>
+          <p>
+            <span class="lang-it">1 microcorso di prova</span>
+            <span class="lang-en">1 trial micro-course</span>
+          </p>
           <p class="price">0 €</p>
-          <a href="#cta" class="btn small">Prova</a>
+          <a href="#cta" class="btn small">
+            <span class="lang-it">Prova</span>
+            <span class="lang-en">Try</span>
+          </a>
         </div>
         <div class="card highlight">
           <h3>Starter</h3>
-          <p>Microcorsi illimitati</p>
+          <p>
+            <span class="lang-it">Microcorsi illimitati</span>
+            <span class="lang-en">Unlimited micro-courses</span>
+          </p>
           <p class="price">19 €/mese</p>
-          <a href="#cta" class="btn small">Inizia</a>
+          <a href="#cta" class="btn small">
+            <span class="lang-it">Inizia</span>
+            <span class="lang-en">Start</span>
+          </a>
         </div>
         <div class="card">
           <h3>Team</h3>
-          <p>Per aziende (5+ utenti)</p>
-          <p class="price">Su richiesta</p>
-          <a href="#cta" class="btn small">Contattaci</a>
+          <p>
+            <span class="lang-it">Per aziende (5+ utenti)</span>
+            <span class="lang-en">For teams (5+ users)</span>
+          </p>
+          <p class="price">
+            <span class="lang-it">Su richiesta</span>
+            <span class="lang-en">On request</span>
+          </p>
+          <a href="#cta" class="btn small">
+            <span class="lang-it">Contattaci</span>
+            <span class="lang-en">Contact us</span>
+          </a>
         </div>
       </div>
     </section>
 
     <section id="cta" class="container cta">
-      <h2>Richiedi l’accesso in anteprima</h2>
-      <p>Lascia la tua email: ti invieremo l’invito quando la beta è pronta.</p>
+      <h2>
+        <span class="lang-it">Richiedi l’accesso in anteprima</span>
+        <span class="lang-en">Request early access</span>
+      </h2>
+      <p>
+        <span class="lang-it">Lascia la tua email: ti invieremo l’invito quando la beta è pronta.</span>
+        <span class="lang-en">Leave your email: we’ll invite you as soon as the beta is ready.</span>
+      </p>
       <form id="early-form">
         <input type="email" id="email" placeholder="la-tua@email.com" required />
-        <button type="submit" class="btn">Invia</button>
+        <button type="submit" class="btn">
+          <span class="lang-it">Invia</span>
+          <span class="lang-en">Send</span>
+        </button>
       </form>
-      <p class="form-note">Niente spam. Potrai annullare quando vuoi.</p>
-      <p class="tiny">Oppure scrivici: <a href="mailto:founders@eleviai.com">founders@eleviai.com</a></p>
+      <p class="form-note">
+        <span class="lang-it">Niente spam. Potrai annullare quando vuoi.</span>
+        <span class="lang-en">No spam. You can unsubscribe anytime.</span>
+      </p>
+      <p class="tiny">
+        <span class="lang-it">Oppure scrivici: </span>
+        <span class="lang-en">Or write us: </span>
+        <a href="mailto:founders@eleviai.com">founders@eleviai.com</a>
+      </p>
     </section>
   </main>
 
   <footer class="container footer">
     <span>© <span id="y"></span> EleviAI</span>
-    <a href="#home">Torna su ↑</a>
+    <a href="#home">
+      <span class="lang-it">Torna su ↑</span>
+      <span class="lang-en">Back to top ↑</span>
+    </a>
   </footer>
+
+  <!-- Script per gestione lingua -->
+  <script>
+    (function () {
+      const html = document.documentElement;
+      const saved = window.localStorage.getItem("eleviai_lang");
+      const initialLang = saved === "en" ? "en" : "it";
+      html.setAttribute("data-lang", initialLang);
+
+      const buttons = document.querySelectorAll(".lang-btn");
+      buttons.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.lang === initialLang);
+        btn.addEventListener("click", () => {
+          const lang = btn.dataset.lang;
+          html.setAttribute("data-lang", lang);
+          window.localStorage.setItem("eleviai_lang", lang);
+          buttons.forEach(b => b.classList.toggle("active", b === btn));
+        });
+      });
+    })();
+  </script>
 
   <script src="script.js"></script>
 </body>
