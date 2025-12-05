@@ -63,23 +63,56 @@ generateBtn?.addEventListener("click", async () => {
     }
 
     const now = new Date().toLocaleDateString("it-IT");
-    const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
-    const courseText = data.content;
+const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
+const courseText = data.content;
 
-    // testuale + badge grafico
-    output.innerHTML = `
-      <pre style="white-space: pre-wrap; margin-bottom: 16px;">${courseText}</pre>
-      <div class="badge-card">
-        <div class="badge-icon">✓</div>
-        <div class="badge-text">
-          <div class="badge-title">Badge EleviAI – Corso verificato</div>
-          <div class="badge-body">
-            Argomento: ${kw}<br/>
-            Verificato il: ${now}<br/>
-            ID verifica: ${badgeId}
-          </div>
-        </div>
+// Proviamo a estrarre il titolo del corso dalla prima riga non vuota
+let courseTitle = kw;
+try {
+  const lines = courseText.split("\n").map(l => l.trim()).filter(Boolean);
+  if (lines.length > 0) {
+    const first = lines[0];
+    // Se c'è i due punti, prendiamo ciò che viene dopo, altrimenti tutta la riga
+    const parts = first.split(":");
+    courseTitle = (parts.length > 1 ? parts.slice(1).join(":") : first).trim();
+  }
+} catch (e) {
+  console.warn("Impossibile estrarre il titolo, uso le keywords:", e);
+}
+
+// testo + badge + bottone LinkedIn
+output.innerHTML = `
+  <pre style="white-space: pre-wrap; margin-bottom: 16px;">${courseText}</pre>
+  <div class="badge-card">
+    <div class="badge-icon">✓</div>
+    <div class="badge-text">
+      <div class="badge-title">Badge EleviAI – Corso verificato</div>
+      <div class="badge-body">
+        Corso: ${courseTitle}<br/>
+        Verificato il: ${now}<br/>
+        ID verifica: ${badgeId}
       </div>
+      <button class="btn small badge-share" data-course-title="${courseTitle}">
+        Condividi su LinkedIn
+      </button>
+    </div>
+  </div>
+`;
+
+// collega il bottone "Condividi su LinkedIn"
+const shareBtn = document.querySelector(".badge-share");
+if (shareBtn) {
+  shareBtn.addEventListener("click", () => {
+    const title = shareBtn.dataset.courseTitle || "Microcorso EleviAI";
+    const shareUrl = window.location.origin + "/prova.html";
+    const linkedinUrl =
+      "https://www.linkedin.com/sharing/share-offsite/?url=" +
+      encodeURIComponent(shareUrl + "?course=" + encodeURIComponent(title));
+
+    window.open(linkedinUrl, "_blank", "noopener");
+  });
+}
+
     `;
   } catch (err) {
     output.innerHTML = "<p><strong>Errore di rete:</strong> controlla la connessione e riprova.</p>";
