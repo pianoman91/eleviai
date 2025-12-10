@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EleviAI – Quiz finale</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .box { background:#141823; padding:20px; border-radius:12px; }
+  </style>
+</head>
+<body>
+  <div class="container" style="padding:40px 0;">
+    <h1>Quiz finale</h1>
+    <p>Rispondi alle domande per completare il seminario.</p>
+
+    <div id="quiz" class="box" style="margin-top:16px; white-space:pre-wrap;"></div>
+
+    <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+      <a href="seminar.html" class="btn ghost">Torna al seminario</a>
+      <a href="prova.html" class="btn ghost">Torna alla prova gratuita</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const full = localStorage.getItem("eleviai_last_course");
+      const quizBox = document.getElementById("quiz");
+
+      if (!full) {
+        quizBox.textContent =
+          "Nessun quiz trovato. Genera prima un corso dalla pagina di prova gratuita.";
+        return;
+      }
+
+      function extractSection(text, marker, nextMarker) {
+        const start = text.indexOf(marker);
+        if (start === -1) return "";
+        const from = start + marker.length;
+        if (!nextMarker) {
+          return text.slice(from).trim();
+        }
+        const nextIndex = text.indexOf(nextMarker, from);
+        const end = nextIndex === -1 ? text.length : nextIndex;
+        return text.slice(from, end).trim();
+      }
+
+      const markerQuiz = "### QUIZ FINALE";
+      const quizText = extractSection(full, markerQuiz, null) ||
+        "Sezione 'QUIZ FINALE' non trovata nel contenuto.";
+
+      quizBox.textContent = quizText;
+    })();
+  </script>
+</body>
+</html>
