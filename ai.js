@@ -58,7 +58,9 @@ generateBtn?.addEventListener("click", async () => {
   const kw = textarea ? textarea.value.trim() : "";
   const langPrefRaw = courseLangInput ? courseLangInput.value.trim() : "";
   const uiLang = document.documentElement.getAttribute("data-lang") || "it";
-  const langPref = langPrefRaw || (uiLang === "en" ? "English" : "Italiano";
+
+  // Se l'utente non specifica la lingua, usiamo quella dell'interfaccia
+  const langPref = langPrefRaw || (uiLang === "en" ? "English" : "Italiano");
 
   if (!kw) {
     output.innerHTML = "<p>Inserisci almeno una parola chiave.</p>";
@@ -110,8 +112,6 @@ generateBtn?.addEventListener("click", async () => {
     const indexSection =
       extractSection(fullCourseText, markerIndex, markerSeminar) ||
       fullCourseText;
-
-    const courseTitle = extractCourseTitle(fullCourseText, kw);
 
     output.innerHTML = `
       <h2>Indice del corso</h2>
