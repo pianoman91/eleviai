@@ -1,4 +1,4 @@
-// API per generare un microcorso usando OpenRouter
+// API per generare microcorso completo (indice + seminario + quiz) usando OpenRouter
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -27,45 +27,31 @@ export default async function handler(req, res) {
 Sei EleviAI, un sistema che crea corsi tecnici per professionisti.
 
 Lingua del corso: ${courseLanguage}.
-Scrivi TUTTO il corso in questa lingua, senza traduzioni aggiuntive o cambi di lingua.
+Scrivi TUTTO il contenuto nella lingua indicata, senza cambiare lingua a metà.
 
-Genera un corso ESTESO e ben strutturato basato su queste parole chiave: ${keywords}.
+Parole chiave fornite: ${keywords}.
+
+Genera un corso completo in TRE SEZIONI, con esattamente queste intestazioni a livello di Markdown:
+
+### INDICE DEL CORSO
+[qui inserisci solo un indice strutturato: moduli, sezioni e sottosezioni, in forma di elenco puntato]
+
+### SEMINARIO DETTAGLIATO
+[qui sviluppi il contenuto vero e proprio del seminario, seguendo l'indice punto per punto, in forma discorsiva, con spiegazioni chiare ed esempi]
+
+### QUIZ FINALE
+[qui scrivi 10 domande a scelta multipla con 3 opzioni (A, B, C) e alla fine di ogni domanda indica chiaramente la risposta corretta, ad esempio:
+Domanda...
+A) ...
+B) ...
+C) ...
+Risposta corretta: B)]
 
 Requisiti:
-- Lunghezza: circa 1.500–2.000 parole
-- Target: professionista tecnico / ingegnere che conosce le basi ma vuole approfondire
-
-Usa ESATTAMENTE questa struttura (mantieni le intestazioni, tradotte nella lingua scelta):
-
-Titolo del corso:
-Durata stimata:
-Obiettivi di apprendimento:
-
-Modulo 1 – Fondamenta:
-[spiega i concetti chiave di base]
-
-Modulo 2 – Strumenti e metodi:
-[descrivi strumenti, workflow, approcci tipici]
-
-Modulo 3 – Applicazioni pratiche:
-[fornisci esempi concreti, casi d'uso reali]
-
-Modulo 4 – Approfondimenti avanzati:
-[introduci concetti più evoluti, limiti, errori comuni]
-
-Esempio pratico guidato:
-[guidare il lettore passo passo in un mini-esercizio]
-
-Mini-progetto finale:
-[proponi un piccolo progetto applicativo con obiettivi chiari]
-
-Quiz finale (10 domande a scelta multipla con risposta corretta evidenziata):
-[scrivi 10 domande, per ciascuna 3 opzioni A/B/C e indica chiaramente la risposta corretta]
-
-Badge di completamento (testo):
-[una frase breve (2–3 righe) che descrive le competenze acquisite e che può essere usata come testo per un badge/certificato]
-
-Non aggiungere testo al di fuori di questa struttura.`;
+- Target: professionista tecnico / ingegnere che vuole approfondire
+- Stile: chiaro, pratico, con esempi applicativi
+- Nessun testo al di fuori di queste tre sezioni.
+`;
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -77,7 +63,7 @@ Non aggiungere testo al di fuori di questa struttura.`;
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 1500
+        max_tokens: 2000
       })
     });
 
