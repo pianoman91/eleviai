@@ -1,4 +1,4 @@
-// API per generare microcorso completo (indice + seminario + quiz) usando OpenRouter
+// API per generare microcorso completo (indice + seminario lungo + quiz) usando OpenRouter
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -40,18 +40,31 @@ Genera un corso completo in TRE SEZIONI, con esattamente queste intestazioni a l
 [qui sviluppi il contenuto vero e proprio del seminario, seguendo l'indice punto per punto, in forma discorsiva, con spiegazioni chiare ed esempi]
 
 ### QUIZ FINALE
-[qui scrivi 10 domande a scelta multipla con 3 opzioni (A, B, C) e alla fine di ogni domanda indica chiaramente la risposta corretta, ad esempio:
-Domanda...
-A) ...
-B) ...
-C) ...
-Risposta corretta: B)]
+[qui scrivi ESATTAMENTE 6 domande a scelta multipla con 3 opzioni (A, B, C). Prima elenca tutte le 6 domande con le opzioni, SENZA indicare subito la risposta. 
+Alla fine, dopo le 6 domande, aggiungi una sottosezione intitolata "Soluzioni del quiz" e per ciascuna domanda indica chiaramente la risposta corretta, ad esempio:
+1) B
+2) A
+3) C
+...]
 
-Requisiti:
+Requisiti per il SEMINARIO DETTAGLIATO:
+- Lunghezza: pensato per una lettura di circa 60 minuti (testo lungo, con molti dettagli)
+- Struttura: suddiviso in più moduli e sottosezioni, con titoli chiari
+- Ogni sezione deve contenere descrizioni approfondite ed esempi applicativi
 - Target: professionista tecnico / ingegnere che vuole approfondire
-- Stile: chiaro, pratico, con esempi applicativi
-- Nessun testo al di fuori di queste tre sezioni.
-`;
+
+Requisiti per il QUIZ FINALE:
+- Esattamente 6 domande
+- Formato:
+  Domanda 1...
+  A) ...
+  B) ...
+  C) ...
+
+  (ripeti formato per le 6 domande)
+- Solo alla fine, in una sezione separata "Soluzioni del quiz", elenca le risposte corrette come indicato sopra.
+
+Non aggiungere testo al di fuori di queste tre sezioni principali.`;
 
   try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -63,7 +76,7 @@ Requisiti:
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 2000
+        max_tokens: 2500
       })
     });
 
