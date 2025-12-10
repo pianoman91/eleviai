@@ -12,9 +12,11 @@
 <body>
   <div class="container" style="padding:40px 0;">
     <h1>Quiz finale</h1>
-    <p>Rispondi alle domande per completare il seminario.</p>
+    <p>Rispondi alle domande, poi consulta le soluzioni in fondo alla pagina.</p>
 
     <div id="quiz" class="box" style="margin-top:16px; white-space:pre-wrap;"></div>
+
+    <div id="badge-area" style="margin-top:20px;"></div>
 
     <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
       <a href="seminar.html" class="btn ghost">Torna al seminario</a>
@@ -26,6 +28,7 @@
     (function () {
       const full = localStorage.getItem("eleviai_last_course");
       const quizBox = document.getElementById("quiz");
+      const badgeArea = document.getElementById("badge-area");
 
       if (!full) {
         quizBox.textContent =
@@ -45,11 +48,77 @@
         return text.slice(from, end).trim();
       }
 
+      // Estrazione sezione quiz
       const markerQuiz = "### QUIZ FINALE";
       const quizText = extractSection(full, markerQuiz, null) ||
         "Sezione 'QUIZ FINALE' non trovata nel contenuto.";
 
       quizBox.textContent = quizText;
+
+      // Titolo corso per il badge (fallback: keywords)
+      function extractCourseTitle(fullText, fallback) {
+        try {
+          const lines = fullText
+            .split("\n")
+            .map((l) => l.trim())
+            .filter(Boolean);
+
+          let titleLine =
+            lines.find((l) =>
+              /titolo del corso|course title|title of the course/i.test(l)
+            ) || lines[0];
+
+          if (!titleLine) return fallback || "Microcorso EleviAI";
+
+          const parts = titleLine.split(":");
+          const candidate =
+            (parts.length > 1 ? parts.slice(1).join(":") : titleLine).trim();
+          return candidate || fallback || "Microcorso EleviAI";
+        } catch (e) {
+          console.warn("Impossibile estrarre il titolo, uso fallback:", e);
+          return fallback || "Microcorso EleviAI";
+        }
+      }
+
+      const keywords = localStorage.getItem("eleviai_last_keywords") || "";
+      const courseTitle = extractCourseTitle(full, keywords);
+      const now = new Date().toLocaleDateString("it-IT");
+      const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
+
+      // Badge visibile SOLO qui, dopo il quiz
+      badgeArea.innerHTML = `
+        <div class="badge-card">
+          <div class="badge-icon">✓</div>
+          <div class="badge-text">
+            <div class="badge-title">Badge EleviAI – Corso verificato</div>
+            <div class="badge-body">
+              Corso: ${courseTitle}<br/>
+              Completato il: ${now}<br/>
+              ID verifica: ${badgeId}
+            </div>
+            <button class="btn small badge-share" data-course-title="${courseTitle}">
+              Condividi su LinkedIn
+            </button>
+          </div>
+        </div>
+      `;
+
+      const shareBtn = document.querySelector(".badge-share");
+      if (shareBtn) {
+        shareBtn.addEventListener("click", () => {
+          const title =
+            shareBtn.dataset.courseTitle || "Microcorso EleviAI";
+          const baseUrl = window.location.origin + "/prova.html";
+          const urlWithCourse =
+            baseUrl + "?course=" + encodeURIComponent(title);
+
+          const linkedinUrl =
+            "https://www.linkedin.com/sharing/share-offsite/?url=" +
+            encodeURIComponent(urlWithCourse);
+
+          window.open(linkedinUrl, "_blank", "noopener");
+        });
+      }
     })();
   </script>
 </body>
