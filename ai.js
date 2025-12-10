@@ -12,13 +12,52 @@ const firstNameInput = document.getElementById("firstName");
 const lastNameInput = document.getElementById("lastName");
 const jobTitleInput = document.getElementById("jobTitle");
 
-// === HANDLER: GENERA MICROCORSO DA KEYWORDS ===
+// ==== FUNZIONI DI SUPPORTO PER LE SEZIONI DEL CORSO ====
+
+// Estrae una sezione tra due marker, se presenti
+function extractSection(text, marker, nextMarker) {
+  const start = text.indexOf(marker);
+  if (start === -1) return "";
+  const from = start + marker.length;
+  if (!nextMarker) {
+    return text.slice(from).trim();
+  }
+  const nextIndex = text.indexOf(nextMarker, from);
+  const end = nextIndex === -1 ? text.length : nextIndex;
+  return text.slice(from, end).trim();
+}
+
+// Prova a ricavare il titolo del corso dal testo completo
+function extractCourseTitle(fullText, fallback) {
+  try {
+    const lines = fullText
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    let titleLine =
+      lines.find((l) =>
+        /titolo del corso|course title|title of the course/i.test(l)
+      ) || lines[0];
+
+    if (!titleLine) return fallback || "Microcorso EleviAI";
+
+    const parts = titleLine.split(":");
+    const candidate =
+      (parts.length > 1 ? parts.slice(1).join(":") : titleLine).trim();
+    return candidate || fallback || "Microcorso EleviAI";
+  } catch (e) {
+    console.warn("Impossibile estrarre il titolo, uso fallback:", e);
+    return fallback || "Microcorso EleviAI";
+  }
+}
+
+// ==== HANDLER: GENERA MICROCORSO (INDICE) ====
+
 generateBtn?.addEventListener("click", async () => {
   const kw = textarea ? textarea.value.trim() : "";
   const langPrefRaw = courseLangInput ? courseLangInput.value.trim() : "";
   const uiLang = document.documentElement.getAttribute("data-lang") || "it";
-
-  // Se l'utente non specifica la lingua, usiamo quella dell'interfaccia
   const langPref = langPrefRaw || (uiLang === "en" ? "English" : "Italiano");
 
   if (!kw) {
@@ -53,37 +92,36 @@ generateBtn?.addEventListener("click", async () => {
       return;
     }
 
-    const courseText = data.content;
+    const fullCourseText = data.content;
+
+    // Salviamo tutto il corso in localStorage per seminar.html e quiz.html
+    try {
+      localStorage.setItem("eleviai_last_course", fullCourseText);
+      localStorage.setItem("eleviai_last_keywords", kw);
+      localStorage.setItem("eleviai_last_language", langPref);
+    } catch (e) {
+      console.warn("Impossibile salvare in localStorage:", e);
+    }
+
+    // Estraiamo solo l'indice per la pagina di prova
+    const markerIndex = "### INDICE DEL CORSO";
+    const markerSeminar = "### SEMINARIO DETTAGLIATO";
+    const markerQuiz = "### QUIZ FINALE";
+
+    const indexSection =
+      extractSection(fullCourseText, markerIndex, markerSeminar) ||
+      fullCourseText;
+
+    // Titolo del corso per il badge
+    const courseTitle = extractCourseTitle(fullCourseText, kw);
+
     const now = new Date().toLocaleDateString("it-IT");
     const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
 
-    // Proviamo a estrarre il titolo del corso dal testo generato
-    let courseTitle = kw;
-    try {
-      const lines = courseText
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
-
-      // Cerchiamo una riga che contenga "Titolo del corso" o simili
-      let titleLine =
-        lines.find((l) =>
-          /titolo del corso|course title|title of the course/i.test(l)
-        ) || lines[0];
-
-      if (titleLine) {
-        const parts = titleLine.split(":");
-        courseTitle =
-          (parts.length > 1 ? parts.slice(1).join(":") : titleLine).trim();
-      }
-    } catch (e) {
-      console.warn("Impossibile estrarre il titolo, uso le keywords:", e);
-      courseTitle = kw;
-    }
-
-    // Testo del corso + badge + pulsante LinkedIn
+    // Mostriamo indice + badge + bottone per aprire il seminario
     output.innerHTML = `
-      <pre style="white-space: pre-wrap; margin-bottom: 16px;">${courseText}</pre>
+      <h2>Indice del corso</h2>
+      <pre style="white-space: pre-wrap; margin-bottom: 16px;">${indexSection}</pre>
       <div class="badge-card">
         <div class="badge-icon">✓</div>
         <div class="badge-text">
@@ -93,21 +131,35 @@ generateBtn?.addEventListener("click", async () => {
             Verificato il: ${now}<br/>
             ID verifica: ${badgeId}
           </div>
-          <button class="btn small badge-share" data-course-title="${courseTitle}">
-            Condividi su LinkedIn
-          </button>
+          <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn small" id="open-seminar">
+              Apri seminario completo
+            </button>
+            <button class="btn small ghost badge-share" data-course-title="${courseTitle}">
+              Condividi su LinkedIn
+            </button>
+          </div>
         </div>
       </div>
     `;
 
-    // Collega il pulsante "Condividi su LinkedIn"
+    // Bottone per aprire il seminario completo
+    const openSeminarBtn = document.getElementById("open-seminar");
+    if (openSeminarBtn) {
+      openSeminarBtn.addEventListener("click", () => {
+        window.location.href = "seminar.html";
+      });
+    }
+
+    // Bottone "Condividi su LinkedIn"
     const shareBtn = document.querySelector(".badge-share");
     if (shareBtn) {
       shareBtn.addEventListener("click", () => {
         const title =
           shareBtn.dataset.courseTitle || "Microcorso EleviAI";
         const baseUrl = window.location.origin + "/prova.html";
-        const urlWithCourse = baseUrl + "?course=" + encodeURIComponent(title);
+        const urlWithCourse =
+          baseUrl + "?course=" + encodeURIComponent(title);
 
         const linkedinUrl =
           "https://www.linkedin.com/sharing/share-offsite/?url=" +
@@ -123,14 +175,14 @@ generateBtn?.addEventListener("click", async () => {
   }
 });
 
-// === HANDLER: SUGGERISCI 3 CORSI PER LA CARRIERA ===
+// ==== HANDLER: SUGGERISCI 3 CORSI PER LA CARRIERA ====
+
 suggestBtn?.addEventListener("click", async () => {
   const linkedin = linkedinInput ? linkedinInput.value.trim() : "";
   const firstName = firstNameInput ? firstNameInput.value.trim() : "";
   const lastName = lastNameInput ? lastNameInput.value.trim() : "";
   const jobTitle = jobTitleInput ? jobTitleInput.value.trim() : "";
 
-  // Deve esserci O il link LinkedIn, O Nome+Cognome+Job Title
   if (!linkedin && !(firstName && lastName && jobTitle)) {
     suggestionsBox.innerHTML =
       "<p>Inserisci il link LinkedIn <strong>oppure</strong> Nome, Cognome e Job title.</p>";
