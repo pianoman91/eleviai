@@ -12,7 +12,7 @@ const firstNameInput = document.getElementById("firstName");
 const lastNameInput = document.getElementById("lastName");
 const jobTitleInput = document.getElementById("jobTitle");
 
-// ==== FUNZIONI DI SUPPORTO PER LE SEZIONI DEL CORSO ====
+// ===== FUNZIONI DI SUPPORTO =====
 
 // Estrae una sezione tra due marker, se presenti
 function extractSection(text, marker, nextMarker) {
@@ -52,13 +52,13 @@ function extractCourseTitle(fullText, fallback) {
   }
 }
 
-// ==== HANDLER: GENERA MICROCORSO (INDICE) ====
+// ===== HANDLER: GENERA MICROCORSO (MOSTRA SOLO INDICE) =====
 
 generateBtn?.addEventListener("click", async () => {
   const kw = textarea ? textarea.value.trim() : "";
   const langPrefRaw = courseLangInput ? courseLangInput.value.trim() : "";
   const uiLang = document.documentElement.getAttribute("data-lang") || "it";
-  const langPref = langPrefRaw || (uiLang === "en" ? "English" : "Italiano");
+  const langPref = langPrefRaw || (uiLang === "en" ? "English" : "Italiano";
 
   if (!kw) {
     output.innerHTML = "<p>Inserisci almeno una parola chiave.</p>";
@@ -106,44 +106,21 @@ generateBtn?.addEventListener("click", async () => {
     // Estraiamo solo l'indice per la pagina di prova
     const markerIndex = "### INDICE DEL CORSO";
     const markerSeminar = "### SEMINARIO DETTAGLIATO";
-    const markerQuiz = "### QUIZ FINALE";
 
     const indexSection =
       extractSection(fullCourseText, markerIndex, markerSeminar) ||
       fullCourseText;
 
-    // Titolo del corso per il badge
     const courseTitle = extractCourseTitle(fullCourseText, kw);
 
-    const now = new Date().toLocaleDateString("it-IT");
-    const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
-
-    // Mostriamo indice + badge + bottone per aprire il seminario
     output.innerHTML = `
       <h2>Indice del corso</h2>
       <pre style="white-space: pre-wrap; margin-bottom: 16px;">${indexSection}</pre>
-      <div class="badge-card">
-        <div class="badge-icon">✓</div>
-        <div class="badge-text">
-          <div class="badge-title">Badge EleviAI – Corso verificato</div>
-          <div class="badge-body">
-            Corso: ${courseTitle}<br/>
-            Verificato il: ${now}<br/>
-            ID verifica: ${badgeId}
-          </div>
-          <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn small" id="open-seminar">
-              Apri seminario completo
-            </button>
-            <button class="btn small ghost badge-share" data-course-title="${courseTitle}">
-              Condividi su LinkedIn
-            </button>
-          </div>
-        </div>
-      </div>
+      <button class="btn small" id="open-seminar">
+        Apri seminario completo
+      </button>
     `;
 
-    // Bottone per aprire il seminario completo
     const openSeminarBtn = document.getElementById("open-seminar");
     if (openSeminarBtn) {
       openSeminarBtn.addEventListener("click", () => {
@@ -151,23 +128,6 @@ generateBtn?.addEventListener("click", async () => {
       });
     }
 
-    // Bottone "Condividi su LinkedIn"
-    const shareBtn = document.querySelector(".badge-share");
-    if (shareBtn) {
-      shareBtn.addEventListener("click", () => {
-        const title =
-          shareBtn.dataset.courseTitle || "Microcorso EleviAI";
-        const baseUrl = window.location.origin + "/prova.html";
-        const urlWithCourse =
-          baseUrl + "?course=" + encodeURIComponent(title);
-
-        const linkedinUrl =
-          "https://www.linkedin.com/sharing/share-offsite/?url=" +
-          encodeURIComponent(urlWithCourse);
-
-        window.open(linkedinUrl, "_blank", "noopener");
-      });
-    }
   } catch (err) {
     output.innerHTML =
       "<p><strong>Errore di rete:</strong> controlla la connessione e riprova.</p>";
@@ -175,7 +135,7 @@ generateBtn?.addEventListener("click", async () => {
   }
 });
 
-// ==== HANDLER: SUGGERISCI 3 CORSI PER LA CARRIERA ====
+// ===== HANDLER: SUGGERISCI 3 CORSI PER LA CARRIERA =====
 
 suggestBtn?.addEventListener("click", async () => {
   const linkedin = linkedinInput ? linkedinInput.value.trim() : "";
