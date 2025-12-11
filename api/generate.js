@@ -1,4 +1,4 @@
-// API per generare microcorso completo (indice + seminario lungo + quiz) usando OpenRouter
+// API per generare corso completo (indice + seminario lungo + quiz) usando OpenRouter
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -24,27 +24,28 @@ export default async function handler(req, res) {
     "Italiano";
 
   const prompt = `
-Sei EleviAI, un sistema che crea corsi tecnici per professionisti.
+Sei EleviAI, un sistema che crea corsi per professionisti.
 
 Lingua del corso: ${courseLanguage}.
 Scrivi TUTTO il contenuto nella lingua indicata, senza cambiare lingua a metà.
 
 Parole chiave fornite: ${keywords}.
 
-Genera un corso completo in TRE SEZIONI, con esattamente queste intestazioni a livello di Markdown:
+Genera un corso completo con esattamente queste intestazioni a livello di Markdown:
 
 ### INDICE DEL CORSO
-[qui inserisci solo un indice strutturato: moduli, sezioni e sottosezioni, in forma di elenco puntato]
+[qui inserisci solo un indice strutturato: moduli, sezioni e sottosezioni, in forma di elenco puntato, puoi creare qualsiasi numero di capitoli]
 
 ### SEMINARIO DETTAGLIATO
-[qui sviluppi il contenuto vero e proprio del seminario, seguendo l'indice punto per punto, in forma discorsiva, con spiegazioni chiare ed esempi]
+[qui sviluppi il contenuto vero e proprio del seminario, seguendo l'indice punto per punto, in forma discorsiva, con spiegazioni chiare ed esempi, tempo di lettura 1 ora]
 
 ### QUIZ FINALE
-[qui scrivi ESATTAMENTE 6 domande a scelta multipla con 3 opzioni (A, B, C). Prima elenca tutte le 6 domande con le opzioni, SENZA indicare subito la risposta. 
+[qui scrivi ESATTAMENTE 6 domande a scelta multipla con 4 opzioni (A, B, C, D). Prima elenca tutte le 6 domande con le opzioni, SENZA indicare subito la risposta. 
 Alla fine, dopo le 6 domande, aggiungi una sottosezione intitolata "Soluzioni del quiz" e per ciascuna domanda indica chiaramente la risposta corretta, ad esempio:
 1) B
 2) A
 3) C
+4) D
 ...]
 
 Requisiti per il SEMINARIO DETTAGLIATO:
@@ -60,6 +61,7 @@ Requisiti per il QUIZ FINALE:
   A) ...
   B) ...
   C) ...
+  D) ...
 
   (ripeti formato per le 6 domande)
 - Solo alla fine, in una sezione separata "Soluzioni del quiz", elenca le risposte corrette come indicato sopra.
@@ -76,7 +78,7 @@ Non aggiungere testo al di fuori di queste tre sezioni principali.`;
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 5000
+        max_tokens: 10000
       })
     });
 
