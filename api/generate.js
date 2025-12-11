@@ -34,10 +34,10 @@ Parole chiave fornite: ${keywords}.
 Genera un corso completo con esattamente queste intestazioni a livello di Markdown:
 
 ### INDICE DEL CORSO
-[qui inserisci solo un indice strutturato: moduli, sezioni e sottosezioni, in forma di elenco puntato, puoi creare qualsiasi numero di capitoli]
+[qui inserisci solo un indice strutturato: 5 capitoli e tre sottosezioni per ogni capitolo, in forma di elenco puntato]
 
 ### SEMINARIO DETTAGLIATO
-[qui sviluppi il contenuto vero e proprio del seminario, seguendo l'indice punto per punto, in forma discorsiva, con spiegazioni chiare ed esempi, tempo di lettura 1 ora]
+[qui sviluppi il contenuto vero e proprio del seminario, seguendo l'indice punto per punto, in forma discorsiva, con spiegazioni chiare ed esempi, tempo di lettura 1 ora, minimo 10000 parole]
 
 ### QUIZ FINALE
 [qui scrivi ESATTAMENTE 6 domande a scelta multipla con 4 opzioni (A, B, C, D). Prima elenca tutte le 6 domande con le opzioni, SENZA indicare subito la risposta. 
