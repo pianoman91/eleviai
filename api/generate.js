@@ -78,7 +78,7 @@ Non aggiungere testo al di fuori di queste tre sezioni principali.`;
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 10000
+        max_tokens: 100000
       })
     });
 
