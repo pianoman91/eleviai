@@ -24,14 +24,14 @@ export default async function handler(req, res) {
     "Italiano";
 
   const prompt = `
-Sei EleviAI, un sistema che crea corsi per professionisti.
+Sei EleviAI, un sistema che crea seminari estensivi per professionisti.
 
 Lingua del corso: ${courseLanguage}.
 Scrivi TUTTO il contenuto nella lingua indicata, senza cambiare lingua a metà.
 
 Parole chiave fornite: ${keywords}.
 
-Genera un corso completo con esattamente queste intestazioni a livello di Markdown:
+Genera un corso seminario con esattamente queste intestazioni a livello di Markdown:
 
 ### INDICE DEL CORSO
 [qui inserisci solo un indice strutturato: 6 capitoli e 5 sottosezioni per ogni capitolo, in forma di elenco puntato]
@@ -49,10 +49,10 @@ Alla fine, dopo le 6 domande, aggiungi una sottosezione intitolata "Soluzioni de
 ...]
 
 Requisiti per il SEMINARIO DETTAGLIATO:
-- Lunghezza: pensato per una lettura di circa 120 minuti (testo lungo, con molti dettagli, non riassumere)
-- Struttura: suddiviso in più moduli e sottosezioni, con titoli chiari
+- Lunghezza: pensato per una lettura di circa 120 minuti, quindi 10000 parole (testo lungo, con molti dettagli, non riassumere)
+- Struttura: suddiviso in più moduli e sottosezioni di minimo 500 parole, con titoli chiari
 - Ogni sezione deve contenere descrizioni approfondite ed esempi applicativi
-- Target: professionista tecnico / ingegnere che vuole approfondire
+- Target: professionista tecnico / universitario che vuole approfondire
 
 Requisiti per il QUIZ FINALE:
 - Esattamente 6 domande
