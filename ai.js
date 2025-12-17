@@ -12,54 +12,13 @@ const firstNameInput = document.getElementById("firstName");
 const lastNameInput = document.getElementById("lastName");
 const jobTitleInput = document.getElementById("jobTitle");
 
-// ===== FUNZIONI DI SUPPORTO =====
-
-// Estrae una sezione tra due marker, se presenti
-function extractSection(text, marker, nextMarker) {
-  const start = text.indexOf(marker);
-  if (start === -1) return "";
-  const from = start + marker.length;
-  if (!nextMarker) {
-    return text.slice(from).trim();
-  }
-  const nextIndex = text.indexOf(nextMarker, from);
-  const end = nextIndex === -1 ? text.length : nextIndex;
-  return text.slice(from, end).trim();
-}
-
-// Prova a ricavare il titolo del corso dal testo completo
-function extractCourseTitle(fullText, fallback) {
-  try {
-    const lines = fullText
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean);
-
-    let titleLine =
-      lines.find((l) =>
-        /titolo del corso|course title|title of the course/i.test(l)
-      ) || lines[0];
-
-    if (!titleLine) return fallback || "Microcorso EleviAI";
-
-    const parts = titleLine.split(":");
-    const candidate =
-      (parts.length > 1 ? parts.slice(1).join(":") : titleLine).trim();
-    return candidate || fallback || "Microcorso EleviAI";
-  } catch (e) {
-    console.warn("Impossibile estrarre il titolo, uso fallback:", e);
-    return fallback || "Microcorso EleviAI";
-  }
-}
-
-// ===== HANDLER: GENERA MICROCORSO (MOSTRA SOLO INDICE) =====
+// ===== HANDLER: GENERA SOLO L'INDICE =====
 
 generateBtn?.addEventListener("click", async () => {
   const kw = textarea ? textarea.value.trim() : "";
   const langPrefRaw = courseLangInput ? courseLangInput.value.trim() : "";
   const uiLang = document.documentElement.getAttribute("data-lang") || "it";
 
-  // Se l'utente non specifica la lingua, usiamo quella dell'interfaccia
   const langPref = langPrefRaw || (uiLang === "en" ? "English" : "Italiano");
 
   if (!kw) {
@@ -67,10 +26,10 @@ generateBtn?.addEventListener("click", async () => {
     return;
   }
 
-  output.innerHTML = "<p>Generazione del microcorso in corso... ⏳</p>";
+  output.innerHTML = "<p>Generazione dell'indice del corso in corso... ⏳</p>";
 
   try {
-    const response = await fetch(`/api/generate`, {
+    const response = await fetch(`/api/generateOutline`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -84,54 +43,46 @@ generateBtn?.addEventListener("click", async () => {
     if (!response.ok) {
       const msg = data?.error || `Errore HTTP ${response.status}`;
       output.innerHTML = `<p><strong>Errore server:</strong> ${msg}</p>`;
-      console.error("Generate API error:", data);
+      console.error("GenerateOutline API error:", data);
       return;
     }
 
-    if (!data.content) {
-      output.innerHTML = "<p>Nessun contenuto restituito dall'AI.</p>";
-      console.error("No content:", data);
+    if (!data.outline) {
+      output.innerHTML = "<p>Nessun indice restituito dall'AI.</p>";
+      console.error("No outline:", data);
       return;
     }
 
-    const fullCourseText = data.content;
+    const outlineText = data.outline;
 
-    // Salviamo tutto il corso in localStorage per seminar.html e quiz.html
+    // Salvataggio in localStorage per le altre pagine
     try {
-      localStorage.setItem("eleviai_last_course", fullCourseText);
-      localStorage.setItem("eleviai_last_keywords", kw);
-      localStorage.setItem("eleviai_last_language", langPref);
+      localStorage.setItem("eleviai_outline", outlineText);
+      localStorage.setItem("eleviai_keywords", kw);
+      localStorage.setItem("eleviai_language", langPref);
+      localStorage.setItem("eleviai_current_chapter", "1");
     } catch (e) {
       console.warn("Impossibile salvare in localStorage:", e);
     }
 
-    // Estraiamo solo l'indice per la pagina di prova
-    const markerIndex = "### INDICE DEL CORSO";
-    const markerSeminar = "### SEMINARIO DETTAGLIATO";
-
-    const indexSection =
-      extractSection(fullCourseText, markerIndex, markerSeminar) ||
-      fullCourseText;
-
     output.innerHTML = `
       <h2>Indice del corso</h2>
-      <pre style="white-space: pre-wrap; margin-bottom: 16px;">${indexSection}</pre>
-      <button class="btn small" id="open-seminar">
-        Apri seminario completo
+      <pre style="white-space: pre-wrap; margin-bottom: 16px;">${outlineText}</pre>
+      <button class="btn small" id="start-course">
+        Inizia dal capitolo 1
       </button>
     `;
 
-    const openSeminarBtn = document.getElementById("open-seminar");
-    if (openSeminarBtn) {
-      openSeminarBtn.addEventListener("click", () => {
-        window.location.href = "seminar.html";
+    const startBtn = document.getElementById("start-course");
+    if (startBtn) {
+      startBtn.addEventListener("click", () => {
+        window.location.href = "chapter.html";
       });
     }
-
   } catch (err) {
     output.innerHTML =
       "<p><strong>Errore di rete:</strong> controlla la connessione e riprova.</p>";
-    console.error("Network error (generate):", err);
+    console.error("Network error (generateOutline):", err);
   }
 });
 
