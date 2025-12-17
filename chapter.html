@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EleviAI – Capitolo del corso</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .box { background:#141823; padding:20px; border-radius:12px; }
+  </style>
+</head>
+<body>
+  <div class="container" style="padding:40px 0;">
+    <h1 id="chapter-title">Capitolo</h1>
+    <p id="chapter-info"></p>
+
+    <div id="chapter-content" class="box" style="margin-top:16px; white-space:pre-wrap;"></div>
+
+    <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn ghost" id="prev-chapter" style="display:none;">Capitolo precedente</button>
+      <button class="btn" id="next-chapter" style="display:none;">Passa al capitolo successivo</button>
+      <button class="btn" id="go-quiz" style="display:none;">Vai al quiz</button>
+      <a href="prova.html" class="btn ghost">Torna alla prova gratuita</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const outline = localStorage.getItem("eleviai_outline");
+      const keywords = localStorage.getItem("eleviai_keywords");
+      const language = localStorage.getItem("eleviai_language") || "Italiano";
+      let currentChapter = parseInt(localStorage.getItem("eleviai_current_chapter") || "1", 10);
+
+      const titleEl = document.getElementById("chapter-title");
+      const infoEl = document.getElementById("chapter-info");
+      const contentEl = document.getElementById("chapter-content");
+      const prevBtn = document.getElementById("prev-chapter");
+      const nextBtn = document.getElementById("next-chapter");
+      const quizBtn = document.getElementById("go-quiz");
+
+      if (!outline || !keywords) {
+        contentEl.textContent =
+          "Nessun corso trovato. Genera prima un indice dalla pagina di prova gratuita.";
+        return;
+      }
+
+      // Trova quante righe di capitolo ci sono nell'indice
+      const lines = outline.split("\n");
+      const chapterLines = lines.filter((l) => /^\s*\d+[\.\)]/.test(l));
+      const totalChapters = chapterLines.length || 1;
+
+      if (currentChapter < 1) currentChapter = 1;
+      if (currentChapter > totalChapters) currentChapter = totalChapters;
+
+      localStorage.setItem("eleviai_current_chapter", String(currentChapter));
+
+      const currentLine = chapterLines[currentChapter - 1] || `Capitolo ${currentChapter}`;
+      titleEl.textContent = `Capitolo ${currentChapter}`;
+      infoEl.textContent = `Titolo: ${currentLine.trim()} — (${currentChapter}/${totalChapters})`;
+
+      // Mostra o nasconde i bottoni in base al capitolo
+      if (currentChapter > 1) {
+        prevBtn.style.display = "inline-block";
+      }
+      if (currentChapter < totalChapters) {
+        nextBtn.style.display = "inline-block";
+      } else {
+        quizBtn.style.display = "inline-block";
+      }
+
+      contentEl.textContent = "Generazione del capitolo in corso... ⏳";
+
+      // Chiamata API per generare il capitolo
+      fetch("/api/generateChapter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          keywords,
+          language,
+          outline,
+          chapterNumber: currentChapter
+        })
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (!data || !data.chapterContent) {
+            contentEl.textContent =
+              "Errore: nessun contenuto del capitolo ricevuto dall'AI.";
+            console.error("generateChapter error:", data);
+            return;
+          }
+          contentEl.textContent = data.chapterContent;
+        })
+        .catch((err) => {
+          contentEl.textContent =
+            "Errore di rete durante la generazione del capitolo.";
+          console.error("Network error (chapter):", err);
+        });
+
+      // Navigazione capitoli
+      prevBtn.addEventListener("click", () => {
+        if (currentChapter > 1) {
+          localStorage.setItem("eleviai_current_chapter", String(currentChapter - 1));
+          window.location.reload();
+        }
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (currentChapter < totalChapters) {
+          localStorage.setItem("eleviai_current_chapter", String(currentChapter + 1));
+          window.location.reload();
+        }
+      });
+
+      quizBtn.addEventListener("click", () => {
+        window.location.href = "quiz.html";
+      });
+    })();
+  </script>
+</body>
+</html>
