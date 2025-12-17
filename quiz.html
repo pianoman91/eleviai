@@ -19,106 +19,95 @@
     <div id="badge-area" style="margin-top:20px;"></div>
 
     <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-      <a href="seminar.html" class="btn ghost">Torna al seminario</a>
+      <a href="chapter.html" class="btn ghost">Torna ai capitoli</a>
       <a href="prova.html" class="btn ghost">Torna alla prova gratuita</a>
     </div>
   </div>
 
   <script>
     (function () {
-      const full = localStorage.getItem("eleviai_last_course");
+      const outline = localStorage.getItem("eleviai_outline");
+      const keywords = localStorage.getItem("eleviai_keywords");
+      const language = localStorage.getItem("eleviai_language") || "Italiano";
+
       const quizBox = document.getElementById("quiz");
       const badgeArea = document.getElementById("badge-area");
 
-      if (!full) {
+      if (!outline || !keywords) {
         quizBox.textContent =
-          "Nessun quiz trovato. Genera prima un corso dalla pagina di prova gratuita.";
+          "Nessun quiz disponibile. Genera prima un corso dalla pagina di prova gratuita.";
         return;
       }
 
-      function extractSection(text, marker, nextMarker) {
-        const start = text.indexOf(marker);
-        if (start === -1) return "";
-        const from = start + marker.length;
-        if (!nextMarker) {
-          return text.slice(from).trim();
-        }
-        const nextIndex = text.indexOf(nextMarker, from);
-        const end = nextIndex === -1 ? text.length : nextIndex;
-        return text.slice(from, end).trim();
-      }
+      quizBox.textContent = "Generazione del quiz finale in corso... ⏳";
 
-      // Estrazione sezione quiz
-      const markerQuiz = "### QUIZ FINALE";
-      const quizText = extractSection(full, markerQuiz, null) ||
-        "Sezione 'QUIZ FINALE' non trovata nel contenuto.";
+      fetch("/api/generateQuiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          outline,
+          keywords,
+          language
+        })
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (!data || !data.quiz) {
+            quizBox.textContent =
+              "Errore: nessun quiz ricevuto dall'AI.";
+            console.error("generateQuiz error:", data);
+            return;
+          }
+          quizBox.textContent = data.quiz;
 
-      quizBox.textContent = quizText;
+          // Badge finale
+          const now = new Date().toLocaleDateString("it-IT");
+          const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
 
-      // Titolo corso per il badge (fallback: keywords)
-      function extractCourseTitle(fullText, fallback) {
-        try {
-          const lines = fullText
-            .split("\n")
-            .map((l) => l.trim())
-            .filter(Boolean);
+          // Titolo corso (grezzo: prima riga dell'outline)
+          const firstLine =
+            (outline.split("\n").map((l) => l.trim()).filter(Boolean)[0]) ||
+            "Microcorso EleviAI";
 
-          let titleLine =
-            lines.find((l) =>
-              /titolo del corso|course title|title of the course/i.test(l)
-            ) || lines[0];
-
-          if (!titleLine) return fallback || "Microcorso EleviAI";
-
-          const parts = titleLine.split(":");
-          const candidate =
-            (parts.length > 1 ? parts.slice(1).join(":") : titleLine).trim();
-          return candidate || fallback || "Microcorso EleviAI";
-        } catch (e) {
-          console.warn("Impossibile estrarre il titolo, uso fallback:", e);
-          return fallback || "Microcorso EleviAI";
-        }
-      }
-
-      const keywords = localStorage.getItem("eleviai_last_keywords") || "";
-      const courseTitle = extractCourseTitle(full, keywords);
-      const now = new Date().toLocaleDateString("it-IT");
-      const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
-
-      // Badge visibile SOLO qui, dopo il quiz
-      badgeArea.innerHTML = `
-        <div class="badge-card">
-          <div class="badge-icon">✓</div>
-          <div class="badge-text">
-            <div class="badge-title">Badge EleviAI – Corso verificato</div>
-            <div class="badge-body">
-              Corso: ${courseTitle}<br/>
-              Completato il: ${now}<br/>
-              ID verifica: ${badgeId}
+          badgeArea.innerHTML = `
+            <div class="badge-card">
+              <div class="badge-icon">✓</div>
+              <div class="badge-text">
+                <div class="badge-title">Badge EleviAI – Corso verificato</div>
+                <div class="badge-body">
+                  Corso: ${firstLine}<br/>
+                  Completato il: ${now}<br/>
+                  ID verifica: ${badgeId}
+                </div>
+                <button class="btn small badge-share" data-course-title="${firstLine}">
+                  Condividi su LinkedIn
+                </button>
+              </div>
             </div>
-            <button class="btn small badge-share" data-course-title="${courseTitle}">
-              Condividi su LinkedIn
-            </button>
-          </div>
-        </div>
-      `;
+          `;
 
-      const shareBtn = document.querySelector(".badge-share");
-      if (shareBtn) {
-        shareBtn.addEventListener("click", () => {
-          const title =
-            shareBtn.dataset.courseTitle || "Microcorso EleviAI";
-          const baseUrl = window.location.origin + "/prova.html";
-          const urlWithCourse =
-            baseUrl + "?course=" + encodeURIComponent(title);
+          const shareBtn = document.querySelector(".badge-share");
+          if (shareBtn) {
+            shareBtn.addEventListener("click", () => {
+              const title =
+                shareBtn.dataset.courseTitle || "Microcorso EleviAI";
+              const baseUrl = window.location.origin + "/prova.html";
+              const urlWithCourse =
+                baseUrl + "?course=" + encodeURIComponent(title);
 
-          const linkedinUrl =
-            "https://www.linkedin.com/sharing/share-offsite/?url=" +
-            encodeURIComponent(urlWithCourse);
+              const linkedinUrl =
+                "https://www.linkedin.com/sharing/share-offsite/?url=" +
+                encodeURIComponent(urlWithCourse);
 
-          window.open(linkedinUrl, "_blank", "noopener");
+              window.open(linkedinUrl, "_blank", "noopener");
+            });
+          }
+        })
+        .catch((err) => {
+          quizBox.textContent =
+            "Errore di rete durante la generazione del quiz.";
+          console.error("Network error (quiz):", err);
         });
-      }
     })();
   </script>
 </body>
