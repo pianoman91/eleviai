@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     "Italiano";
 
   const prompt = `
-Sei EleviAI, un sistema che crea corsi tecnici per professionisti.
+Sei EleviAI, un sistema che crea seminari tematici per professionisti.
 
 Lingua del corso: ${courseLanguage}.
 Parole chiave: ${keywords}.
@@ -35,6 +35,20 @@ ${outline}
 
 Devi GENERARE SOLO il contenuto del capitolo numero ${chapterNumber}.
 Assumi che il capitolo ${chapterNumber} corrisponda a una delle righe numerate dell'indice.
+
+REGOLE DI FORMATO (OBBLIGATORIE):
+- NON usare Markdown.
+- NON usare simboli come #, ##, *, -, • o elenchi puntati.
+- Scrivi solo testo normale.
+
+STRUTTURA DEL TESTO:
+- Inizia con il titolo del capitolo in MAIUSCOLO, su una riga separata.
+  Esempio:
+  CAPITOLO ${chapterNumber} – Titolo del capitolo
+
+- I sottotitoli devono essere scritti in GRASSETTO (solo il testo, non usare simboli).
+  Esempio:
+  Obiettivi del capitolo
 
 Requisiti per il capitolo:
 - Scrivi il contenuto solo di questo capitolo (nessun altro).
@@ -48,8 +62,8 @@ Requisiti per il capitolo:
   - suggerisci best practice.
 
 Lunghezza:
-- Pensato per almeno 10–15 minuti di lettura,
-- quindi testo esteso, non riassuntivo.
+- Pensato per almeno 10–15 minuti di lettura, almeno 800 parole.
+- quindi testo esteso e discorsivo, non riassuntivo o schematico.
 
 Non aggiungere nessun altro capitolo, nessun riepilogo dell'intero corso, nessun quiz.
 Solo il testo del capitolo ${chapterNumber}.
