@@ -7,7 +7,20 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     .box { background:#141823; padding:20px; border-radius:12px; }
+    .chapter-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.chapter-subtitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
   </style>
+  
 </head>
 <body>
   <div class="container" style="padding:40px 0;">
@@ -89,7 +102,32 @@
             console.error("generateChapter error:", data);
             return;
           }
-          contentEl.textContent = data.chapterContent;
+          function renderChapter(text) {
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  let html = "";
+
+  lines.forEach((line, index) => {
+    // Prima riga = titolo capitolo
+    if (index === 0 && line.toUpperCase().startsWith("CAPITOLO")) {
+      html += `<div class="chapter-title">${line}</div>`;
+      return;
+    }
+
+    // Sottotitoli (frasi brevi senza punto finale)
+    if (line.length < 60 && !line.endsWith(".")) {
+      html += `<div class="chapter-subtitle">${line}</div>`;
+      return;
+    }
+
+    // Paragrafi normali
+    html += `<p>${line}</p>`;
+  });
+
+  return html;
+}
+
+contentEl.innerHTML = renderChapter(data.chapterContent);
+
         })
         .catch((err) => {
           contentEl.textContent =
