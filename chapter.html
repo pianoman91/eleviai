@@ -3,33 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EleviAI – Capitolo del corso</title>
+  <title>EleviAI – Capitolo</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
     .box { background:#141823; padding:20px; border-radius:12px; }
-    .chapter-title {
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 16px;
-}
+    .toolbar {
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin: 14px 0 6px;
+      padding: 10px;
+      border: 1px solid #2a3145;
+      border-radius: 12px;
+      background: #0c1020;
+    }
+    .toolbar label { font-size: 12px; opacity: 0.9; }
+    .toolbar select, .toolbar input[type="range"] {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #2a3145;
+      background:#0c1020;
+      color:white;
+    }
+    .chapter-title { font-size: 26px; font-weight: 800; margin-bottom: 14px; }
+    .chapter-subtitle { font-size: 18px; font-weight: 700; margin-top: 18px; margin-bottom: 8px; }
+    .muted { opacity: 0.85; }
 
-.chapter-subtitle {
-  font-size: 18px;
-  font-weight: 600;
-  margin-top: 20px;
-  margin-bottom: 8px;
-}
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .box { background: white !important; border: none !important; padding: 0 !important; }
+      a { color: black !important; text-decoration: none !important; }
+    }
   </style>
-  
 </head>
 <body>
   <div class="container" style="padding:40px 0;">
-    <h1 id="chapter-title">Capitolo</h1>
-    <p id="chapter-info"></p>
+    <h1 id="page-title">Capitolo</h1>
+    <p id="chapter-info" class="muted"></p>
 
-    <div id="chapter-content" class="box" style="margin-top:16px; white-space:pre-wrap;"></div>
+    <!-- TOOLBAR TTS + PDF -->
+    <div class="toolbar no-print">
+      <button class="btn small" id="tts-play">Ascolta</button>
+      <button class="btn small ghost" id="tts-pause">Pausa</button>
+      <button class="btn small ghost" id="tts-stop">Stop</button>
 
-    <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+      <label>
+        Velocità
+        <input id="tts-rate" type="range" min="0.7" max="1.3" step="0.05" value="1" />
+        <span id="tts-rate-label">1.00x</span>
+      </label>
+
+      <label>
+        Voce
+        <select id="tts-voice"></select>
+      </label>
+
+      <button class="btn small" id="pdf">Scarica PDF</button>
+    </div>
+
+    <div id="chapter-content" class="box" style="margin-top:16px;"></div>
+
+    <div class="no-print" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
       <button class="btn ghost" id="prev-chapter" style="display:none;">Capitolo precedente</button>
       <button class="btn" id="next-chapter" style="display:none;">Passa al capitolo successivo</button>
       <button class="btn" id="go-quiz" style="display:none;">Vai al quiz</button>
@@ -44,46 +77,89 @@
       const language = localStorage.getItem("eleviai_language") || "Italiano";
       let currentChapter = parseInt(localStorage.getItem("eleviai_current_chapter") || "1", 10);
 
-      const titleEl = document.getElementById("chapter-title");
+      const pageTitleEl = document.getElementById("page-title");
       const infoEl = document.getElementById("chapter-info");
       const contentEl = document.getElementById("chapter-content");
+
       const prevBtn = document.getElementById("prev-chapter");
       const nextBtn = document.getElementById("next-chapter");
       const quizBtn = document.getElementById("go-quiz");
 
+      // TTS controls
+      const btnPlay = document.getElementById("tts-play");
+      const btnPause = document.getElementById("tts-pause");
+      const btnStop = document.getElementById("tts-stop");
+      const rateEl = document.getElementById("tts-rate");
+      const rateLabel = document.getElementById("tts-rate-label");
+      const voiceSelect = document.getElementById("tts-voice");
+
+      // PDF
+      const pdfBtn = document.getElementById("pdf");
+
       if (!outline || !keywords) {
         contentEl.textContent =
           "Nessun corso trovato. Genera prima un indice dalla pagina di prova gratuita.";
+        disableTTS();
         return;
       }
 
-      // Trova quante righe di capitolo ci sono nell'indice
+      // Capitoli dall'indice
       const lines = outline.split("\n");
       const chapterLines = lines.filter((l) => /^\s*\d+[\.\)]/.test(l));
       const totalChapters = chapterLines.length || 1;
 
       if (currentChapter < 1) currentChapter = 1;
       if (currentChapter > totalChapters) currentChapter = totalChapters;
-
       localStorage.setItem("eleviai_current_chapter", String(currentChapter));
 
-      const currentLine = chapterLines[currentChapter - 1] || `Capitolo ${currentChapter}`;
-      titleEl.textContent = `Capitolo ${currentChapter}`;
-      infoEl.textContent = `Titolo: ${currentLine.trim()} — (${currentChapter}/${totalChapters})`;
+      const currentLine = (chapterLines[currentChapter - 1] || `Capitolo ${currentChapter}`).trim();
 
-      // Mostra o nasconde i bottoni in base al capitolo
-      if (currentChapter > 1) {
-        prevBtn.style.display = "inline-block";
+      pageTitleEl.textContent = `Capitolo ${currentChapter}`;
+      infoEl.textContent = `Titolo: ${currentLine} — (${currentChapter}/${totalChapters}) — Lingua corso: ${language}`;
+
+      // Bottoni nav
+      if (currentChapter > 1) prevBtn.style.display = "inline-block";
+      if (currentChapter < totalChapters) nextBtn.style.display = "inline-block";
+      else quizBtn.style.display = "inline-block";
+
+      // Render “pulito” (no #, no *)
+      function escapeHtml(s) {
+        return s
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
       }
-      if (currentChapter < totalChapters) {
-        nextBtn.style.display = "inline-block";
-      } else {
-        quizBtn.style.display = "inline-block";
+
+      function renderChapter(text) {
+        const rawLines = text.split("\n").map(l => l.trim()).filter(Boolean);
+
+        let html = "";
+        rawLines.forEach((line, idx) => {
+          const safe = escapeHtml(line);
+
+          // Titolo del capitolo: prima riga se inizia con "CAPITOLO"
+          if (idx === 0 && line.toUpperCase().startsWith("CAPITOLO")) {
+            html += `<div class="chapter-title">${safe}</div>`;
+            return;
+          }
+
+          // Sottotitoli: righe brevi senza punto finale
+          if (line.length <= 70 && !line.endsWith(".") && !line.endsWith(":")) {
+            html += `<div class="chapter-subtitle">${safe}</div>`;
+            return;
+          }
+
+          html += `<p>${safe}</p>`;
+        });
+
+        return html || "<p>Nessun contenuto.</p>";
       }
 
       contentEl.textContent = "Generazione del capitolo in corso... ⏳";
 
-      // Chiamata API per generare il capitolo
+      // Fetch capitolo
       fetch("/api/generateChapter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,62 +173,138 @@
         .then((r) => r.json())
         .then((data) => {
           if (!data || !data.chapterContent) {
-            contentEl.textContent =
-              "Errore: nessun contenuto del capitolo ricevuto dall'AI.";
+            contentEl.textContent = "Errore: nessun contenuto del capitolo ricevuto dall'AI.";
             console.error("generateChapter error:", data);
+            disableTTS();
             return;
           }
-          function renderChapter(text) {
-  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
-  let html = "";
 
-  lines.forEach((line, index) => {
-    // Prima riga = titolo capitolo
-    if (index === 0 && line.toUpperCase().startsWith("CAPITOLO")) {
-      html += `<div class="chapter-title">${line}</div>`;
-      return;
-    }
+          // Salviamo contenuto capitolo per uso TTS / PDF
+          localStorage.setItem(`eleviai_chapter_${currentChapter}_text`, data.chapterContent);
 
-    // Sottotitoli (frasi brevi senza punto finale)
-    if (line.length < 60 && !line.endsWith(".")) {
-      html += `<div class="chapter-subtitle">${line}</div>`;
-      return;
-    }
-
-    // Paragrafi normali
-    html += `<p>${line}</p>`;
-  });
-
-  return html;
-}
-
-contentEl.innerHTML = renderChapter(data.chapterContent);
-
+          contentEl.innerHTML = renderChapter(data.chapterContent);
+          setupTTS();
         })
         .catch((err) => {
-          contentEl.textContent =
-            "Errore di rete durante la generazione del capitolo.";
+          contentEl.textContent = "Errore di rete durante la generazione del capitolo.";
           console.error("Network error (chapter):", err);
+          disableTTS();
         });
 
-      // Navigazione capitoli
+      // Navigazione
       prevBtn.addEventListener("click", () => {
+        stopSpeaking();
         if (currentChapter > 1) {
           localStorage.setItem("eleviai_current_chapter", String(currentChapter - 1));
           window.location.reload();
         }
       });
-
       nextBtn.addEventListener("click", () => {
+        stopSpeaking();
         if (currentChapter < totalChapters) {
           localStorage.setItem("eleviai_current_chapter", String(currentChapter + 1));
           window.location.reload();
         }
       });
-
       quizBtn.addEventListener("click", () => {
+        stopSpeaking();
         window.location.href = "quiz.html";
       });
+
+      // PDF (stampa → Salva come PDF)
+      pdfBtn.addEventListener("click", () => {
+        stopSpeaking();
+        // titolo più utile per stampa
+        document.title = `EleviAI - Capitolo ${currentChapter}`;
+        window.print();
+      });
+
+      // -------- TTS --------
+      let utter = null;
+
+      function disableTTS() {
+        btnPlay.disabled = true;
+        btnPause.disabled = true;
+        btnStop.disabled = true;
+        rateEl.disabled = true;
+        voiceSelect.disabled = true;
+      }
+
+      function stopSpeaking() {
+        try {
+          if ("speechSynthesis" in window) {
+            window.speechSynthesis.cancel();
+          }
+        } catch {}
+      }
+
+      function getReadableTextFromDOM() {
+        // legge i paragrafi e i “titoli” già renderizzati
+        const parts = [];
+        const nodes = contentEl.querySelectorAll(".chapter-title, .chapter-subtitle, p");
+        nodes.forEach(n => {
+          const t = (n.textContent || "").trim();
+          if (t) parts.push(t);
+        });
+        return parts.join("\n\n");
+      }
+
+      function setupTTS() {
+        if (!("speechSynthesis" in window)) {
+          disableTTS();
+          return;
+        }
+
+        rateLabel.textContent = (Number(rateEl.value)).toFixed(2) + "x";
+
+        function populateVoices() {
+          const voices = window.speechSynthesis.getVoices() || [];
+          voiceSelect.innerHTML = "";
+          voices.forEach((v, idx) => {
+            const opt = document.createElement("option");
+            opt.value = String(idx);
+            opt.textContent = `${v.name} (${v.lang})`;
+            voiceSelect.appendChild(opt);
+          });
+        }
+
+        populateVoices();
+        // su alcuni browser le voci arrivano dopo
+        window.speechSynthesis.onvoiceschanged = populateVoices;
+
+        rateEl.addEventListener("input", () => {
+          rateLabel.textContent = (Number(rateEl.value)).toFixed(2) + "x";
+        });
+
+        btnPlay.addEventListener("click", () => {
+          stopSpeaking();
+
+          const text = getReadableTextFromDOM();
+          if (!text) return;
+
+          utter = new SpeechSynthesisUtterance(text);
+          utter.rate = Number(rateEl.value);
+
+          const voices = window.speechSynthesis.getVoices() || [];
+          const voiceIdx = parseInt(voiceSelect.value || "0", 10);
+          if (voices[voiceIdx]) {
+            utter.voice = voices[voiceIdx];
+          }
+
+          window.speechSynthesis.speak(utter);
+        });
+
+        btnPause.addEventListener("click", () => {
+          if (!("speechSynthesis" in window)) return;
+          if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+            window.speechSynthesis.pause();
+          } else if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          }
+        });
+
+        btnStop.addEventListener("click", () => stopSpeaking());
+      }
     })();
   </script>
 </body>
