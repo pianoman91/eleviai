@@ -7,18 +7,59 @@
   <link rel="stylesheet" href="styles.css" />
   <style>
     .box { background:#141823; padding:20px; border-radius:12px; }
+    .toolbar {
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin: 14px 0 6px;
+      padding: 10px;
+      border: 1px solid #2a3145;
+      border-radius: 12px;
+      background: #0c1020;
+    }
+    .toolbar label { font-size: 12px; opacity: 0.9; }
+    .toolbar select, .toolbar input[type="range"] {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #2a3145;
+      background:#0c1020;
+      color:white;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .box { background: white !important; border: none !important; padding: 0 !important; }
+      a { color: black !important; text-decoration: none !important; }
+    }
   </style>
 </head>
 <body>
   <div class="container" style="padding:40px 0;">
     <h1>Quiz finale</h1>
-    <p>Rispondi alle domande, poi consulta le soluzioni in fondo alla pagina.</p>
+    <p class="muted">Dopo il quiz, in fondo trovi soluzioni e badge verificato.</p>
+
+    <div class="toolbar no-print">
+      <button class="btn small" id="tts-play">Ascolta</button>
+      <button class="btn small ghost" id="tts-pause">Pausa</button>
+      <button class="btn small ghost" id="tts-stop">Stop</button>
+
+      <label>
+        Velocità
+        <input id="tts-rate" type="range" min="0.7" max="1.3" step="0.05" value="1" />
+        <span id="tts-rate-label">1.00x</span>
+      </label>
+
+      <label>
+        Voce
+        <select id="tts-voice"></select>
+      </label>
+
+      <button class="btn small" id="pdf">Scarica PDF</button>
+    </div>
 
     <div id="quiz" class="box" style="margin-top:16px; white-space:pre-wrap;"></div>
 
     <div id="badge-area" style="margin-top:20px;"></div>
 
-    <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+    <div class="no-print" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
       <a href="chapter.html" class="btn ghost">Torna ai capitoli</a>
       <a href="prova.html" class="btn ghost">Torna alla prova gratuita</a>
     </div>
@@ -33,9 +74,18 @@
       const quizBox = document.getElementById("quiz");
       const badgeArea = document.getElementById("badge-area");
 
+      const btnPlay = document.getElementById("tts-play");
+      const btnPause = document.getElementById("tts-pause");
+      const btnStop = document.getElementById("tts-stop");
+      const rateEl = document.getElementById("tts-rate");
+      const rateLabel = document.getElementById("tts-rate-label");
+      const voiceSelect = document.getElementById("tts-voice");
+
+      const pdfBtn = document.getElementById("pdf");
+
       if (!outline || !keywords) {
-        quizBox.textContent =
-          "Nessun quiz disponibile. Genera prima un corso dalla pagina di prova gratuita.";
+        quizBox.textContent = "Nessun quiz disponibile. Genera prima un corso dalla pagina di prova gratuita.";
+        disableTTS();
         return;
       }
 
@@ -44,27 +94,24 @@
       fetch("/api/generateQuiz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          outline,
-          keywords,
-          language
-        })
+        body: JSON.stringify({ outline, keywords, language })
       })
         .then((r) => r.json())
         .then((data) => {
           if (!data || !data.quiz) {
-            quizBox.textContent =
-              "Errore: nessun quiz ricevuto dall'AI.";
+            quizBox.textContent = "Errore: nessun quiz ricevuto dall'AI.";
             console.error("generateQuiz error:", data);
+            disableTTS();
             return;
           }
-          quizBox.textContent = data.quiz;
 
-          // Badge finale
+          quizBox.textContent = data.quiz;
+          localStorage.setItem("eleviai_last_quiz_text", data.quiz);
+
+          // Badge finale (solo qui)
           const now = new Date().toLocaleDateString("it-IT");
           const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
 
-          // Titolo corso (grezzo: prima riga dell'outline)
           const firstLine =
             (outline.split("\n").map((l) => l.trim()).filter(Boolean)[0]) ||
             "Microcorso EleviAI";
@@ -75,11 +122,11 @@
               <div class="badge-text">
                 <div class="badge-title">Badge EleviAI – Corso verificato</div>
                 <div class="badge-body">
-                  Corso: ${firstLine}<br/>
+                  Corso: ${escapeHtml(firstLine)}<br/>
                   Completato il: ${now}<br/>
                   ID verifica: ${badgeId}
                 </div>
-                <button class="btn small badge-share" data-course-title="${firstLine}">
+                <button class="btn small badge-share no-print" data-course-title="${escapeAttr(firstLine)}">
                   Condividi su LinkedIn
                 </button>
               </div>
@@ -89,25 +136,111 @@
           const shareBtn = document.querySelector(".badge-share");
           if (shareBtn) {
             shareBtn.addEventListener("click", () => {
-              const title =
-                shareBtn.dataset.courseTitle || "Microcorso EleviAI";
+              const title = shareBtn.dataset.courseTitle || "Microcorso EleviAI";
               const baseUrl = window.location.origin + "/prova.html";
-              const urlWithCourse =
-                baseUrl + "?course=" + encodeURIComponent(title);
-
+              const urlWithCourse = baseUrl + "?course=" + encodeURIComponent(title);
               const linkedinUrl =
                 "https://www.linkedin.com/sharing/share-offsite/?url=" +
                 encodeURIComponent(urlWithCourse);
-
               window.open(linkedinUrl, "_blank", "noopener");
             });
           }
+
+          setupTTS();
         })
         .catch((err) => {
-          quizBox.textContent =
-            "Errore di rete durante la generazione del quiz.";
+          quizBox.textContent = "Errore di rete durante la generazione del quiz.";
           console.error("Network error (quiz):", err);
+          disableTTS();
         });
+
+      function escapeHtml(s) {
+        return (s || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+      function escapeAttr(s) {
+        return (s || "").replaceAll('"', "&quot;");
+      }
+
+      // PDF
+      pdfBtn.addEventListener("click", () => {
+        stopSpeaking();
+        document.title = "EleviAI - Quiz";
+        window.print();
+      });
+
+      // -------- TTS --------
+      let utter = null;
+
+      function disableTTS() {
+        btnPlay.disabled = true;
+        btnPause.disabled = true;
+        btnStop.disabled = true;
+        rateEl.disabled = true;
+        voiceSelect.disabled = true;
+      }
+
+      function stopSpeaking() {
+        try {
+          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+        } catch {}
+      }
+
+      function setupTTS() {
+        if (!("speechSynthesis" in window)) {
+          disableTTS();
+          return;
+        }
+
+        rateLabel.textContent = (Number(rateEl.value)).toFixed(2) + "x";
+
+        function populateVoices() {
+          const voices = window.speechSynthesis.getVoices() || [];
+          voiceSelect.innerHTML = "";
+          voices.forEach((v, idx) => {
+            const opt = document.createElement("option");
+            opt.value = String(idx);
+            opt.textContent = `${v.name} (${v.lang})`;
+            voiceSelect.appendChild(opt);
+          });
+        }
+        populateVoices();
+        window.speechSynthesis.onvoiceschanged = populateVoices;
+
+        rateEl.addEventListener("input", () => {
+          rateLabel.textContent = (Number(rateEl.value)).toFixed(2) + "x";
+        });
+
+        btnPlay.addEventListener("click", () => {
+          stopSpeaking();
+          const text = (quizBox.textContent || "").trim();
+          if (!text) return;
+
+          utter = new SpeechSynthesisUtterance(text);
+          utter.rate = Number(rateEl.value);
+
+          const voices = window.speechSynthesis.getVoices() || [];
+          const voiceIdx = parseInt(voiceSelect.value || "0", 10);
+          if (voices[voiceIdx]) utter.voice = voices[voiceIdx];
+
+          window.speechSynthesis.speak(utter);
+        });
+
+        btnPause.addEventListener("click", () => {
+          if (!("speechSynthesis" in window)) return;
+          if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+            window.speechSynthesis.pause();
+          } else if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          }
+        });
+
+        btnStop.addEventListener("click", () => stopSpeaking());
+      }
     })();
   </script>
 </body>
