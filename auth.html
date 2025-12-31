@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EleviAI — Login</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .box { background:#141823; padding:20px; border-radius:12px; }
+    input {
+      width:100%; margin:8px 0 12px; padding:10px;
+      border-radius:8px; border:1px solid #2a3145;
+      background:#0c1020; color:white;
+    }
+    .muted { opacity:0.85; }
+  </style>
+</head>
+<body>
+  <div class="container" style="padding:40px 0;">
+    <h1>Accedi / Registrati</h1>
+    <p class="muted" id="status">Caricamento...</p>
+
+    <div class="box">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="la-tua@email.com" />
+
+      <label>Password</label>
+      <input id="password" type="password" placeholder="Password" />
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+        <button class="btn small" id="signup">Registrati</button>
+        <button class="btn small ghost" id="login">Accedi</button>
+        <button class="btn small ghost" id="logout" style="display:none;">Logout</button>
+      </div>
+
+      <p class="tiny muted" style="margin-top:10px;">
+        Dopo la registrazione riceverai una email di conferma. Devi confermare prima di usare il Free Trial.
+      </p>
+
+      <div style="margin-top:14px;">
+        <a class="btn small" href="index.html">Torna alla home</a>
+        <a class="btn small ghost" href="prova.html">Vai alla prova (se già confermato)</a>
+      </div>
+    </div>
+
+    <div class="box" style="margin-top:14px;">
+      <h3>Debug sessione</h3>
+      <pre id="debug" style="white-space:pre-wrap; margin:0;"></pre>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    // Legge le chiavi dal server (prova.html farà lo stesso)
+    async function loadConfig() {
+      const r = await fetch("/api/public-config");
+      const j = await r.json();
+      return j;
+    }
+
+    const statusEl = document.getElementById("status");
+    const debugEl = document.getElementById("debug");
+    const emailEl = document.getElementById("email");
+    const pwEl = document.getElementById("password");
+    const btnSignup = document.getElementById("signup");
+    const btnLogin = document.getElementById("login");
+    const btnLogout = document.getElementById("logout");
+
+    const cfg = await loadConfig();
+    const supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+
+    async function refresh() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        statusEl.textContent = "Non autenticato.";
+        btnLogout.style.display = "none";
+        debugEl.textContent = "session: null";
+        return;
+      }
+
+      btnLogout.style.display = "inline-block";
+
+      const user = session.user;
+      const confirmed = !!user.email_confirmed_at;
+
+      statusEl.textContent = confirmed
+        ? "Autenticato ✅ (email confermata)"
+        : "Autenticato ⚠️ (email NON confermata: controlla la posta)";
+
+      debugEl.textContent = JSON.stringify({
+        email: user.email,
+        email_confirmed_at: user.email_confirmed_at,
+        user_id: user.id
+      }, null, 2);
+    }
+
+    btnSignup.addEventListener("click", async () => {
+      const email = emailEl.value.trim();
+      const password = pwEl.value.trim();
+      if (!email || !password) { alert("Inserisci email e password"); return; }
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin + "/auth.html"
+        }
+      });
+
+      if (error) alert(error.message);
+      else alert("Registrazione ok. Controlla la email e conferma l’account.");
+      await refresh();
+    });
+
+    btnLogin.addEventListener("click", async () => {
+      const email = emailEl.value.trim();
+      const password = pwEl.value.trim();
+      if (!email || !password) { alert("Inserisci email e password"); return; }
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) alert(error.message);
+      await refresh();
+    });
+
+    btnLogout.addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      await refresh();
+    });
+
+    supabase.auth.onAuthStateChange(async () => {
+      await refresh();
+    });
+
+    await refresh();
+  </script>
+</body>
+</html>
