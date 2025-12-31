@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it" data-lang="it">
+<html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,157 +8,84 @@
   <style>
     .box { background:#141823; padding:20px; border-radius:12px; }
     textarea { width:100%; height:80px; padding:10px; border-radius:8px; background:#0c1020; color:white; border:1px solid #2a3145; }
-
-    /* MULTILINGUA */
-    .lang-it { display:inline; }
-    .lang-en { display:none; }
-    html[data-lang="en"] .lang-it { display:none; }
-    html[data-lang="en"] .lang-en { display:inline; }
+    input[type="text"] { width:100%; margin:8px 0 16px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white; }
   </style>
 </head>
-
 <body>
 
-  <script>
-    // Legge la lingua scelta nella home
-    (function(){
-      const saved = localStorage.getItem("eleviai_lang");
-      const lang = saved === "en" ? "en" : "it";
-      document.documentElement.setAttribute("data-lang", lang);
-    })();
-  </script>
-
   <div class="container" style="padding:40px 0;">
+    <h1>Prova gratuita – Genera un microcorso con l’AI</h1>
+    <p id="auth-status" style="opacity:.9;">Controllo accesso...</p>
 
-    <h1>
-      <span class="lang-it">Prova gratuita – Genera un seminario con l’AI</span>
-      <span class="lang-en">Free Trial – Generate an AI Lecture</span>
-    </h1>
+    <p>Inserisci alcune parole chiave (es: "CAD", "modellazione 3D", "principiante")</p>
 
-    <p>
-      <span class="lang-it">Inserisci alcune parole chiave (es: "CFD", "aerodinamica", "principiante")</span>
-      <span class="lang-en">Enter some keywords (e.g., “CFD”, “aerodinamic”, “beginner”)</span>
-    </p>
+    <label><strong>Lingua del corso</strong> (scrivi qualsiasi lingua)</label>
+    <input id="courseLanguage" type="text" placeholder="es: Italiano, English, Español, 日本語..." />
 
-    <textarea id="keywords"
-      placeholder="Inserisci 2-5 parole chiave..."
-      data-en="Enter 2–5 keywords..."></textarea>
+    <textarea id="keywords" placeholder="Inserisci 2-5 parole chiave..."></textarea>
+    <button class="btn" id="generate">Generate lecture</button>
 
-<!-- NUOVO: scelta lingua del corso -->
-<div style="margin:12px 0 20px;">
-  <label for="courseLanguage">
-    Lingua del corso (puoi scrivere qualsiasi lingua, es: "Italiano", "English", "Deutsch", "日本語")
-  </label><br>
-  <input
-    type="text"
-    id="courseLanguage"
-    placeholder="Italiano"
-    style="width:100%; margin-top:6px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white;"
-  />
-</div>
-    
-    <button class="btn" id="generate">
-      <span class="lang-it">Genera Seminario</span>
-      <span class="lang-en">Generate Lecture</span>
-    </button>
-
-    <h2>
-      <span class="lang-it">Risultato:</span>
-      <span class="lang-en">Result:</span>
-    </h2>
-
+    <h2>Risultato:</h2>
     <div id="output" class="box"></div>
 
     <hr style="margin: 32px 0; border-color: #2a3145;">
 
-    <h2>
-      <span class="lang-it">Suggerimenti corsi dalla tua carriera</span>
-      <span class="lang-en">Course Suggestions Based on Your Career</span>
-    </h2>
-
+    <h2>Suggerimenti corsi dalla tua carriera</h2>
     <p>
-      <span class="lang-it">
-        In alternativa alle parole chiave, puoi:
-        <br>- inserire il link al tuo profilo LinkedIn, oppure
-        <br>- inserire Nome, Cognome e Job title.
-      </span>
-
-      <span class="lang-en">
-        As an alternative to keywords, you can:
-        <br>- enter your LinkedIn profile link, or
-        <br>- enter your First Name, Last Name, and Job Title.
-      </span>
+      In alternativa alle parole chiave, puoi:
+      <br>- inserire il link al tuo profilo LinkedIn, oppure
+      <br>- inserire Nome, Cognome e Job title.
     </p>
 
     <div class="box">
+      <label for="linkedin"><strong>Link profilo LinkedIn (opzionale)</strong></label><br/>
+      <input type="text" id="linkedin" placeholder="https://www.linkedin.com/in/tuo-profilo" />
 
-      <label for="linkedin">
-        <strong class="lang-it">Link profilo LinkedIn (opzionale)</strong>
-        <strong class="lang-en">LinkedIn Profile Link (optional)</strong>
-      </label><br/>
-
-      <input
-        type="text"
-        id="linkedin"
-        placeholder="https://www.linkedin.com/in/tuo-profilo"
-        data-en="https://www.linkedin.com/in/your-profile"
-        style="width:100%; margin:8px 0 16px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white;"
-      />
-
-      <p style="margin:0 0 8px;">
-        <strong class="lang-it">Oppure inserisci i tuoi dati:</strong>
-        <strong class="lang-en">Or enter your details:</strong>
-      </p>
+      <p style="margin: 0 0 8px;"><strong>Oppure inserisci i tuoi dati:</strong></p>
 
       <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
-        <input
-          type="text"
-          id="firstName"
-          placeholder="Nome"
-          data-en="First name"
-          style="flex:1 1 120px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white;"
-        />
-        <input
-          type="text"
-          id="lastName"
-          placeholder="Cognome"
-          data-en="Last name"
-          style="flex:1 1 120px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white;"
-        />
-        <input
-          type="text"
-          id="jobTitle"
-          placeholder="Job title (es: Mechanical Design Engineer)"
-          data-en="Job title (e.g., Mechanical Design Engineer)"
-          style="flex:1 1 220px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white;"
-        />
+        <input type="text" id="firstName" placeholder="Nome" style="flex:1 1 120px;" />
+        <input type="text" id="lastName" placeholder="Cognome" style="flex:1 1 120px;" />
+        <input type="text" id="jobTitle" placeholder="Job title (es: Mechanical Design Engineer)" style="flex:1 1 220px;" />
       </div>
 
-      <button class="btn small" id="suggest">
-        <span class="lang-it">Suggerisci 3 corsi per la mia carriera</span>
-        <span class="lang-en">Suggest 3 courses for my career</span>
-      </button>
+      <button class="btn small" id="suggest">Suggerisci 3 corsi per la mia carriera</button>
     </div>
 
-    <h3 style="margin-top:18px;">
-      <span class="lang-it">Suggerimenti di corso:</span>
-      <span class="lang-en">Course suggestions:</span>
-    </h3>
-
+    <h3 style="margin-top:18px;">Suggerimenti di corso:</h3>
     <div id="suggestions" class="box"></div>
-
   </div>
 
-  <script>
-    // Cambia placeholder quando in inglese
-    (function() {
-      const lang = document.documentElement.getAttribute("data-lang");
-      if (lang === "en") {
-        document.querySelectorAll("[data-en]").forEach(el => {
-          el.placeholder = el.getAttribute("data-en");
-        });
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    async function loadConfig() {
+      const r = await fetch("/api/public-config");
+      return await r.json();
+    }
+
+    const authStatus = document.getElementById("auth-status");
+    const cfg = await loadConfig();
+    const supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+
+    // Guard: deve essere loggato + email confermata
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      window.location.href = "auth.html";
+    } else {
+      const confirmed = !!session.user.email_confirmed_at;
+      if (!confirmed) {
+        authStatus.textContent = "Email non confermata. Controlla la posta e poi ricarica la pagina.";
+        // opzionale: logout forzato per sicurezza UX
+        // await supabase.auth.signOut();
+      } else {
+        authStatus.textContent = "Accesso ok ✅";
       }
-    })();
+    }
+
+    // Esponiamo il token per ai.js (usa window.__accessToken)
+    window.__accessToken = session?.access_token || "";
   </script>
 
   <script src="ai.js"></script>
