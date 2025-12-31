@@ -12,17 +12,24 @@ const firstNameInput = document.getElementById("firstName");
 const lastNameInput = document.getElementById("lastName");
 const jobTitleInput = document.getElementById("jobTitle");
 
-// ===== HANDLER: GENERA SOLO L'INDICE =====
+const generateBtn = document.getElementById("generate");
+const output = document.getElementById("output");
+const textarea = document.getElementById("keywords");
+const courseLangInput = document.getElementById("courseLanguage");
 
 generateBtn?.addEventListener("click", async () => {
   const kw = textarea ? textarea.value.trim() : "";
   const langPrefRaw = courseLangInput ? courseLangInput.value.trim() : "";
-  const uiLang = document.documentElement.getAttribute("data-lang") || "it";
-
-  const langPref = langPrefRaw || (uiLang === "en" ? "English" : "Italiano");
+  const langPref = langPrefRaw || "Italiano";
 
   if (!kw) {
     output.innerHTML = "<p>Inserisci almeno una parola chiave.</p>";
+    return;
+  }
+
+  const token = window.__accessToken || "";
+  if (!token) {
+    window.location.href = "auth.html";
     return;
   }
 
@@ -31,7 +38,10 @@ generateBtn?.addEventListener("click", async () => {
   try {
     const response = await fetch(`/api/generateOutline`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
       body: JSON.stringify({
         keywords: kw,
         language: langPref
@@ -42,6 +52,27 @@ generateBtn?.addEventListener("click", async () => {
 
     if (!response.ok) {
       const msg = data?.error || `Errore HTTP ${response.status}`;
+
+      // Trial finito (402)
+      if (response.status === 402) {
+        output.innerHTML = `
+          <p><strong>Free trial terminato.</strong></p>
+          <p>${msg}</p>
+          <p>Ora puoi acquistare 1 corso oppure abbonarti (step Stripe nel prossimo passaggio).</p>
+          <a class="btn small" href="index.html#pricing">Vai ai prezzi</a>
+        `;
+        return;
+      }
+
+      // Email non confermata
+      if (response.status === 403 && /not confirmed/i.test(msg)) {
+        output.innerHTML = `
+          <p><strong>Email non confermata.</strong></p>
+          <p>Controlla la casella email e conferma l’account, poi ricarica.</p>
+        `;
+        return;
+      }
+
       output.innerHTML = `<p><strong>Errore server:</strong> ${msg}</p>`;
       console.error("GenerateOutline API error:", data);
       return;
@@ -55,15 +86,10 @@ generateBtn?.addEventListener("click", async () => {
 
     const outlineText = data.outline;
 
-    // Salvataggio in localStorage per le altre pagine
-    try {
-      localStorage.setItem("eleviai_outline", outlineText);
-      localStorage.setItem("eleviai_keywords", kw);
-      localStorage.setItem("eleviai_language", langPref);
-      localStorage.setItem("eleviai_current_chapter", "1");
-    } catch (e) {
-      console.warn("Impossibile salvare in localStorage:", e);
-    }
+    localStorage.setItem("eleviai_outline", outlineText);
+    localStorage.setItem("eleviai_keywords", kw);
+    localStorage.setItem("eleviai_language", langPref);
+    localStorage.setItem("eleviai_current_chapter", "1");
 
     output.innerHTML = `
       <h2>Indice del corso</h2>
@@ -73,69 +99,13 @@ generateBtn?.addEventListener("click", async () => {
       </button>
     `;
 
-    const startBtn = document.getElementById("start-course");
-    if (startBtn) {
-      startBtn.addEventListener("click", () => {
-        window.location.href = "chapter.html";
-      });
-    }
+    document.getElementById("start-course")?.addEventListener("click", () => {
+      window.location.href = "chapter.html";
+    });
+
   } catch (err) {
     output.innerHTML =
       "<p><strong>Errore di rete:</strong> controlla la connessione e riprova.</p>";
     console.error("Network error (generateOutline):", err);
-  }
-});
-
-// ===== HANDLER: SUGGERISCI 3 CORSI PER LA CARRIERA =====
-
-suggestBtn?.addEventListener("click", async () => {
-  const linkedin = linkedinInput ? linkedinInput.value.trim() : "";
-  const firstName = firstNameInput ? firstNameInput.value.trim() : "";
-  const lastName = lastNameInput ? lastNameInput.value.trim() : "";
-  const jobTitle = jobTitleInput ? jobTitleInput.value.trim() : "";
-
-  if (!linkedin && !(firstName && lastName && jobTitle)) {
-    suggestionsBox.innerHTML =
-      "<p>Inserisci il link LinkedIn <strong>oppure</strong> Nome, Cognome e Job title.</p>";
-    return;
-  }
-
-  suggestionsBox.innerHTML =
-    "<p>Analizzo il profilo e calcolo i migliori corsi per la tua carriera... ⏳</p>";
-
-  try {
-    const response = await fetch(`/api/suggest`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        linkedin,
-        firstName,
-        lastName,
-        jobTitle
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const msg = data?.error || `Errore HTTP ${response.status}`;
-      suggestionsBox.innerHTML = `<p><strong>Errore server:</strong> ${msg}</p>`;
-      console.error("Suggest API error:", data);
-      return;
-    }
-
-    if (!data.suggestions) {
-      suggestionsBox.innerHTML = "<p>Nessun suggerimento ricevuto dall'AI.</p>";
-      console.error("No suggestions content:", data);
-      return;
-    }
-
-    suggestionsBox.innerHTML = `
-      <pre style="white-space: pre-wrap; margin:0;">${data.suggestions}</pre>
-    `;
-  } catch (err) {
-    suggestionsBox.innerHTML =
-      "<p><strong>Errore di rete:</strong> controlla la connessione e riprova.</p>";
-    console.error("Network error (suggest):", err);
   }
 });
