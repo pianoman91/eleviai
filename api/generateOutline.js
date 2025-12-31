@@ -1,4 +1,22 @@
-// API per generare SOLO l'indice del corso usando OpenRouter
+// api/generateOutline.js
+import { createClient } from "@supabase/supabase-js";
+
+function isAdminEmail(email) {
+  const raw = process.env.ADMIN_EMAILS || "";
+  const admins = raw.split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+  return admins.includes((email || "").toLowerCase());
+}
+
+async function getUserFromToken(token) {
+  const supabaseAdmin = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+
+  const { data, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !data?.user) return { user: null, supabaseAdmin };
+  return { user: data.user, supabaseAdmin };
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -6,8 +24,65 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { keywords, language } = req.body || {};
+  // 1) Auth: richiede token
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
 
+  if (!token) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  const { user, supabaseAdmin } = await getUserFromToken(token);
+
+  if (!user) {
+    res.status(401).json({ error: "Invalid session" });
+    return;
+  }
+
+  // 2) Email confermata (tranne admin)
+  const admin = isAdminEmail(user.email);
+  const confirmed = !!user.email_confirmed_at;
+
+  if (!admin && !confirmed) {
+    res.status(403).json({ error: "Email not confirmed" });
+    return;
+  }
+
+  // 3) Trial gating: solo 1 volta (tranne admin)
+  if (!admin) {
+    const { data: profile, error: pErr } = await supabaseAdmin
+      .from("profiles")
+      .select("trial_used")
+      .eq("id", user.id)
+      .single();
+
+    if (pErr) {
+      res.status(500).json({ error: "Profile read error: " + pErr.message });
+      return;
+    }
+
+    if (profile?.trial_used) {
+      res.status(402).json({
+        error: "Free trial already used. Please purchase a course or subscribe."
+      });
+      return;
+    }
+
+    // marca trial come usato ORA (così non lo riusa)
+    const { error: uErr } = await supabaseAdmin
+      .from("profiles")
+      .update({ trial_used: true })
+      .eq("id", user.id);
+
+    if (uErr) {
+      res.status(500).json({ error: "Profile update error: " + uErr.message });
+      return;
+    }
+  }
+
+  // 4) Generazione outline (OpenRouter)
+  const { keywords, language } = req.body || {};
   if (!keywords || typeof keywords !== "string" || !keywords.trim()) {
     res.status(400).json({ error: "Missing keywords" });
     return;
@@ -20,8 +95,7 @@ export default async function handler(req, res) {
   }
 
   const courseLanguage =
-    (language && typeof language === "string" && language.trim()) ||
-    "Italiano";
+    (language && typeof language === "string" && language.trim()) || "Italiano";
 
   const prompt = `
 Sei EleviAI, un sistema che crea corsi tecnici per professionisti.
@@ -53,7 +127,7 @@ Requisiti:
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 600
+        max_tokens: 700
       })
     });
 
