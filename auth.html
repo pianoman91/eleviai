@@ -50,88 +50,101 @@
   </div>
 
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    // Legge le chiavi dal server (prova.html farà lo stesso)
-    async function loadConfig() {
-      const r = await fetch("/api/public-config");
-      const j = await r.json();
-      return j;
+  const statusEl = document.getElementById("status");
+  const debugEl = document.getElementById("debug");
+  const emailEl = document.getElementById("email");
+  const pwEl = document.getElementById("password");
+  const btnSignup = document.getElementById("signup");
+  const btnLogin = document.getElementById("login");
+  const btnLogout = document.getElementById("logout");
+
+  async function loadConfig() {
+    const r = await fetch("/api/public-config");
+    if (!r.ok) throw new Error("public-config non raggiungibile (HTTP " + r.status + ")");
+    const j = await r.json();
+    if (!j.SUPABASE_URL || !j.SUPABASE_ANON_KEY) {
+      throw new Error("Chiavi Supabase mancanti. Controlla env vars su Vercel e fai Redeploy.");
     }
+    return j;
+  }
 
-    const statusEl = document.getElementById("status");
-    const debugEl = document.getElementById("debug");
-    const emailEl = document.getElementById("email");
-    const pwEl = document.getElementById("password");
-    const btnSignup = document.getElementById("signup");
-    const btnLogin = document.getElementById("login");
-    const btnLogout = document.getElementById("logout");
+  let supabase;
 
+  try {
     const cfg = await loadConfig();
-    const supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+    supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+  } catch (e) {
+    statusEl.textContent = "Errore setup: " + e.message;
+    debugEl.textContent = String(e.stack || e);
+    // Non proseguiamo: i bottoni non funzionerebbero comunque
+    throw e;
+  }
 
-    async function refresh() {
-      const { data: { session } } = await supabase.auth.getSession();
+  async function refresh() {
+    const { data: { session } } = await supabase.auth.getSession();
 
-      if (!session) {
-        statusEl.textContent = "Non autenticato.";
-        btnLogout.style.display = "none";
-        debugEl.textContent = "session: null";
-        return;
-      }
-
-      btnLogout.style.display = "inline-block";
-
-      const user = session.user;
-      const confirmed = !!user.email_confirmed_at;
-
-      statusEl.textContent = confirmed
-        ? "Autenticato ✅ (email confermata)"
-        : "Autenticato ⚠️ (email NON confermata: controlla la posta)";
-
-      debugEl.textContent = JSON.stringify({
-        email: user.email,
-        email_confirmed_at: user.email_confirmed_at,
-        user_id: user.id
-      }, null, 2);
+    if (!session) {
+      statusEl.textContent = "Non autenticato.";
+      btnLogout.style.display = "none";
+      debugEl.textContent = "session: null";
+      return;
     }
 
-    btnSignup.addEventListener("click", async () => {
-      const email = emailEl.value.trim();
-      const password = pwEl.value.trim();
-      if (!email || !password) { alert("Inserisci email e password"); return; }
+    btnLogout.style.display = "inline-block";
 
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: window.location.origin + "/auth.html"
-        }
-      });
+    const user = session.user;
+    const confirmed = !!user.email_confirmed_at;
 
-      if (error) alert(error.message);
-      else alert("Registrazione ok. Controlla la email e conferma l’account.");
-      await refresh();
+    statusEl.textContent = confirmed
+      ? "Autenticato ✅ (email confermata)"
+      : "Autenticato ⚠️ (email NON confermata: controlla la posta)";
+
+    debugEl.textContent = JSON.stringify({
+      email: user.email,
+      email_confirmed_at: user.email_confirmed_at,
+      user_id: user.id
+    }, null, 2);
+  }
+
+  btnSignup.addEventListener("click", async () => {
+    const email = emailEl.value.trim();
+    const password = pwEl.value.trim();
+    if (!email || !password) { alert("Inserisci email e password"); return; }
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin + "/auth.html" }
     });
 
-    btnLogin.addEventListener("click", async () => {
-      const email = emailEl.value.trim();
-      const password = pwEl.value.trim();
-      if (!email || !password) { alert("Inserisci email e password"); return; }
+    if (error) alert(error.message);
+    else alert("Registrazione ok. Controlla la email e conferma l’account.");
+    await refresh();
+  });
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) alert(error.message);
-      await refresh();
-    });
+  btnLogin.addEventListener("click", async () => {
+    const email = emailEl.value.trim();
+    const password = pwEl.value.trim();
+    if (!email || !password) { alert("Inserisci email e password"); return; }
 
-    btnLogout.addEventListener("click", async () => {
-      await supabase.auth.signOut();
-      await refresh();
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) alert(error.message);
+    await refresh();
+  });
 
-    supabase.auth.onAuthStateChange(async () => {
-      await refresh();
-    });
+  btnLogout.addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    await refresh();
+  });
+
+  supabase.auth.onAuthStateChange(async () => {
+    await refresh();
+  });
+
+  await refresh();
+</script>
 
     await refresh();
   </script>
