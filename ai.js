@@ -3,6 +3,15 @@ const output = document.getElementById("output");
 const textarea = document.getElementById("keywords");
 const courseLangInput = document.getElementById("courseLanguage");
 
+async function safeReadJson(response) {
+  const text = await response.text();
+  try {
+    return { ok: true, data: JSON.parse(text), raw: text };
+  } catch {
+    return { ok: false, data: null, raw: text };
+  }
+}
+
 generateBtn?.addEventListener("click", async () => {
   const kw = textarea ? textarea.value.trim() : "";
   const langPrefRaw = courseLangInput ? courseLangInput.value.trim() : "";
@@ -34,43 +43,32 @@ generateBtn?.addEventListener("click", async () => {
       })
     });
 
-    const data = await response.json();
+    const parsed = await safeReadJson(response);
 
     if (!response.ok) {
-      const msg = data?.error || `Errore HTTP ${response.status}`;
+      // se non è JSON, mostro il testo grezzo
+      const msg = parsed.ok ? (parsed.data?.error || `Errore HTTP ${response.status}`) : parsed.raw;
 
-      // Trial finito (402)
-      if (response.status === 402) {
-        output.innerHTML = `
-          <p><strong>Free trial terminato.</strong></p>
-          <p>${msg}</p>
-          <p>Ora puoi acquistare 1 corso oppure abbonarti (step Stripe nel prossimo passaggio).</p>
-          <a class="btn small" href="index.html#pricing">Vai ai prezzi</a>
-        `;
-        return;
-      }
-
-      // Email non confermata
-      if (response.status === 403 && /not confirmed/i.test(msg)) {
-        output.innerHTML = `
-          <p><strong>Email non confermata.</strong></p>
-          <p>Controlla la casella email e conferma l’account, poi ricarica.</p>
-        `;
-        return;
-      }
-
-      output.innerHTML = `<p><strong>Errore server:</strong> ${msg}</p>`;
-      console.error("GenerateOutline API error:", data);
+      output.innerHTML = `
+        <p><strong>Errore server:</strong> ${msg}</p>
+        <p class="tiny" style="opacity:.8;">Status: ${response.status}</p>
+      `;
+      console.error("API error:", { status: response.status, parsed });
       return;
     }
 
-    if (!data.outline) {
+    if (!parsed.ok) {
+      output.innerHTML = `<p><strong>Errore:</strong> risposta non JSON dal server.</p><pre>${parsed.raw}</pre>`;
+      console.error("Non-JSON success response:", parsed.raw);
+      return;
+    }
+
+    const outlineText = parsed.data?.outline;
+    if (!outlineText) {
       output.innerHTML = "<p>Nessun indice restituito dall'AI.</p>";
-      console.error("No outline:", data);
+      console.error("No outline:", parsed.data);
       return;
     }
-
-    const outlineText = data.outline;
 
     localStorage.setItem("eleviai_outline", outlineText);
     localStorage.setItem("eleviai_keywords", kw);
@@ -80,9 +78,7 @@ generateBtn?.addEventListener("click", async () => {
     output.innerHTML = `
       <h2>Indice del corso</h2>
       <pre style="white-space: pre-wrap; margin-bottom: 16px;">${outlineText}</pre>
-      <button class="btn small" id="start-course">
-        Inizia dal capitolo 1
-      </button>
+      <button class="btn small" id="start-course">Inizia dal capitolo 1</button>
     `;
 
     document.getElementById("start-course")?.addEventListener("click", () => {
@@ -90,8 +86,7 @@ generateBtn?.addEventListener("click", async () => {
     });
 
   } catch (err) {
-    output.innerHTML =
-      "<p><strong>Errore di rete:</strong> controlla la connessione e riprova.</p>";
-    console.error("Network error (generateOutline):", err);
+    output.innerHTML = "<p><strong>Errore di rete:</strong> controlla la connessione e riprova.</p>";
+    console.error("Network error:", err);
   }
 });
