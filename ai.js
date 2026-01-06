@@ -1,17 +1,3 @@
-// ELEMENTI PER IL MICROCORSO DA KEYWORDS
-const generateBtn = document.getElementById("generate");
-const output = document.getElementById("output");
-const textarea = document.getElementById("keywords");
-const courseLangInput = document.getElementById("courseLanguage");
-
-// ELEMENTI PER I SUGGERIMENTI DI CARRIERA
-const suggestBtn = document.getElementById("suggest");
-const suggestionsBox = document.getElementById("suggestions");
-const linkedinInput = document.getElementById("linkedin");
-const firstNameInput = document.getElementById("firstName");
-const lastNameInput = document.getElementById("lastName");
-const jobTitleInput = document.getElementById("jobTitle");
-
 const generateBtn = document.getElementById("generate");
 const output = document.getElementById("output");
 const textarea = document.getElementById("keywords");
