@@ -13,140 +13,164 @@
       background:#0c1020; color:white;
     }
     .muted { opacity:0.85; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn.small { padding:10px 14px; font-size:14px; }
+    pre { white-space:pre-wrap; margin:0; }
   </style>
 </head>
 <body>
   <div class="container" style="padding:40px 0;">
-    <h1>Accedi / Registrati</h1>
-    <p class="muted" id="status">Caricamento...</p>
+    <h1>Accedi o registrati</h1>
 
-    <div class="box">
-      <label>Email</label>
-      <input id="email" type="email" placeholder="la-tua@email.com" />
+    <div class="box" style="margin-top:18px;">
+      <p id="status" class="muted">Caricamento...</p>
 
-      <label>Password</label>
-      <input id="password" type="password" placeholder="Password" />
+      <label><strong>Email</strong></label>
+      <input id="email" type="email" placeholder="es: nome@mail.com" autocomplete="email" />
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+      <label><strong>Password</strong></label>
+      <input id="password" type="password" placeholder="min 6 caratteri" autocomplete="current-password" />
+
+      <div class="row" style="margin-top:8px;">
         <button class="btn small" id="signup">Registrati</button>
-        <button class="btn small ghost" id="login">Accedi</button>
-        <button class="btn small ghost" id="logout" style="display:none;">Logout</button>
+        <button class="btn small" id="login">Accedi</button>
+        <button class="btn small" id="logout" style="opacity:.85;">Logout</button>
+        <button class="btn small" id="resend" style="opacity:.85;">Reinvia verifica email</button>
       </div>
 
-      <p class="tiny muted" style="margin-top:10px;">
-        Dopo la registrazione riceverai una email di conferma. Devi confermare prima di usare il Free Trial.
-      </p>
+      <hr style="margin:18px 0; border-color:#2a3145;">
 
-      <div style="margin-top:14px;">
-        <a class="btn small" href="index.html">Torna alla home</a>
-        <a class="btn small ghost" href="prova.html">Vai alla prova (se già confermato)</a>
-      </div>
-    </div>
-
-    <div class="box" style="margin-top:14px;">
-      <h3>Debug sessione</h3>
-      <pre id="debug" style="white-space:pre-wrap; margin:0;"></pre>
+      <h3 style="margin:0 0 10px;">Debug sessione</h3>
+      <pre id="debug"></pre>
     </div>
   </div>
 
   <script type="module">
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-  const statusEl = document.getElementById("status");
-  const debugEl = document.getElementById("debug");
-  const emailEl = document.getElementById("email");
-  const pwEl = document.getElementById("password");
-  const btnSignup = document.getElementById("signup");
-  const btnLogin = document.getElementById("login");
-  const btnLogout = document.getElementById("logout");
+    const statusEl = document.getElementById("status");
+    const debugEl = document.getElementById("debug");
+    const emailEl = document.getElementById("email");
+    const pwEl = document.getElementById("password");
 
-  async function loadConfig() {
-    const r = await fetch("/api/public-config");
-    if (!r.ok) throw new Error("public-config non raggiungibile (HTTP " + r.status + ")");
-    const j = await r.json();
-    if (!j.SUPABASE_URL || !j.SUPABASE_ANON_KEY) {
-      throw new Error("Chiavi Supabase mancanti. Controlla env vars su Vercel e fai Redeploy.");
-    }
-    return j;
-  }
+    const btnSignup = document.getElementById("signup");
+    const btnLogin = document.getElementById("login");
+    const btnLogout = document.getElementById("logout");
+    const btnResend = document.getElementById("resend");
 
-  let supabase;
-
-  try {
-    const cfg = await loadConfig();
-    supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-  } catch (e) {
-    statusEl.textContent = "Errore setup: " + e.message;
-    debugEl.textContent = String(e.stack || e);
-    // Non proseguiamo: i bottoni non funzionerebbero comunque
-    throw e;
-  }
-
-  async function refresh() {
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session) {
-      statusEl.textContent = "Non autenticato.";
-      btnLogout.style.display = "none";
-      debugEl.textContent = "session: null";
-      return;
+    async function loadConfig() {
+      const r = await fetch("/api/public-config");
+      if (!r.ok) throw new Error("public-config non raggiungibile (HTTP " + r.status + ")");
+      const j = await r.json();
+      if (!j.SUPABASE_URL || !j.SUPABASE_ANON_KEY) {
+        throw new Error("Chiavi Supabase mancanti. Configura env vars e fai redeploy.");
+      }
+      return j;
     }
 
-    btnLogout.style.display = "inline-block";
+    function renderSession(session) {
+      debugEl.textContent = JSON.stringify(
+        {
+          hasSession: !!session,
+          user: session?.user ? {
+            id: session.user.id,
+            email: session.user.email,
+            email_confirmed_at: session.user.email_confirmed_at
+          } : null
+        },
+        null,
+        2
+      );
+    }
 
-    const user = session.user;
-    const confirmed = !!user.email_confirmed_at;
+    let supabase;
 
-    statusEl.textContent = confirmed
-      ? "Autenticato ✅ (email confermata)"
-      : "Autenticato ⚠️ (email NON confermata: controlla la posta)";
+    async function refresh() {
+      const { data: { session } } = await supabase.auth.getSession();
 
-    debugEl.textContent = JSON.stringify({
-      email: user.email,
-      email_confirmed_at: user.email_confirmed_at,
-      user_id: user.id
-    }, null, 2);
-  }
+      if (!session) {
+        statusEl.textContent = "Non sei loggato.";
+        renderSession(null);
+        return;
+      }
 
-  btnSignup.addEventListener("click", async () => {
-    const email = emailEl.value.trim();
-    const password = pwEl.value.trim();
-    if (!email || !password) { alert("Inserisci email e password"); return; }
+      const confirmed = !!session.user.email_confirmed_at;
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: window.location.origin + "/auth.html" }
+      if (confirmed) {
+        statusEl.textContent = "Loggato ✅ Email verificata ✅";
+      } else {
+        statusEl.textContent = "Loggato ✅ Email NON verificata. Verifica la mail oppure reinvia.";
+      }
+
+      renderSession(session);
+    }
+
+    try {
+      const cfg = await loadConfig();
+      supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+
+      supabase.auth.onAuthStateChange(async () => {
+        await refresh();
+      });
+
+      await refresh();
+      statusEl.textContent = statusEl.textContent || "Pronto.";
+    } catch (e) {
+      console.error(e);
+      statusEl.textContent = "Errore: " + (e?.message || String(e));
+      debugEl.textContent = "";
+    }
+
+    btnSignup.addEventListener("click", async () => {
+      const email = emailEl.value.trim();
+      const password = pwEl.value.trim();
+      if (!email || !password) { alert("Inserisci email e password"); return; }
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: window.location.origin + "/auth.html" }
+      });
+
+      if (error) alert(error.message);
+      else alert("Registrazione ok. Controlla la mail e verifica l’account.");
+      await refresh();
     });
 
-    if (error) alert(error.message);
-    else alert("Registrazione ok. Controlla la email e conferma l’account.");
-    await refresh();
-  });
+    btnLogin.addEventListener("click", async () => {
+      const email = emailEl.value.trim();
+      const password = pwEl.value.trim();
+      if (!email || !password) { alert("Inserisci email e password"); return; }
 
-  btnLogin.addEventListener("click", async () => {
-    const email = emailEl.value.trim();
-    const password = pwEl.value.trim();
-    if (!email || !password) { alert("Inserisci email e password"); return; }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) alert(error.message);
+      await refresh();
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) alert(error.message);
-    await refresh();
-  });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email_confirmed_at) {
+        window.location.href = "prova.html";
+      }
+    });
 
-  btnLogout.addEventListener("click", async () => {
-    await supabase.auth.signOut();
-    await refresh();
-  });
+    btnLogout.addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      await refresh();
+    });
 
-  supabase.auth.onAuthStateChange(async () => {
-    await refresh();
-  });
+    btnResend.addEventListener("click", async () => {
+      const email = emailEl.value.trim();
+      if (!email) { alert("Inserisci la tua email nel campo Email"); return; }
 
-  await refresh();
-</script>
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: { emailRedirectTo: window.location.origin + "/auth.html" }
+      });
 
-    await refresh();
+      if (error) alert(error.message);
+      else alert("Email di verifica reinviata (controlla inbox e spam).");
+      await refresh();
+    });
   </script>
 </body>
 </html>
