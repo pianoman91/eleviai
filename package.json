@@ -1,17 +1,15 @@
 {
   "name": "eleviai",
-  "version": "1.0.0",
   "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
-    "dev": "next dev -p 3000",
-    "build": "next build",
-    "start": "next start -p 3000",
-    "lint": "next lint"
+    "build": "echo \"No build step required for static site + Vercel API\""
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.1",
-    "next": "^14.2.25",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@supabase/supabase-js": "^2.45.0"
   }
 }
