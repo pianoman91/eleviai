@@ -42,7 +42,7 @@ In base a questo profilo:
 ${profileDescription}
 
 Proponi ESATTAMENTE 3 titoli di micro-corsi (non corsi generici), focalizzati su competenze che possono aiutare questa persona a far crescere la propria carriera nei prossimi 12 mesi.
-Per proporrei corsi fai un confronto con le competenze di altri profili LinkedIn con job ugulae o simile.
+Per proporre i corsi fai un confronto con le competenze di altri profili LinkedIn con job uguali o simile.
 
 Requisiti:
 - Lingua: italiano
@@ -66,10 +66,10 @@ Formato di output (mantienilo esattamente così):
       "https://openrouter.ai/api/v1/chat/completions",
       {
         method: "POST",
-       headers: {
-  Authorization: "Bearer " + apiKey,
-  "Content-Type": "application/json"
-},
+        headers: {
+          "Authorization": "Bearer " + apiKey,
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           model: "openai/gpt-4o-mini",
           messages: [{ role: "user", content: prompt }],
@@ -97,7 +97,7 @@ Formato di output (mantienilo esattamente così):
     }
 
     if (!response.ok) {
-      res.status(500).json({
+      res.status(response.status).json({
         error:
           data?.error?.message ||
           `API error (status ${response.status})`
