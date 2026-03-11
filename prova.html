@@ -117,6 +117,9 @@
     }
 
     window.__accessToken = session?.access_token || "";
+    if (session?.access_token) {
+      sessionStorage.setItem("eleviai_token", session.access_token);
+    }
   </script>
 
   <script src="ai.js"></script>

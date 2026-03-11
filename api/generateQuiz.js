@@ -1,9 +1,31 @@
 // API per generare SOLO il quiz finale (6 domande + soluzioni alla fine)
 
+import { createClient } from "@supabase/supabase-js";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Only POST method is allowed" });
     return;
+  }
+
+  // Auth: verifica Bearer token
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  if (!token) {
+    return res.status(401).json({ error: "Missing Authorization Bearer token" });
+  }
+
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return res.status(500).json({ error: "Missing Supabase env vars" });
+  }
+
+  const supabaseAdmin = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+  const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(token);
+  if (userErr || !userData?.user) {
+    return res.status(401).json({ error: "Invalid session token" });
   }
 
   const { keywords, language, outline } = req.body || {};
@@ -36,13 +58,13 @@ ${outline}
 Genera un QUIZ FINALE con queste caratteristiche:
 
 - ESATTAMENTE 6 domande.
-- Ogni domanda a scelta multipla con 3 opzioni (A, B, C).
-- Prima scrivi tutte le domande con le 3 opzioni, SENZA indicare subito la risposta corretta.
+- Ogni domanda a scelta multipla con 4 opzioni (A, B, C, D).
+- Prima scrivi tutte le domande con le 4 opzioni, SENZA indicare subito la risposta corretta.
 - Alla fine, in una sezione separata chiamata "Soluzioni del quiz", elenca le risposte corrette in questo formato:
   1) B
   2) A
   3) C
-  4) ...
+  4) D
   5) ...
   6) ...
 

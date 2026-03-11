@@ -76,6 +76,7 @@
       const keywords = localStorage.getItem("eleviai_keywords");
       const language = localStorage.getItem("eleviai_language") || "Italiano";
       let currentChapter = parseInt(localStorage.getItem("eleviai_current_chapter") || "1", 10);
+      const authToken = sessionStorage.getItem("eleviai_token") || "";
 
       const pageTitleEl = document.getElementById("page-title");
       const infoEl = document.getElementById("chapter-info");
@@ -162,7 +163,10 @@
       // Fetch capitolo
       fetch("/api/generateChapter", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + authToken
+        },
         body: JSON.stringify({
           keywords,
           language,

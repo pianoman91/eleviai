@@ -1,15 +1,43 @@
 // API per generare il contenuto di UN singolo capitolo del corso
 
+import { createClient } from "@supabase/supabase-js";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Only POST method is allowed" });
     return;
   }
 
+  // Auth: verifica Bearer token
+  const authHeader = req.headers.authorization || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  if (!token) {
+    return res.status(401).json({ error: "Missing Authorization Bearer token" });
+  }
+
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return res.status(500).json({ error: "Missing Supabase env vars" });
+  }
+
+  const supabaseAdmin = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+  const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(token);
+  if (userErr || !userData?.user) {
+    return res.status(401).json({ error: "Invalid session token" });
+  }
+
   const { keywords, language, outline, chapterNumber } = req.body || {};
 
   if (!keywords || !outline || !chapterNumber) {
     res.status(400).json({ error: "Missing keywords, outline or chapterNumber" });
+    return;
+  }
+
+  const chapterNum = parseInt(chapterNumber, 10);
+  if (!Number.isInteger(chapterNum) || chapterNum < 1 || chapterNum > 99) {
+    res.status(400).json({ error: "Invalid chapterNumber" });
     return;
   }
 
@@ -33,8 +61,8 @@ Questo è l'indice completo del corso:
 
 ${outline}
 
-Devi GENERARE SOLO il contenuto del capitolo numero ${chapterNumber}.
-Assumi che il capitolo ${chapterNumber} corrisponda a una delle righe numerate dell'indice.
+Devi GENERARE SOLO il contenuto del capitolo numero ${chapterNum}.
+Assumi che il capitolo ${chapterNum} corrisponda a una delle righe numerate dell'indice.
 
 REGOLE DI FORMATO (OBBLIGATORIE):
 - NON usare Markdown.
@@ -44,7 +72,7 @@ REGOLE DI FORMATO (OBBLIGATORIE):
 STRUTTURA DEL TESTO:
 - Inizia con il titolo del capitolo in MAIUSCOLO, su una riga separata.
   Esempio:
-  CAPITOLO ${chapterNumber} – Titolo del capitolo
+  CAPITOLO ${chapterNum} – Titolo del capitolo
 
 - I sottotitoli devono essere scritti in GRASSETTO (solo il testo, non usare simboli).
   Esempio:
@@ -66,7 +94,7 @@ Lunghezza:
 - quindi testo esteso e discorsivo, non riassuntivo o schematico.
 
 Non aggiungere nessun altro capitolo, nessun riepilogo dell'intero corso, nessun quiz.
-Solo il testo del capitolo ${chapterNumber}.
+Solo il testo del capitolo ${chapterNum}.
 `;
 
   try {
