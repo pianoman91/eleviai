@@ -45,6 +45,116 @@
       background: rgba(49, 208, 170, 0.12);
       opacity: 1;
     }
+
+    /* Pricing cards */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .pricing-card {
+      background: #111827;
+      border: 1px solid #2a3145;
+      border-radius: 16px;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .pricing-card.highlight {
+      border-color: var(--brand-2, #31d0aa);
+      background: #0d1f1a;
+      position: relative;
+    }
+
+    .pricing-card.highlight::before {
+      content: "";
+      display: block;
+      position: absolute;
+      inset: -1px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #31d0aa33, transparent 60%);
+      pointer-events: none;
+    }
+
+    .pricing-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #31d0aa;
+      background: rgba(49, 208, 170, 0.12);
+      border-radius: 999px;
+      padding: 3px 10px;
+      width: fit-content;
+    }
+
+    .pricing-name {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .pricing-price {
+      font-size: 36px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .pricing-price span {
+      font-size: 16px;
+      font-weight: 400;
+      color: #8899aa;
+    }
+
+    .pricing-desc {
+      font-size: 14px;
+      color: #8899aa;
+      margin: 0;
+      flex: 1;
+    }
+
+    .pricing-features {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .pricing-features li {
+      font-size: 14px;
+      color: #c0ccd8;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .pricing-features li::before {
+      content: "✓";
+      color: #31d0aa;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    #pricing h2 {
+      text-align: center;
+      margin-bottom: 0;
+    }
+
+    #pricing .subtitle {
+      text-align: center;
+      color: #8899aa;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
   </style>
 </head>
 <body>
@@ -63,11 +173,11 @@
         <span class="lang-it">Prezzi</span>
         <span class="lang-en">Pricing</span>
       </a>
-      <a href="#cta" class="btn small">
-        <span class="lang-it">Early Access</span>
-        <span class="lang-en">Early Access</span>
-      </a>
       <a href="auth.html" class="btn ghost">
+        <span class="lang-it">Accedi</span>
+        <span class="lang-en">Sign in</span>
+      </a>
+      <a href="auth.html" class="btn small">
         <span class="lang-it">Prova gratuita</span>
         <span class="lang-en">Free trial</span>
       </a>
@@ -96,9 +206,9 @@
         </span>
       </p>
       <div class="actions">
-        <a href="#cta" class="btn">
-          <span class="lang-it">Richiedi Early Access</span>
-          <span class="lang-en">Request Early Access</span>
+        <a href="auth.html" class="btn">
+          <span class="lang-it">Inizia gratis</span>
+          <span class="lang-en">Start for free</span>
         </a>
         <a href="#funziona" class="btn ghost">
           <span class="lang-it">Scopri di più</span>
@@ -197,82 +307,133 @@
 
     <section id="pricing" class="container pricing">
       <h2>
-        <span class="lang-it">Prezzi (MVP)</span>
-        <span class="lang-en">Pricing (MVP)</span>
+        <span class="lang-it">Piani e prezzi</span>
+        <span class="lang-en">Plans & Pricing</span>
       </h2>
-      <div class="grid-3">
-        <div class="card">
-          <h3>Free</h3>
-          <p>
-            <span class="lang-it">1 seminario di prova</span>
-            <span class="lang-en">1 trial lecture</span>
-          </p>
-          <p class="price">0 €</p>
-          <a href="#cta" class="btn small">
-            <span class="lang-it">Prova</span>
-            <span class="lang-en">Try</span>
-          </a>
-        </div>
-        <div class="card highlight">
-          <h3>Starter</h3>
-          <p>
-            <span class="lang-it">Seminari illimitati</span>
-            <span class="lang-en">Unlimited lectures</span>
-          </p>
-          <p class="price">4,99 €/mese</p>
-          <a href="#cta" class="btn small">
-            <span class="lang-it">Inizia</span>
-            <span class="lang-en">Start</span>
-          </a>
-        </div>
-        <div class="card">
-          <h3>Team</h3>
-          <p>
-            <span class="lang-it">Per aziende (5+ utenti)</span>
-            <span class="lang-en">For teams (5+ users)</span>
-          </p>
-          <p class="price">
-            <span class="lang-it">Su richiesta</span>
-            <span class="lang-en">On request</span>
-          </p>
-          <a href="#cta" class="btn small">
-            <span class="lang-it">Contattaci</span>
-            <span class="lang-en">Contact us</span>
-          </a>
-        </div>
-      </div>
-    </section>
+      <p class="subtitle">
+        <span class="lang-it">Scegli come vuoi imparare.</span>
+        <span class="lang-en">Choose how you want to learn.</span>
+      </p>
 
-    <section id="cta" class="container cta">
-      <h2>
-        <span class="lang-it">Richiedi l’accesso in anteprima</span>
-        <span class="lang-en">Request early access</span>
-      </h2>
-      <p>
-        <span class="lang-it">Lascia la tua email: ti invieremo l’invito quando la beta è pronta.</span>
-        <span class="lang-en">Leave your email: we’ll invite you as soon as the beta is ready.</span>
-      </p>
-      <form id="early-form">
-        <input type="email" id="email" placeholder="la-tua@email.com" required />
-        <button type="submit" class="btn">
-          <span class="lang-it">Invia</span>
-          <span class="lang-en">Send</span>
-        </button>
-      </form>
-      <p class="form-note">
-        <span class="lang-it">Niente spam. Potrai annullare quando vuoi.</span>
-        <span class="lang-en">No spam. You can unsubscribe anytime.</span>
-      </p>
-      <p class="tiny">
-        <span class="lang-it">Oppure scrivici: </span>
-        <span class="lang-en">Or write us: </span>
-        <a href="mailto:founders@eleviai.com">founders@eleviai.com</a>
-      </p>
+      <div class="pricing-grid">
+
+        <!-- Free Trial -->
+        <div class="pricing-card">
+          <p class="pricing-name">
+            <span class="lang-it">Prova gratuita</span>
+            <span class="lang-en">Free Trial</span>
+          </p>
+          <div class="pricing-price">
+            0 €<span></span>
+          </div>
+          <p class="pricing-desc">
+            <span class="lang-it">Inizia subito, senza carta di credito.</span>
+            <span class="lang-en">Get started instantly, no credit card needed.</span>
+          </p>
+          <ul class="pricing-features">
+            <li>
+              <span class="lang-it">1 seminario completo</span>
+              <span class="lang-en">1 full lecture</span>
+            </li>
+            <li>
+              <span class="lang-it">Quiz incluso</span>
+              <span class="lang-en">Quiz included</span>
+            </li>
+            <li>
+              <span class="lang-it">Badge condivisibile</span>
+              <span class="lang-en">Shareable badge</span>
+            </li>
+          </ul>
+          <a href="auth.html" class="btn ghost small">
+            <span class="lang-it">Inizia gratis</span>
+            <span class="lang-en">Start free</span>
+          </a>
+        </div>
+
+        <!-- Single Seminar -->
+        <div class="pricing-card">
+          <p class="pricing-name">
+            <span class="lang-it">Singolo seminario</span>
+            <span class="lang-en">Single Lecture</span>
+          </p>
+          <div class="pricing-price">
+            4,99 €<span></span>
+          </div>
+          <p class="pricing-desc">
+            <span class="lang-it">Acquista un seminario quando ne hai bisogno.</span>
+            <span class="lang-en">Purchase one lecture whenever you need it.</span>
+          </p>
+          <ul class="pricing-features">
+            <li>
+              <span class="lang-it">1 seminario a scelta</span>
+              <span class="lang-en">1 lecture of your choice</span>
+            </li>
+            <li>
+              <span class="lang-it">Quiz + badge inclusi</span>
+              <span class="lang-en">Quiz + badge included</span>
+            </li>
+            <li>
+              <span class="lang-it">Accesso permanente</span>
+              <span class="lang-en">Permanent access</span>
+            </li>
+          </ul>
+          <a href="auth.html" class="btn ghost small">
+            <span class="lang-it">Acquista</span>
+            <span class="lang-en">Buy now</span>
+          </a>
+        </div>
+
+        <!-- Monthly -->
+        <div class="pricing-card highlight">
+          <div class="pricing-badge">
+            <span class="lang-it">Più popolare</span>
+            <span class="lang-en">Most popular</span>
+          </div>
+          <p class="pricing-name">
+            <span class="lang-it">Abbonamento mensile</span>
+            <span class="lang-en">Monthly Plan</span>
+          </p>
+          <div class="pricing-price">
+            9,99 €<span>
+              <span class="lang-it">/mese</span>
+              <span class="lang-en">/month</span>
+            </span>
+          </div>
+          <p class="pricing-desc">
+            <span class="lang-it">Seminari illimitati, apprendimento continuo.</span>
+            <span class="lang-en">Unlimited lectures, continuous learning.</span>
+          </p>
+          <ul class="pricing-features">
+            <li>
+              <span class="lang-it">Seminari illimitati</span>
+              <span class="lang-en">Unlimited lectures</span>
+            </li>
+            <li>
+              <span class="lang-it">Quiz + badge su ogni seminario</span>
+              <span class="lang-en">Quiz + badge on every lecture</span>
+            </li>
+            <li>
+              <span class="lang-it">Storico e progressi</span>
+              <span class="lang-en">History & progress tracking</span>
+            </li>
+            <li>
+              <span class="lang-it">Annulla quando vuoi</span>
+              <span class="lang-en">Cancel anytime</span>
+            </li>
+          </ul>
+          <a href="auth.html" class="btn small">
+            <span class="lang-it">Abbonati ora</span>
+            <span class="lang-en">Subscribe now</span>
+          </a>
+        </div>
+
+      </div>
     </section>
   </main>
 
   <footer class="container footer">
     <span>© <span id="y"></span> EleviAI</span>
+    <a href="mailto:founders@eleviai.com">founders@eleviai.com</a>
     <a href="#home">
       <span class="lang-it">Torna su ↑</span>
       <span class="lang-en">Back to top ↑</span>
@@ -281,6 +442,8 @@
 
   <script>
     (function () {
+      document.getElementById("y").textContent = new Date().getFullYear();
+
       const html = document.documentElement;
       const saved = window.localStorage.getItem("eleviai_lang");
       const initialLang = saved === "en" ? "en" : "it";
