@@ -1,15 +1,5 @@
 {
-  "name": "eleviai",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "engines": {
-    "node": "20.x"
-  },
   "scripts": {
-    "build": "echo \"No build step required for static site + Vercel API\""
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.45.0"
+    "build": "[my-framework] build --output public"
   }
 }
