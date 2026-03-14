@@ -1,175 +1,493 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>EleviAI — Login</title>
+  <title>EleviAI — Accedi</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%237c5cff'/><stop offset='100%25' stop-color='%2331d0aa'/></linearGradient></defs><path d='M20 4 L6 32 H34 Z' fill='url(%23g)' opacity='.25'/><path d='M20 4 L6 32 H34 Z' fill='none' stroke='url(%23g)' stroke-width='2.5' stroke-linejoin='round'/><circle cx='20' cy='4' r='3' fill='%2331d0aa'/></svg>" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="lang-switch.js"></script>
+
   <style>
-    .box { background:#141823; padding:20px; border-radius:12px; }
-    input {
-      width:100%; margin:8px 0 12px; padding:10px;
-      border-radius:8px; border:1px solid #2a3145;
-      background:#0c1020; color:white;
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
     }
-    .muted { opacity:0.85; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; }
-    .btn.small { padding:10px 14px; font-size:14px; }
-    pre { white-space:pre-wrap; margin:0; }
+
+    /* Auth card */
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid #1e2435;
+      border-radius: 20px;
+      padding: 36px 32px 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+
+    /* Logo in card */
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .auth-logo svg { width: 36px; height: 36px; }
+    .auth-logo-text {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #7c5cff 0%, #31d0aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Tabs */
+    .auth-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid #1e2435;
+      margin-bottom: 24px;
+    }
+    .auth-tab {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 10px 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color .15s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+    .auth-tab:hover { color: var(--text); }
+    .auth-tab.active {
+      color: var(--text);
+      border-bottom-color: var(--brand);
+    }
+
+    /* Form fields */
+    .field-group { margin-bottom: 16px; }
+    .field-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: .3px;
+    }
+    .field-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px solid #2a3145;
+      background: #0c1020;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .field-group input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(124, 92, 255, .18);
+    }
+    .field-group input::placeholder { color: #4a5270; }
+
+    /* Submit button */
+    .auth-submit {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #0b0d12;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(124,92,255,.3);
+      transition: opacity .15s, transform .1s;
+      margin-top: 8px;
+    }
+    .auth-submit:hover { opacity: .92; transform: translateY(-1px); }
+    .auth-submit:active { transform: translateY(0); }
+    .auth-submit:disabled { opacity: .5; cursor: default; transform: none; }
+
+    /* Status/error message */
+    .auth-msg {
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+    }
+    .auth-msg.show { display: block; }
+    .auth-msg.error { background: rgba(255, 80, 80, .12); border: 1px solid rgba(255,80,80,.3); color: #ff8080; }
+    .auth-msg.success { background: rgba(49, 208, 170, .1); border: 1px solid rgba(49,208,170,.3); color: var(--brand-2); }
+    .auth-msg.info { background: rgba(124, 92, 255, .1); border: 1px solid rgba(124,92,255,.3); color: #a78bfa; }
+
+    /* Resend link */
+    .auth-footer {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .auth-footer a, .auth-footer button.link-btn {
+      color: var(--brand-2);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 0;
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      transition: text-decoration-color .15s;
+    }
+    .auth-footer a:hover, .auth-footer button.link-btn:hover {
+      text-decoration-color: var(--brand-2);
+    }
+
+    /* Back link */
+    .auth-back {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .auth-back a {
+      color: var(--muted);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color .15s;
+    }
+    .auth-back a:hover { color: var(--text); }
+
+    /* Panel visibility */
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(11,13,18,.4);
+      border-top-color: #0b0d12;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-  <div class="container" style="padding:40px 0;">
-    <h1>Accedi o registrati</h1>
 
-    <div class="box" style="margin-top:18px;">
-      <p id="status" class="muted">Caricamento...</p>
+  <div class="auth-card">
 
-      <label><strong>Email</strong></label>
-      <input id="email" type="email" placeholder="es: nome@mail.com" autocomplete="email" />
+    <!-- Logo -->
+    <a class="auth-logo" href="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ag" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c5cff"/>
+            <stop offset="100%" stop-color="#31d0aa"/>
+          </linearGradient>
+        </defs>
+        <path d="M20 4 L6 32 H34 Z" fill="url(#ag)" opacity=".22"/>
+        <path d="M20 4 L6 32 H34 Z" fill="none" stroke="url(#ag)" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="20" cy="4" r="3" fill="#31d0aa"/>
+        <line x1="12" y1="24" x2="28" y2="24" stroke="url(#ag)" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+      </svg>
+      <span class="auth-logo-text">EleviAI</span>
+    </a>
 
-      <label><strong>Password</strong></label>
-      <input id="password" type="password" placeholder="min 6 caratteri" autocomplete="current-password" />
-
-      <div class="row" style="margin-top:8px;">
-        <button class="btn small" id="signup">Registrati</button>
-        <button class="btn small" id="login">Accedi</button>
-        <button class="btn small" id="logout" style="opacity:.85;">Logout</button>
-        <button class="btn small" id="resend" style="opacity:.85;">Reinvia verifica email</button>
-      </div>
-
-      <hr style="margin:18px 0; border-color:#2a3145;">
-
-      <h3 style="margin:0 0 10px;">Debug sessione</h3>
-      <pre id="debug"></pre>
+    <!-- Tabs -->
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab active" id="tab-login" role="tab" aria-selected="true" aria-controls="panel-login">
+        <span class="lang-it">Accedi</span>
+        <span class="lang-en">Login</span>
+      </button>
+      <button class="auth-tab" id="tab-signup" role="tab" aria-selected="false" aria-controls="panel-signup">
+        <span class="lang-it">Registrati</span>
+        <span class="lang-en">Sign up</span>
+      </button>
     </div>
+
+    <!-- Login panel -->
+    <div class="auth-panel active" id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+      <div class="field-group">
+        <label for="login-email">
+          <span class="lang-it">Email</span>
+          <span class="lang-en">Email</span>
+        </label>
+        <input id="login-email" type="email" placeholder="nome@esempio.com" autocomplete="email" />
+      </div>
+      <div class="field-group">
+        <label for="login-password">
+          <span class="lang-it">Password</span>
+          <span class="lang-en">Password</span>
+        </label>
+        <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button class="auth-submit" id="btn-login">
+        <span class="lang-it">Accedi</span>
+        <span class="lang-en">Login</span>
+      </button>
+      <div class="auth-msg" id="login-msg"></div>
+
+      <div class="auth-footer" style="margin-top:14px;">
+        <button class="link-btn" id="btn-resend">
+          <span class="lang-it">Reinvia email di verifica</span>
+          <span class="lang-en">Resend verification email</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sign-up panel -->
+    <div class="auth-panel" id="panel-signup" role="tabpanel" aria-labelledby="tab-signup">
+      <div class="field-group">
+        <label for="signup-email">
+          <span class="lang-it">Email</span>
+          <span class="lang-en">Email</span>
+        </label>
+        <input id="signup-email" type="email" placeholder="nome@esempio.com" autocomplete="email" />
+      </div>
+      <div class="field-group">
+        <label for="signup-password">
+          <span class="lang-it">Password</span>
+          <span class="lang-en">Password</span>
+        </label>
+        <input id="signup-password" type="password" placeholder="••••••• (min 6 caratteri)" autocomplete="new-password" />
+      </div>
+      <button class="auth-submit" id="btn-signup">
+        <span class="lang-it">Crea account</span>
+        <span class="lang-en">Create account</span>
+      </button>
+      <div class="auth-msg" id="signup-msg"></div>
+    </div>
+
+  </div>
+
+  <div class="auth-back">
+    <a href="index.html">
+      ← <span class="lang-it">Torna alla home</span><span class="lang-en">Back to home</span>
+    </a>
   </div>
 
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-    const statusEl = document.getElementById("status");
-    const debugEl = document.getElementById("debug");
-    const emailEl = document.getElementById("email");
-    const pwEl = document.getElementById("password");
-
-    const btnSignup = document.getElementById("signup");
-    const btnLogin = document.getElementById("login");
-    const btnLogout = document.getElementById("logout");
-    const btnResend = document.getElementById("resend");
-
+    // ---- Load Supabase config ----
     async function loadConfig() {
       const r = await fetch("/api/public-config");
-      if (!r.ok) throw new Error("public-config non raggiungibile (HTTP " + r.status + ")");
+      if (!r.ok) throw new Error("Config non raggiungibile (HTTP " + r.status + ")");
       const j = await r.json();
       if (!j.SUPABASE_URL || !j.SUPABASE_ANON_KEY) {
-        throw new Error("Chiavi Supabase mancanti. Configura env vars e fai redeploy.");
+        throw new Error("Chiavi Supabase mancanti.");
       }
       return j;
     }
 
-    function renderSession(session) {
-      debugEl.textContent = JSON.stringify(
-        {
-          hasSession: !!session,
-          user: session?.user ? {
-            id: session.user.id,
-            email: session.user.email,
-            email_confirmed_at: session.user.email_confirmed_at
-          } : null
-        },
-        null,
-        2
-      );
+    // ---- DOM refs ----
+    const tabLogin  = document.getElementById("tab-login");
+    const tabSignup = document.getElementById("tab-signup");
+    const panelLogin  = document.getElementById("panel-login");
+    const panelSignup = document.getElementById("panel-signup");
+
+    const loginEmail    = document.getElementById("login-email");
+    const loginPassword = document.getElementById("login-password");
+    const signupEmail    = document.getElementById("signup-email");
+    const signupPassword = document.getElementById("signup-password");
+
+    const btnLogin  = document.getElementById("btn-login");
+    const btnSignup = document.getElementById("btn-signup");
+    const btnResend = document.getElementById("btn-resend");
+
+    const loginMsg  = document.getElementById("login-msg");
+    const signupMsg = document.getElementById("signup-msg");
+
+    // ---- Tab switching ----
+    function showTab(name) {
+      const isLogin = name === "login";
+      tabLogin.classList.toggle("active", isLogin);
+      tabSignup.classList.toggle("active", !isLogin);
+      tabLogin.setAttribute("aria-selected", isLogin ? "true" : "false");
+      tabSignup.setAttribute("aria-selected", isLogin ? "false" : "true");
+      panelLogin.classList.toggle("active", isLogin);
+      panelSignup.classList.toggle("active", !isLogin);
+      hideMsg(loginMsg);
+      hideMsg(signupMsg);
+    }
+    tabLogin.addEventListener("click", () => showTab("login"));
+    tabSignup.addEventListener("click", () => showTab("signup"));
+
+    // ---- Messages ----
+    function showMsg(el, text, type = "error") {
+      el.textContent = text;
+      el.className = "auth-msg show " + type;
+    }
+    function hideMsg(el) {
+      el.className = "auth-msg";
+      el.textContent = "";
     }
 
-    let supabase;
-
-    async function refresh() {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        statusEl.textContent = "Non sei loggato.";
-        renderSession(null);
-        return;
-      }
-
-      const confirmed = !!session.user.email_confirmed_at;
-
-      if (confirmed) {
-        statusEl.textContent = "Loggato ✅ Email verificata ✅";
+    function setLoading(btn, loading) {
+      if (loading) {
+        btn.disabled = true;
+        btn.dataset.origHtml = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span>';
       } else {
-        statusEl.textContent = "Loggato ✅ Email NON verificata. Verifica la mail oppure reinvia.";
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.origHtml || btn.innerHTML;
       }
-
-      renderSession(session);
     }
 
+    // ---- Init Supabase ----
+    let supabase;
     try {
       const cfg = await loadConfig();
       supabase = createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
 
-      supabase.auth.onAuthStateChange(async () => {
-        await refresh();
-      });
-
-      await refresh();
-      statusEl.textContent = statusEl.textContent || "Pronto.";
-    } catch (e) {
-      console.error(e);
-      statusEl.textContent = "Errore: " + (e?.message || String(e));
-      debugEl.textContent = "";
-    }
-
-    btnSignup.addEventListener("click", async () => {
-      const email = emailEl.value.trim();
-      const password = pwEl.value.trim();
-      if (!email || !password) { alert("Inserisci email e password"); return; }
-
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: window.location.origin + "/auth.html" }
-      });
-
-      if (error) alert(error.message);
-      else alert("Registrazione ok. Controlla la mail e verifica l’account.");
-      await refresh();
-    });
-
-    btnLogin.addEventListener("click", async () => {
-      const email = emailEl.value.trim();
-      const password = pwEl.value.trim();
-      if (!email || !password) { alert("Inserisci email e password"); return; }
-
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) alert(error.message);
-      await refresh();
-
+      // If already logged in and verified → redirect
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user?.email_confirmed_at) {
-        window.location.href = "prova.html";
+        window.location.replace("prova.html");
+      }
+    } catch (e) {
+      showMsg(loginMsg, "Errore di configurazione: " + (e?.message || String(e)), "error");
+    }
+
+    // ---- Login ----
+    btnLogin.addEventListener("click", async () => {
+      hideMsg(loginMsg);
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value;
+      if (!email || !password) {
+        showMsg(loginMsg, document.documentElement.getAttribute("data-lang") === "en"
+          ? "Please enter email and password."
+          : "Inserisci email e password.", "error");
+        return;
+      }
+      setLoading(btnLogin, true);
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          showMsg(loginMsg, error.message, "error");
+          return;
+        }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.email_confirmed_at) {
+          window.location.replace("prova.html");
+        } else {
+          const lang = document.documentElement.getAttribute("data-lang");
+          showMsg(loginMsg,
+            lang === "en"
+              ? "Login successful. Please verify your email before continuing."
+              : "Accesso ok. Verifica la tua email prima di continuare.",
+            "info");
+        }
+      } catch (e) {
+        showMsg(loginMsg, e?.message || "Errore di rete.", "error");
+      } finally {
+        setLoading(btnLogin, false);
       }
     });
 
-    btnLogout.addEventListener("click", async () => {
-      await supabase.auth.signOut();
-      await refresh();
+    // Enter key on login fields
+    [loginEmail, loginPassword].forEach(el =>
+      el.addEventListener("keydown", e => { if (e.key === "Enter") btnLogin.click(); })
+    );
+
+    // ---- Sign up ----
+    btnSignup.addEventListener("click", async () => {
+      hideMsg(signupMsg);
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value;
+      const lang = document.documentElement.getAttribute("data-lang");
+      if (!email || !password) {
+        showMsg(signupMsg,
+          lang === "en" ? "Please enter email and password." : "Inserisci email e password.",
+          "error");
+        return;
+      }
+      if (password.length < 6) {
+        showMsg(signupMsg,
+          lang === "en" ? "Password must be at least 6 characters." : "La password deve essere di almeno 6 caratteri.",
+          "error");
+        return;
+      }
+      setLoading(btnSignup, true);
+      try {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin + "/auth.html" }
+        });
+        if (error) {
+          showMsg(signupMsg, error.message, "error");
+        } else {
+          showMsg(signupMsg,
+            lang === "en"
+              ? "Account created! Check your inbox and verify your email to continue."
+              : "Account creato! Controlla la tua email e verifica l'account per continuare.",
+            "success");
+          signupEmail.value = "";
+          signupPassword.value = "";
+        }
+      } catch (e) {
+        showMsg(signupMsg, e?.message || "Errore di rete.", "error");
+      } finally {
+        setLoading(btnSignup, false);
+      }
     });
 
+    // Enter key on signup fields
+    [signupEmail, signupPassword].forEach(el =>
+      el.addEventListener("keydown", e => { if (e.key === "Enter") btnSignup.click(); })
+    );
+
+    // ---- Resend verification ----
     btnResend.addEventListener("click", async () => {
-      const email = emailEl.value.trim();
-      if (!email) { alert("Inserisci la tua email nel campo Email"); return; }
-
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email,
-        options: { emailRedirectTo: window.location.origin + "/auth.html" }
-      });
-
-      if (error) alert(error.message);
-      else alert("Email di verifica reinviata (controlla inbox e spam).");
-      await refresh();
+      const lang = document.documentElement.getAttribute("data-lang");
+      const email = loginEmail.value.trim();
+      if (!email) {
+        showMsg(loginMsg,
+          lang === "en" ? "Enter your email above first." : "Inserisci prima la tua email nel campo sopra.",
+          "error");
+        return;
+      }
+      setLoading(btnResend, true);
+      try {
+        const { error } = await supabase.auth.resend({
+          type: "signup",
+          email,
+          options: { emailRedirectTo: window.location.origin + "/auth.html" }
+        });
+        if (error) {
+          showMsg(loginMsg, error.message, "error");
+        } else {
+          showMsg(loginMsg,
+            lang === "en"
+              ? "Verification email sent! Check your inbox (and spam)."
+              : "Email di verifica inviata! Controlla la tua casella (e la spam).",
+            "success");
+        }
+      } catch (e) {
+        showMsg(loginMsg, e?.message || "Errore di rete.", "error");
+      } finally {
+        setLoading(btnResend, false);
+      }
     });
   </script>
 </body>

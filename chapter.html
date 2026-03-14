@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EleviAI – Capitolo</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%237c5cff'/><stop offset='100%25' stop-color='%2331d0aa'/></linearGradient></defs><path d='M20 4 L6 32 H34 Z' fill='url(%23g)' opacity='.25'/><path d='M20 4 L6 32 H34 Z' fill='none' stroke='url(%23g)' stroke-width='2.5' stroke-linejoin='round'/><circle cx='20' cy='4' r='3' fill='%2331d0aa'/></svg>" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="lang-switch.js"></script>
   <style>
     .box { background:#141823; padding:20px; border-radius:12px; }
     .toolbar {
@@ -25,7 +27,7 @@
     }
     .chapter-title { font-size: 26px; font-weight: 800; margin-bottom: 14px; }
     .chapter-subtitle { font-size: 18px; font-weight: 700; margin-top: 18px; margin-bottom: 8px; }
-    .muted { opacity: 0.85; }
+    .muted { color: var(--muted); }
 
     @media print {
       .no-print { display: none !important; }
@@ -36,37 +38,86 @@
   </style>
 </head>
 <body>
+
+  <header class="container header no-print">
+    <a class="logo" href="prova.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" aria-hidden="true" style="width:28px;height:28px;">
+        <defs>
+          <linearGradient id="cg" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c5cff"/>
+            <stop offset="100%" stop-color="#31d0aa"/>
+          </linearGradient>
+        </defs>
+        <path d="M20 4 L6 32 H34 Z" fill="url(#cg)" opacity=".22"/>
+        <path d="M20 4 L6 32 H34 Z" fill="none" stroke="url(#cg)" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="20" cy="4" r="3" fill="#31d0aa"/>
+        <line x1="12" y1="24" x2="28" y2="24" stroke="url(#cg)" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+      </svg>
+      <span>EleviAI</span>
+    </a>
+    <div class="lang-switch">
+      <button class="lang-btn active" data-lang="it" type="button">IT</button>
+      <button class="lang-btn" data-lang="en" type="button">EN</button>
+    </div>
+  </header>
+
   <div class="container" style="padding:40px 0;">
-    <h1 id="page-title">Capitolo</h1>
+    <h1 id="page-title">
+      <span class="lang-it">Capitolo</span>
+      <span class="lang-en">Chapter</span>
+    </h1>
     <p id="chapter-info" class="muted"></p>
 
     <!-- TOOLBAR TTS + PDF -->
     <div class="toolbar no-print">
-      <button class="btn small" id="tts-play">Ascolta</button>
-      <button class="btn small ghost" id="tts-pause">Pausa</button>
+      <button class="btn small" id="tts-play">
+        <span class="lang-it">Ascolta</span>
+        <span class="lang-en">Listen</span>
+      </button>
+      <button class="btn small ghost" id="tts-pause">
+        <span class="lang-it">Pausa</span>
+        <span class="lang-en">Pause</span>
+      </button>
       <button class="btn small ghost" id="tts-stop">Stop</button>
 
       <label>
-        Velocità
+        <span class="lang-it">Velocità</span>
+        <span class="lang-en">Speed</span>
         <input id="tts-rate" type="range" min="0.7" max="1.3" step="0.05" value="1" />
         <span id="tts-rate-label">1.00x</span>
       </label>
 
       <label>
-        Voce
+        <span class="lang-it">Voce</span>
+        <span class="lang-en">Voice</span>
         <select id="tts-voice"></select>
       </label>
 
-      <button class="btn small" id="pdf">Scarica PDF</button>
+      <button class="btn small" id="pdf">
+        <span class="lang-it">Scarica PDF</span>
+        <span class="lang-en">Download PDF</span>
+      </button>
     </div>
 
     <div id="chapter-content" class="box" style="margin-top:16px;"></div>
 
     <div class="no-print" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-      <button class="btn ghost" id="prev-chapter" style="display:none;">Capitolo precedente</button>
-      <button class="btn" id="next-chapter" style="display:none;">Passa al capitolo successivo</button>
-      <button class="btn" id="go-quiz" style="display:none;">Vai al quiz</button>
-      <a href="prova.html" class="btn ghost">Torna alla prova gratuita</a>
+      <button class="btn ghost" id="prev-chapter" style="display:none;">
+        <span class="lang-it">Capitolo precedente</span>
+        <span class="lang-en">Previous chapter</span>
+      </button>
+      <button class="btn" id="next-chapter" style="display:none;">
+        <span class="lang-it">Capitolo successivo</span>
+        <span class="lang-en">Next chapter</span>
+      </button>
+      <button class="btn" id="go-quiz" style="display:none;">
+        <span class="lang-it">Vai al quiz</span>
+        <span class="lang-en">Go to quiz</span>
+      </button>
+      <a href="prova.html" class="btn ghost">
+        <span class="lang-it">Torna alla prova gratuita</span>
+        <span class="lang-en">Back to free trial</span>
+      </a>
     </div>
   </div>
 
@@ -86,25 +137,26 @@
       const nextBtn = document.getElementById("next-chapter");
       const quizBtn = document.getElementById("go-quiz");
 
-      // TTS controls
       const btnPlay = document.getElementById("tts-play");
       const btnPause = document.getElementById("tts-pause");
       const btnStop = document.getElementById("tts-stop");
       const rateEl = document.getElementById("tts-rate");
       const rateLabel = document.getElementById("tts-rate-label");
       const voiceSelect = document.getElementById("tts-voice");
-
-      // PDF
       const pdfBtn = document.getElementById("pdf");
 
+      function getLang() {
+        return document.documentElement.getAttribute("data-lang") || "it";
+      }
+
       if (!outline || !keywords) {
-        contentEl.textContent =
-          "Nessun corso trovato. Genera prima un indice dalla pagina di prova gratuita.";
+        contentEl.textContent = getLang() === "en"
+          ? "No course found. Generate an outline from the free trial page first."
+          : "Nessun corso trovato. Genera prima un indice dalla pagina di prova gratuita.";
         disableTTS();
         return;
       }
 
-      // Capitoli dall'indice
       const lines = outline.split("\n");
       const chapterLines = lines.filter((l) => /^\s*\d+[\.\)]/.test(l));
       const totalChapters = chapterLines.length || 1;
@@ -115,15 +167,19 @@
 
       const currentLine = (chapterLines[currentChapter - 1] || `Capitolo ${currentChapter}`).trim();
 
-      pageTitleEl.textContent = `Capitolo ${currentChapter}`;
-      infoEl.textContent = `Titolo: ${currentLine} — (${currentChapter}/${totalChapters}) — Lingua corso: ${language}`;
+      // Update page title (preserve lang spans, set number)
+      pageTitleEl.innerHTML =
+        `<span class="lang-it">Capitolo ${currentChapter}</span>` +
+        `<span class="lang-en">Chapter ${currentChapter}</span>`;
 
-      // Bottoni nav
+      const langLabel = getLang() === "en" ? "Chapter" : "Capitolo";
+      infoEl.textContent =
+        `${langLabel} ${currentChapter}/${totalChapters} — ${currentLine} — ${language}`;
+
       if (currentChapter > 1) prevBtn.style.display = "inline-block";
       if (currentChapter < totalChapters) nextBtn.style.display = "inline-block";
       else quizBtn.style.display = "inline-block";
 
-      // Render “pulito” (no #, no *)
       function escapeHtml(s) {
         return s
           .replaceAll("&", "&amp;")
@@ -135,67 +191,55 @@
 
       function renderChapter(text) {
         const rawLines = text.split("\n").map(l => l.trim()).filter(Boolean);
-
         let html = "";
         rawLines.forEach((line, idx) => {
           const safe = escapeHtml(line);
-
-          // Titolo del capitolo: prima riga se inizia con "CAPITOLO"
           if (idx === 0 && line.toUpperCase().startsWith("CAPITOLO")) {
             html += `<div class="chapter-title">${safe}</div>`;
             return;
           }
-
-          // Sottotitoli: righe brevi senza punto finale
           if (line.length <= 70 && !line.endsWith(".") && !line.endsWith(":")) {
             html += `<div class="chapter-subtitle">${safe}</div>`;
             return;
           }
-
           html += `<p>${safe}</p>`;
         });
-
-        return html || "<p>Nessun contenuto.</p>";
+        return html || (getLang() === "en" ? "<p>No content.</p>" : "<p>Nessun contenuto.</p>");
       }
 
-      contentEl.textContent = "Generazione del capitolo in corso... ⏳";
+      contentEl.textContent = getLang() === "en"
+        ? "Generating chapter... ⏳"
+        : "Generazione del capitolo in corso... ⏳";
 
-      // Fetch capitolo
       fetch("/api/generateChapter", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer " + authToken
         },
-        body: JSON.stringify({
-          keywords,
-          language,
-          outline,
-          chapterNumber: currentChapter
-        })
+        body: JSON.stringify({ keywords, language, outline, chapterNumber: currentChapter })
       })
         .then((r) => r.json())
         .then((data) => {
           if (!data || !data.chapterContent) {
-            contentEl.textContent = "Errore: nessun contenuto del capitolo ricevuto dall'AI.";
-            console.error("generateChapter error:", data);
+            contentEl.textContent = getLang() === "en"
+              ? "Error: no chapter content received from AI."
+              : "Errore: nessun contenuto del capitolo ricevuto dall'AI.";
             disableTTS();
             return;
           }
-
-          // Salviamo contenuto capitolo per uso TTS / PDF
           localStorage.setItem(`eleviai_chapter_${currentChapter}_text`, data.chapterContent);
-
           contentEl.innerHTML = renderChapter(data.chapterContent);
           setupTTS();
         })
         .catch((err) => {
-          contentEl.textContent = "Errore di rete durante la generazione del capitolo.";
+          contentEl.textContent = getLang() === "en"
+            ? "Network error while generating the chapter."
+            : "Errore di rete durante la generazione del capitolo.";
           console.error("Network error (chapter):", err);
           disableTTS();
         });
 
-      // Navigazione
       prevBtn.addEventListener("click", () => {
         stopSpeaking();
         if (currentChapter > 1) {
@@ -215,15 +259,12 @@
         window.location.href = "quiz.html";
       });
 
-      // PDF (stampa → Salva come PDF)
       pdfBtn.addEventListener("click", () => {
         stopSpeaking();
-        // titolo più utile per stampa
         document.title = `EleviAI - Capitolo ${currentChapter}`;
         window.print();
       });
 
-      // -------- TTS --------
       let utter = null;
 
       function disableTTS() {
@@ -236,17 +277,13 @@
 
       function stopSpeaking() {
         try {
-          if ("speechSynthesis" in window) {
-            window.speechSynthesis.cancel();
-          }
+          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
         } catch {}
       }
 
       function getReadableTextFromDOM() {
-        // legge i paragrafi e i “titoli” già renderizzati
         const parts = [];
-        const nodes = contentEl.querySelectorAll(".chapter-title, .chapter-subtitle, p");
-        nodes.forEach(n => {
+        contentEl.querySelectorAll(".chapter-title, .chapter-subtitle, p").forEach(n => {
           const t = (n.textContent || "").trim();
           if (t) parts.push(t);
         });
@@ -254,12 +291,9 @@
       }
 
       function setupTTS() {
-        if (!("speechSynthesis" in window)) {
-          disableTTS();
-          return;
-        }
+        if (!("speechSynthesis" in window)) { disableTTS(); return; }
 
-        rateLabel.textContent = (Number(rateEl.value)).toFixed(2) + "x";
+        rateLabel.textContent = Number(rateEl.value).toFixed(2) + "x";
 
         function populateVoices() {
           const voices = window.speechSynthesis.getVoices() || [];
@@ -271,30 +305,22 @@
             voiceSelect.appendChild(opt);
           });
         }
-
         populateVoices();
-        // su alcuni browser le voci arrivano dopo
         window.speechSynthesis.onvoiceschanged = populateVoices;
 
         rateEl.addEventListener("input", () => {
-          rateLabel.textContent = (Number(rateEl.value)).toFixed(2) + "x";
+          rateLabel.textContent = Number(rateEl.value).toFixed(2) + "x";
         });
 
         btnPlay.addEventListener("click", () => {
           stopSpeaking();
-
           const text = getReadableTextFromDOM();
           if (!text) return;
-
           utter = new SpeechSynthesisUtterance(text);
           utter.rate = Number(rateEl.value);
-
           const voices = window.speechSynthesis.getVoices() || [];
           const voiceIdx = parseInt(voiceSelect.value || "0", 10);
-          if (voices[voiceIdx]) {
-            utter.voice = voices[voiceIdx];
-          }
-
+          if (voices[voiceIdx]) utter.voice = voices[voiceIdx];
           window.speechSynthesis.speak(utter);
         });
 
