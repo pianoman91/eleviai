@@ -8,48 +8,73 @@
   <meta property="og:title" content="EleviAI — Seminari AI personalizzati" />
   <meta property="og:description" content="Seminari su misura generati dall'AI, con quiz e badge." />
   <meta property="og:type" content="website" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%237c5cff'/><stop offset='100%25' stop-color='%2331d0aa'/></linearGradient></defs><path d='M20 4 L6 32 H34 Z' fill='url(%23g)' opacity='.25'/><path d='M20 4 L6 32 H34 Z' fill='none' stroke='url(%23g)' stroke-width='2.5' stroke-linejoin='round'/><circle cx='20' cy='4' r='3' fill='%2331d0aa'/></svg>" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="lang-switch.js"></script>
 
   <style>
-    .lang-it { display: inline; }
-    .lang-en { display: none; }
+    /* Hero logo block (large display on homepage) */
+    .hero-logo-block {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .hero-logo-block svg {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+    }
+    .hero-logo-text {
+      font-size: clamp(42px, 8vw, 72px);
+      font-weight: 900;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #7c5cff 0%, #31d0aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
 
-    html[data-lang="en"] .lang-it { display: none; }
-    html[data-lang="en"] .lang-en { display: inline; }
+    /* Nav logo (smaller) */
+    .logo svg { width: 32px; height: 32px; }
+    .logo span { font-size: 22px; }
 
-    .lang-switch {
+    /* Lang switch bar below header */
+    .lang-switch-bar {
       display: flex;
       gap: 8px;
       align-items: center;
       justify-content: flex-end;
-      max-width: 960px;
+      max-width: 1100px;
+      width: min(1100px, 92%);
       margin: 0 auto;
-      padding: 0 16px 8px;
-      font-size: 12px;
-    }
-
-    .lang-btn {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid #2a3145;
-      background: #0b0f1c;
-      cursor: pointer;
-      opacity: 0.7;
-      color: inherit;
-    }
-
-    .lang-btn.active {
-      border-color: var(--brand-2, #31d0aa);
-      background: rgba(49, 208, 170, 0.12);
-      opacity: 1;
+      padding: 6px 0 10px;
     }
   </style>
 </head>
 <body>
+
   <header class="container header">
-    <a class="logo" href="#home">EleviAI</a>
+    <a class="logo" href="#home">
+      <!-- EleviAI icon: upward triangle representing elevation -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c5cff"/>
+            <stop offset="100%" stop-color="#31d0aa"/>
+          </linearGradient>
+        </defs>
+        <!-- Upward triangle body -->
+        <path d="M20 4 L6 32 H34 Z" fill="url(#logo-grad)" opacity=".2"/>
+        <path d="M20 4 L6 32 H34 Z" fill="none" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- Apex dot -->
+        <circle cx="20" cy="4" r="3" fill="#31d0aa"/>
+        <!-- Two inner lines suggesting "A" crossbar / AI circuits -->
+        <line x1="12" y1="24" x2="28" y2="24" stroke="url(#logo-grad)" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+      </svg>
+      <span>EleviAI</span>
+    </a>
     <nav class="nav">
       <a href="#funziona">
         <span class="lang-it">Come funziona</span>
@@ -63,10 +88,7 @@
         <span class="lang-it">Prezzi</span>
         <span class="lang-en">Pricing</span>
       </a>
-      <a href="#cta" class="btn small">
-        <span class="lang-it">Early Access</span>
-        <span class="lang-en">Early Access</span>
-      </a>
+      <a href="#cta" class="btn small">Early Access</a>
       <a href="auth.html" class="btn ghost">
         <span class="lang-it">Prova gratuita</span>
         <span class="lang-en">Free trial</span>
@@ -74,13 +96,38 @@
     </nav>
   </header>
 
-  <div class="lang-switch">
-    <button class="lang-btn active" data-lang="it" type="button">IT</button>
-    <button class="lang-btn" data-lang="en" type="button">EN</button>
+  <!-- Language switcher bar (below header, top-right) -->
+  <div class="lang-switch-bar">
+    <div class="lang-switch">
+      <button class="lang-btn active" data-lang="it" type="button">IT</button>
+      <button class="lang-btn" data-lang="en" type="button">EN</button>
+    </div>
   </div>
 
   <main id="home">
     <section class="hero container">
+
+      <!-- Large hero logo -->
+      <div class="hero-logo-block">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="hero-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#7c5cff"/>
+              <stop offset="100%" stop-color="#31d0aa"/>
+            </linearGradient>
+          </defs>
+          <path d="M20 4 L6 32 H34 Z" fill="url(#hero-grad)" opacity=".25"/>
+          <path d="M20 4 L6 32 H34 Z" fill="none" stroke="url(#hero-grad)" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="20" cy="4" r="3.5" fill="#31d0aa"/>
+          <line x1="12" y1="24" x2="28" y2="24" stroke="url(#hero-grad)" stroke-width="1.8" stroke-linecap="round" opacity=".65"/>
+          <!-- Small circuit dots on base -->
+          <circle cx="10" cy="31" r="2" fill="url(#hero-grad)" opacity=".7"/>
+          <circle cx="20" cy="31" r="2" fill="url(#hero-grad)" opacity=".7"/>
+          <circle cx="30" cy="31" r="2" fill="url(#hero-grad)" opacity=".7"/>
+        </svg>
+        <div class="hero-logo-text">EleviAI</div>
+      </div>
+
       <h1>
         <span class="lang-it">Seminari AI su misura. <br />Impara e sviluppa la tua carriera.</span>
         <span class="lang-en">Tailored AI Lectures. <br />Learn and develop your career.</span>
@@ -245,12 +292,12 @@
 
     <section id="cta" class="container cta">
       <h2>
-        <span class="lang-it">Richiedi l’accesso in anteprima</span>
+        <span class="lang-it">Richiedi l'accesso in anteprima</span>
         <span class="lang-en">Request early access</span>
       </h2>
       <p>
-        <span class="lang-it">Lascia la tua email: ti invieremo l’invito quando la beta è pronta.</span>
-        <span class="lang-en">Leave your email: we’ll invite you as soon as the beta is ready.</span>
+        <span class="lang-it">Lascia la tua email: ti invieremo l'invito quando la beta è pronta.</span>
+        <span class="lang-en">Leave your email: we'll invite you as soon as the beta is ready.</span>
       </p>
       <form id="early-form">
         <input type="email" id="email" placeholder="la-tua@email.com" required />
@@ -278,26 +325,6 @@
       <span class="lang-en">Back to top ↑</span>
     </a>
   </footer>
-
-  <script>
-    (function () {
-      const html = document.documentElement;
-      const saved = window.localStorage.getItem("eleviai_lang");
-      const initialLang = saved === "en" ? "en" : "it";
-      html.setAttribute("data-lang", initialLang);
-
-      const buttons = document.querySelectorAll(".lang-btn");
-      buttons.forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.lang === initialLang);
-        btn.addEventListener("click", () => {
-          const lang = btn.dataset.lang;
-          html.setAttribute("data-lang", lang);
-          window.localStorage.setItem("eleviai_lang", lang);
-          buttons.forEach((b) => b.classList.toggle("active", b === btn));
-        });
-      });
-    })();
-  </script>
 
   <script src="script.js"></script>
 </body>

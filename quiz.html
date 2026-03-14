@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EleviAI – Quiz finale</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%237c5cff'/><stop offset='100%25' stop-color='%2331d0aa'/></linearGradient></defs><path d='M20 4 L6 32 H34 Z' fill='url(%23g)' opacity='.25'/><path d='M20 4 L6 32 H34 Z' fill='none' stroke='url(%23g)' stroke-width='2.5' stroke-linejoin='round'/><circle cx='20' cy='4' r='3' fill='%2331d0aa'/></svg>" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="lang-switch.js"></script>
   <style>
     .box { background:#141823; padding:20px; border-radius:12px; }
     .toolbar {
@@ -32,27 +34,67 @@
   </style>
 </head>
 <body>
+
+  <header class="container header no-print">
+    <a class="logo" href="prova.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" aria-hidden="true" style="width:28px;height:28px;">
+        <defs>
+          <linearGradient id="qg" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c5cff"/>
+            <stop offset="100%" stop-color="#31d0aa"/>
+          </linearGradient>
+        </defs>
+        <path d="M20 4 L6 32 H34 Z" fill="url(#qg)" opacity=".22"/>
+        <path d="M20 4 L6 32 H34 Z" fill="none" stroke="url(#qg)" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="20" cy="4" r="3" fill="#31d0aa"/>
+        <line x1="12" y1="24" x2="28" y2="24" stroke="url(#qg)" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+      </svg>
+      <span>EleviAI</span>
+    </a>
+    <div class="lang-switch">
+      <button class="lang-btn active" data-lang="it" type="button">IT</button>
+      <button class="lang-btn" data-lang="en" type="button">EN</button>
+    </div>
+  </header>
+
   <div class="container" style="padding:40px 0;">
-    <h1>Quiz finale</h1>
-    <p class="muted">Dopo il quiz, in fondo trovi soluzioni e badge verificato.</p>
+    <h1>
+      <span class="lang-it">Quiz finale</span>
+      <span class="lang-en">Final quiz</span>
+    </h1>
+    <p class="muted">
+      <span class="lang-it">Dopo il quiz, in fondo trovi soluzioni e badge verificato.</span>
+      <span class="lang-en">After the quiz, you'll find solutions and a verified badge at the bottom.</span>
+    </p>
 
     <div class="toolbar no-print">
-      <button class="btn small" id="tts-play">Ascolta</button>
-      <button class="btn small ghost" id="tts-pause">Pausa</button>
+      <button class="btn small" id="tts-play">
+        <span class="lang-it">Ascolta</span>
+        <span class="lang-en">Listen</span>
+      </button>
+      <button class="btn small ghost" id="tts-pause">
+        <span class="lang-it">Pausa</span>
+        <span class="lang-en">Pause</span>
+      </button>
       <button class="btn small ghost" id="tts-stop">Stop</button>
 
       <label>
-        Velocità
+        <span class="lang-it">Velocità</span>
+        <span class="lang-en">Speed</span>
         <input id="tts-rate" type="range" min="0.7" max="1.3" step="0.05" value="1" />
         <span id="tts-rate-label">1.00x</span>
       </label>
 
       <label>
-        Voce
+        <span class="lang-it">Voce</span>
+        <span class="lang-en">Voice</span>
         <select id="tts-voice"></select>
       </label>
 
-      <button class="btn small" id="pdf">Scarica PDF</button>
+      <button class="btn small" id="pdf">
+        <span class="lang-it">Scarica PDF</span>
+        <span class="lang-en">Download PDF</span>
+      </button>
     </div>
 
     <div id="quiz" class="box" style="margin-top:16px; white-space:pre-wrap;"></div>
@@ -60,8 +102,14 @@
     <div id="badge-area" style="margin-top:20px;"></div>
 
     <div class="no-print" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-      <a href="chapter.html" class="btn ghost">Torna ai capitoli</a>
-      <a href="prova.html" class="btn ghost">Torna alla prova gratuita</a>
+      <a href="chapter.html" class="btn ghost">
+        <span class="lang-it">Torna ai capitoli</span>
+        <span class="lang-en">Back to chapters</span>
+      </a>
+      <a href="prova.html" class="btn ghost">
+        <span class="lang-it">Torna alla prova gratuita</span>
+        <span class="lang-en">Back to free trial</span>
+      </a>
     </div>
   </div>
 
@@ -81,16 +129,23 @@
       const rateEl = document.getElementById("tts-rate");
       const rateLabel = document.getElementById("tts-rate-label");
       const voiceSelect = document.getElementById("tts-voice");
-
       const pdfBtn = document.getElementById("pdf");
 
+      function getLang() {
+        return document.documentElement.getAttribute("data-lang") || "it";
+      }
+
       if (!outline || !keywords) {
-        quizBox.textContent = "Nessun quiz disponibile. Genera prima un corso dalla pagina di prova gratuita.";
+        quizBox.textContent = getLang() === "en"
+          ? "No quiz available. Generate a course from the free trial page first."
+          : "Nessun quiz disponibile. Genera prima un corso dalla pagina di prova gratuita.";
         disableTTS();
         return;
       }
 
-      quizBox.textContent = "Generazione del quiz finale in corso... ⏳";
+      quizBox.textContent = getLang() === "en"
+        ? "Generating final quiz... ⏳"
+        : "Generazione del quiz finale in corso... ⏳";
 
       fetch("/api/generateQuiz", {
         method: "POST",
@@ -103,8 +158,9 @@
         .then((r) => r.json())
         .then((data) => {
           if (!data || !data.quiz) {
-            quizBox.textContent = "Errore: nessun quiz ricevuto dall'AI.";
-            console.error("generateQuiz error:", data);
+            quizBox.textContent = getLang() === "en"
+              ? "Error: no quiz received from AI."
+              : "Errore: nessun quiz ricevuto dall'AI.";
             disableTTS();
             return;
           }
@@ -112,26 +168,31 @@
           quizBox.textContent = data.quiz;
           localStorage.setItem("eleviai_last_quiz_text", data.quiz);
 
-          // Badge finale (solo qui)
-          const now = new Date().toLocaleDateString("it-IT");
+          const now = new Date().toLocaleDateString(getLang() === "en" ? "en-US" : "it-IT");
           const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
-
           const firstLine =
             (outline.split("\n").map((l) => l.trim()).filter(Boolean)[0]) ||
             "Microcorso EleviAI";
+
+          const badgeTitleText = getLang() === "en"
+            ? "EleviAI Badge – Verified course"
+            : "Badge EleviAI – Corso verificato";
+          const completedLabel = getLang() === "en" ? "Completed on" : "Completato il";
+          const verifyLabel = getLang() === "en" ? "Verification ID" : "ID verifica";
+          const shareLabel = getLang() === "en" ? "Share on LinkedIn" : "Condividi su LinkedIn";
 
           badgeArea.innerHTML = `
             <div class="badge-card">
               <div class="badge-icon">✓</div>
               <div class="badge-text">
-                <div class="badge-title">Badge EleviAI – Corso verificato</div>
+                <div class="badge-title">${badgeTitleText}</div>
                 <div class="badge-body">
-                  Corso: ${escapeHtml(firstLine)}<br/>
-                  Completato il: ${now}<br/>
-                  ID verifica: ${badgeId}
+                  ${getLang() === "en" ? "Course" : "Corso"}: ${escapeHtml(firstLine)}<br/>
+                  ${completedLabel}: ${now}<br/>
+                  ${verifyLabel}: ${badgeId}
                 </div>
-                <button class="btn small badge-share no-print" data-course-title="${escapeAttr(firstLine)}">
-                  Condividi su LinkedIn
+                <button class="btn small badge-share no-print" data-course-title="${escapeAttr(firstLine)}" style="margin-top:8px;">
+                  ${shareLabel}
                 </button>
               </div>
             </div>
@@ -153,7 +214,9 @@
           setupTTS();
         })
         .catch((err) => {
-          quizBox.textContent = "Errore di rete durante la generazione del quiz.";
+          quizBox.textContent = getLang() === "en"
+            ? "Network error while generating the quiz."
+            : "Errore di rete durante la generazione del quiz.";
           console.error("Network error (quiz):", err);
           disableTTS();
         });
@@ -170,14 +233,12 @@
         return (s || "").replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
       }
 
-      // PDF
       pdfBtn.addEventListener("click", () => {
         stopSpeaking();
         document.title = "EleviAI - Quiz";
         window.print();
       });
 
-      // -------- TTS --------
       let utter = null;
 
       function disableTTS() {
@@ -195,12 +256,9 @@
       }
 
       function setupTTS() {
-        if (!("speechSynthesis" in window)) {
-          disableTTS();
-          return;
-        }
+        if (!("speechSynthesis" in window)) { disableTTS(); return; }
 
-        rateLabel.textContent = (Number(rateEl.value)).toFixed(2) + "x";
+        rateLabel.textContent = Number(rateEl.value).toFixed(2) + "x";
 
         function populateVoices() {
           const voices = window.speechSynthesis.getVoices() || [];
@@ -216,21 +274,18 @@
         window.speechSynthesis.onvoiceschanged = populateVoices;
 
         rateEl.addEventListener("input", () => {
-          rateLabel.textContent = (Number(rateEl.value)).toFixed(2) + "x";
+          rateLabel.textContent = Number(rateEl.value).toFixed(2) + "x";
         });
 
         btnPlay.addEventListener("click", () => {
           stopSpeaking();
           const text = (quizBox.textContent || "").trim();
           if (!text) return;
-
           utter = new SpeechSynthesisUtterance(text);
           utter.rate = Number(rateEl.value);
-
           const voices = window.speechSynthesis.getVoices() || [];
           const voiceIdx = parseInt(voiceSelect.value || "0", 10);
           if (voices[voiceIdx]) utter.voice = voices[voiceIdx];
-
           window.speechSynthesis.speak(utter);
         });
 

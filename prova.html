@@ -1,83 +1,146 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EleviAI – Prova gratuita</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%237c5cff'/><stop offset='100%25' stop-color='%2331d0aa'/></linearGradient></defs><path d='M20 4 L6 32 H34 Z' fill='url(%23g)' opacity='.25'/><path d='M20 4 L6 32 H34 Z' fill='none' stroke='url(%23g)' stroke-width='2.5' stroke-linejoin='round'/><circle cx='20' cy='4' r='3' fill='%2331d0aa'/></svg>" />
   <link rel="stylesheet" href="styles.css">
+  <script src="lang-switch.js"></script>
   <style>
     .box { background:#141823; padding:20px; border-radius:12px; }
-    textarea { width:100%; height:80px; padding:10px; border-radius:8px; background:#0c1020; color:white; border:1px solid #2a3145; }
-    input[type="text"] { width:100%; margin:8px 0 16px; padding:10px; border-radius:8px; border:1px solid #2a3145; background:#0c1020; color:white; }
-    .muted { opacity:.85; }
+    textarea {
+      width:100%; height:80px; padding:10px; border-radius:8px;
+      background:#0c1020; color:white; border:1px solid #2a3145;
+    }
+    input[type="text"] {
+      width:100%; margin:8px 0 16px; padding:10px;
+      border-radius:8px; border:1px solid #2a3145;
+      background:#0c1020; color:white;
+    }
+    .muted { color: var(--muted); }
     .disabled { opacity:.55; pointer-events:none; filter:grayscale(20%); }
   </style>
 </head>
-
-  <script src="i18n.js"></script>
-
 <body>
 
-  <header style="
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:16px 24px;
-  border-bottom:1px solid #2a3145;
-">
-  <a href="index.html"
-     data-i18n="home"
-     style="font-weight:600; text-decoration:none; color:white;">
-    Home
-  </a>
-
-  <button onclick="toggleLanguage()"
-          class="btn small"
-          style="opacity:.85;">
-    IT / EN
-  </button>
-</header>
+  <header class="container header">
+    <a class="logo" href="index.html">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" aria-hidden="true" style="width:28px;height:28px;">
+        <defs>
+          <linearGradient id="pg" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#7c5cff"/>
+            <stop offset="100%" stop-color="#31d0aa"/>
+          </linearGradient>
+        </defs>
+        <path d="M20 4 L6 32 H34 Z" fill="url(#pg)" opacity=".22"/>
+        <path d="M20 4 L6 32 H34 Z" fill="none" stroke="url(#pg)" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="20" cy="4" r="3" fill="#31d0aa"/>
+        <line x1="12" y1="24" x2="28" y2="24" stroke="url(#pg)" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+      </svg>
+      <span>EleviAI</span>
+    </a>
+    <div class="lang-switch">
+      <button class="lang-btn active" data-lang="it" type="button">IT</button>
+      <button class="lang-btn" data-lang="en" type="button">EN</button>
+    </div>
+  </header>
 
   <div class="container" style="padding:40px 0;">
-    <h1>Prova gratuita – Genera un microcorso con l’AI</h1>
-    <p id="auth-status" class="muted">Controllo accesso...</p>
+    <h1>
+      <span class="lang-it">Prova gratuita – Genera un microcorso con l'AI</span>
+      <span class="lang-en">Free trial – Generate a micro-course with AI</span>
+    </h1>
+    <p id="auth-status" class="muted">
+      <span class="lang-it">Controllo accesso...</span>
+      <span class="lang-en">Checking access...</span>
+    </p>
 
     <div id="main-ui">
-      <p>Inserisci alcune parole chiave (es: "CAD", "modellazione 3D", "principiante")</p>
+      <p>
+        <span class="lang-it">Inserisci alcune parole chiave (es: "CAD", "modellazione 3D", "principiante")</span>
+        <span class="lang-en">Enter some keywords (e.g. "CAD", "3D modelling", "beginner")</span>
+      </p>
 
-      <label><strong>Lingua del corso</strong> (scrivi qualsiasi lingua)</label>
+      <label>
+        <strong>
+          <span class="lang-it">Lingua del corso</span>
+          <span class="lang-en">Course language</span>
+        </strong>
+        <span class="lang-it" style="font-size:13px; color:var(--muted);"> (scrivi qualsiasi lingua)</span>
+        <span class="lang-en" style="font-size:13px; color:var(--muted);"> (any language)</span>
+      </label>
       <input id="courseLanguage" type="text" placeholder="es: Italiano, English, Español, 日本語..." />
 
-      <textarea id="keywords" placeholder="Inserisci 2-5 parole chiave..."></textarea>
-      <button class="btn" id="generate">Generate lecture</button>
+      <label>
+        <strong>
+          <span class="lang-it">Parole chiave</span>
+          <span class="lang-en">Keywords</span>
+        </strong>
+      </label>
+      <textarea id="keywords">
+        <span class="lang-it">Inserisci 2-5 parole chiave...</span>
+        <span class="lang-en">Enter 2-5 keywords...</span>
+      </textarea>
+      <button class="btn" id="generate" style="margin-top:10px;">
+        <span class="lang-it">Genera lezione</span>
+        <span class="lang-en">Generate lecture</span>
+      </button>
 
-      <h2>Risultato:</h2>
+      <h2 style="margin-top:28px;">
+        <span class="lang-it">Risultato:</span>
+        <span class="lang-en">Result:</span>
+      </h2>
       <div id="output" class="box"></div>
 
       <hr style="margin: 32px 0; border-color: #2a3145;">
 
-      <h2>Suggerimenti corsi dalla tua carriera</h2>
+      <h2>
+        <span class="lang-it">Suggerimenti corsi dalla tua carriera</span>
+        <span class="lang-en">Course suggestions from your career</span>
+      </h2>
       <p>
-        In alternativa alle parole chiave, puoi:
-        <br>• inserire il link al tuo profilo LinkedIn, oppure
-        <br>• inserire Nome, Cognome e Job title.
+        <span class="lang-it">
+          In alternativa alle parole chiave, puoi:<br>
+          • inserire il link al tuo profilo LinkedIn, oppure<br>
+          • inserire Nome, Cognome e Job title.
+        </span>
+        <span class="lang-en">
+          Instead of keywords, you can:<br>
+          • enter your LinkedIn profile link, or<br>
+          • enter First name, Last name and Job title.
+        </span>
       </p>
 
       <div class="box">
-        <label for="linkedin"><strong>Link profilo LinkedIn (opzionale)</strong></label><br/>
+        <label for="linkedin">
+          <strong>
+            <span class="lang-it">Link profilo LinkedIn (opzionale)</span>
+            <span class="lang-en">LinkedIn profile link (optional)</span>
+          </strong>
+        </label><br/>
         <input type="text" id="linkedin" placeholder="https://www.linkedin.com/in/..." />
 
-        <p class="muted" style="margin:10px 0 6px;">Oppure inserisci i campi:</p>
+        <p class="muted" style="margin:10px 0 6px;">
+          <span class="lang-it">Oppure inserisci i campi:</span>
+          <span class="lang-en">Or fill in the fields:</span>
+        </p>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <input type="text" id="firstName" placeholder="Nome" style="flex:1 1 120px;" />
-          <input type="text" id="lastName" placeholder="Cognome" style="flex:1 1 120px;" />
+          <input type="text" id="firstName" placeholder="Nome / First name" style="flex:1 1 120px;" />
+          <input type="text" id="lastName" placeholder="Cognome / Last name" style="flex:1 1 120px;" />
           <input type="text" id="jobTitle" placeholder="Job title (es: Mechanical Design Engineer)" style="flex:1 1 220px;" />
         </div>
 
-        <button class="btn small" id="suggest">Suggerisci 3 corsi per la mia carriera</button>
+        <button class="btn small" id="suggest" style="margin-top:12px;">
+          <span class="lang-it">Suggerisci 3 corsi per la mia carriera</span>
+          <span class="lang-en">Suggest 3 courses for my career</span>
+        </button>
       </div>
 
-      <h3 style="margin-top:18px;">Suggerimenti di corso:</h3>
+      <h3 style="margin-top:18px;">
+        <span class="lang-it">Suggerimenti di corso:</span>
+        <span class="lang-en">Course suggestions:</span>
+      </h3>
       <div id="suggestions" class="box"></div>
     </div>
   </div>
@@ -105,14 +168,17 @@
       window.location.href = "auth.html";
     } else {
       const confirmed = !!session.user.email_confirmed_at;
+      const lang = document.documentElement.getAttribute("data-lang");
 
       if (!confirmed) {
-        authStatus.textContent = "Email NON verificata. Vai su Login e verifica (o reinvia) prima di usare la prova.";
+        authStatus.textContent = lang === "en"
+          ? "Email not verified. Go to Login and verify (or resend) before using the trial."
+          : "Email NON verificata. Vai su Login e verifica (o reinvia) prima di usare la prova.";
         mainUI.classList.add("disabled");
         btnGenerate.disabled = true;
         btnSuggest.disabled = true;
       } else {
-        authStatus.textContent = "Accesso ok ✅";
+        authStatus.textContent = lang === "en" ? "Access granted ✅" : "Accesso ok ✅";
       }
     }
 
