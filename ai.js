@@ -3,6 +3,13 @@ const output = document.getElementById("output");
 const textarea = document.getElementById("keywords");
 const courseLangInput = document.getElementById("courseLanguage");
 
+const suggestBtn = document.getElementById("suggest");
+const suggestionsBox = document.getElementById("suggestions");
+
+function getLang() {
+  return document.documentElement.getAttribute("data-lang") || "it";
+}
+
 async function safeReadJson(response) {
   const text = await response.text();
   try {
@@ -12,13 +19,15 @@ async function safeReadJson(response) {
   }
 }
 
+// ---- Generate lecture outline ----
 generateBtn?.addEventListener("click", async () => {
   const kw = textarea ? textarea.value.trim() : "";
   const langPrefRaw = courseLangInput ? courseLangInput.value.trim() : "";
   const langPref = langPrefRaw || "Italiano";
+  const lang = getLang();
 
   if (!kw) {
-    output.innerHTML = "<p>Inserisci almeno una parola chiave.</p>";
+    output.innerHTML = `<p>${lang === "en" ? "Enter at least one keyword." : "Inserisci almeno una parola chiave."}</p>`;
     return;
   }
 
@@ -28,45 +37,34 @@ generateBtn?.addEventListener("click", async () => {
     return;
   }
 
-  output.innerHTML = "<p>Generazione dell'indice del corso in corso... ⏳</p>";
+  output.innerHTML = `<p>${lang === "en" ? "Generating course outline... ⏳" : "Generazione dell'indice del corso in corso... ⏳"}</p>`;
 
   try {
-    const response = await fetch(`/api/generateOutline`, {
+    const response = await fetch("/api/generateOutline", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token
       },
-      body: JSON.stringify({
-        keywords: kw,
-        language: langPref
-      })
+      body: JSON.stringify({ keywords: kw, language: langPref })
     });
 
     const parsed = await safeReadJson(response);
 
     if (!response.ok) {
-      // se non è JSON, mostro il testo grezzo
       const msg = parsed.ok ? (parsed.data?.error || `Errore HTTP ${response.status}`) : parsed.raw;
-
-      output.innerHTML = `
-        <p><strong>Errore server:</strong> ${msg}</p>
-        <p class="tiny" style="opacity:.8;">Status: ${response.status}</p>
-      `;
-      console.error("API error:", { status: response.status, parsed });
+      output.innerHTML = `<p><strong>${lang === "en" ? "Server error" : "Errore server"}:</strong> ${msg}</p>`;
       return;
     }
 
     if (!parsed.ok) {
       output.innerHTML = `<p><strong>Errore:</strong> risposta non JSON dal server.</p><pre>${parsed.raw}</pre>`;
-      console.error("Non-JSON success response:", parsed.raw);
       return;
     }
 
     const outlineText = parsed.data?.outline;
     if (!outlineText) {
-      output.innerHTML = "<p>Nessun indice restituito dall'AI.</p>";
-      console.error("No outline:", parsed.data);
+      output.innerHTML = `<p>${lang === "en" ? "No outline returned from AI." : "Nessun indice restituito dall'AI."}</p>`;
       return;
     }
 
@@ -76,9 +74,11 @@ generateBtn?.addEventListener("click", async () => {
     localStorage.setItem("eleviai_current_chapter", "1");
 
     output.innerHTML = `
-      <h2>Indice del corso</h2>
-      <pre style="white-space: pre-wrap; margin-bottom: 16px;">${outlineText}</pre>
-      <button class="btn small" id="start-course">Inizia dal capitolo 1</button>
+      <h2>${lang === "en" ? "Course outline" : "Indice del corso"}</h2>
+      <pre style="white-space:pre-wrap; margin-bottom:16px;">${outlineText}</pre>
+      <button class="btn small" id="start-course">
+        ${lang === "en" ? "Start from chapter 1" : "Inizia dal capitolo 1"}
+      </button>
     `;
 
     document.getElementById("start-course")?.addEventListener("click", () => {
@@ -86,7 +86,134 @@ generateBtn?.addEventListener("click", async () => {
     });
 
   } catch (err) {
-    output.innerHTML = "<p><strong>Errore di rete:</strong> controlla la connessione e riprova.</p>";
+    output.innerHTML = `<p><strong>${getLang() === "en" ? "Network error:" : "Errore di rete:"}</strong> ${getLang() === "en" ? "check your connection and try again." : "controlla la connessione e riprova."}</p>`;
     console.error("Network error:", err);
   }
 });
+
+// ---- Career course suggestions ----
+suggestBtn?.addEventListener("click", async () => {
+  const lang = getLang();
+  const linkedin = (document.getElementById("linkedin")?.value || "").trim();
+  const firstName = (document.getElementById("firstName")?.value || "").trim();
+  const lastName = (document.getElementById("lastName")?.value || "").trim();
+  const jobTitle = (document.getElementById("jobTitle")?.value || "").trim();
+
+  if (!linkedin && !(firstName && lastName && jobTitle)) {
+    suggestionsBox.innerHTML = `<p style="color:#ff8080;">${
+      lang === "en"
+        ? "Enter a LinkedIn URL, or fill in First name, Last name and Job title."
+        : "Inserisci il link LinkedIn oppure Nome, Cognome e Job title."
+    }</p>`;
+    return;
+  }
+
+  const token = window.__accessToken || "";
+  if (!token) {
+    window.location.href = "auth.html";
+    return;
+  }
+
+  suggestionsBox.innerHTML = `<p>${lang === "en" ? "Analysing your profile... ⏳" : "Analisi del tuo profilo in corso... ⏳"}</p>`;
+  suggestBtn.disabled = true;
+
+  try {
+    const response = await fetch("/api/suggest", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ linkedin, firstName, lastName, jobTitle, language: lang === "en" ? "English" : "Italiano" })
+    });
+
+    const parsed = await safeReadJson(response);
+
+    if (!response.ok) {
+      const msg = parsed.ok ? (parsed.data?.error || `HTTP ${response.status}`) : parsed.raw;
+      suggestionsBox.innerHTML = `<p style="color:#ff8080;"><strong>${lang === "en" ? "Error" : "Errore"}:</strong> ${msg}</p>`;
+      return;
+    }
+
+    if (!parsed.ok || !parsed.data?.suggestions) {
+      suggestionsBox.innerHTML = `<p style="color:#ff8080;">${lang === "en" ? "No suggestions received." : "Nessun suggerimento ricevuto."}</p>`;
+      return;
+    }
+
+    renderSuggestions(parsed.data.suggestions, lang);
+
+  } catch (err) {
+    suggestionsBox.innerHTML = `<p style="color:#ff8080;">${lang === "en" ? "Network error. Try again." : "Errore di rete. Riprova."}</p>`;
+    console.error("Suggest error:", err);
+  } finally {
+    suggestBtn.disabled = false;
+  }
+});
+
+function renderSuggestions(text, lang) {
+  // Parse the numbered format:  "1) Title\n   Description..."
+  const blocks = text.split(/\n\s*(?=\d+\))/g).map(b => b.trim()).filter(Boolean);
+  const cards = blocks.map(block => {
+    const lines = block.split("\n").map(l => l.trim()).filter(Boolean);
+    // First line: "1) Title of the course"
+    const titleLine = lines[0] || "";
+    const title = titleLine.replace(/^\d+\)\s*/, "").trim();
+    const description = lines.slice(1).join(" ").trim();
+    return { title, description };
+  }).filter(c => c.title);
+
+  if (!cards.length) {
+    // Fallback: just show raw text
+    suggestionsBox.innerHTML = `<pre style="white-space:pre-wrap;">${text}</pre>`;
+    return;
+  }
+
+  const html = cards.map((c, i) => `
+    <div style="
+      background:#0c1020;
+      border:1px solid #2a3145;
+      border-radius:12px;
+      padding:16px 18px;
+      margin-bottom:12px;
+    ">
+      <div style="font-size:11px; font-weight:700; color:var(--brand-2); letter-spacing:.8px; text-transform:uppercase; margin-bottom:6px;">
+        ${lang === "en" ? "Suggestion" : "Suggerimento"} ${i + 1}
+      </div>
+      <div style="font-size:16px; font-weight:700; color:var(--text); margin-bottom:8px;">${escapeHtml(c.title)}</div>
+      ${c.description ? `<div style="font-size:14px; color:var(--muted); line-height:1.5; margin-bottom:14px;">${escapeHtml(c.description)}</div>` : ""}
+      <button
+        class="btn small"
+        style="background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#0b0d12; font-weight:700;"
+        data-title="${escapeAttr(c.title)}"
+        onclick="generateFromSuggestion(this.dataset.title)"
+      >
+        ${lang === "en" ? "Generate this lecture →" : "Genera questa lezione →"}
+      </button>
+    </div>
+  `).join("");
+
+  suggestionsBox.innerHTML = html;
+}
+
+// Called by the suggestion card buttons
+window.generateFromSuggestion = function (courseTitle) {
+  if (textarea) textarea.value = courseTitle;
+  if (!courseLangInput.value.trim()) {
+    courseLangInput.value = getLang() === "en" ? "English" : "Italiano";
+  }
+  // Scroll to and trigger the generate button
+  output.scrollIntoView({ behavior: "smooth", block: "start" });
+  setTimeout(() => generateBtn?.click(), 400);
+};
+
+function escapeHtml(s) {
+  return (s || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+function escapeAttr(s) {
+  return (s || "").replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+}
