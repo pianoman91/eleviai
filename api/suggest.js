@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { linkedin, firstName, lastName, jobTitle } = req.body || {};
+  const { linkedin, firstName, lastName, jobTitle, language } = req.body || {};
 
   // Deve esserci O il link LinkedIn, O tutti i campi nome+cognome+job
   if (
@@ -35,30 +35,32 @@ export default async function handler(req, res) {
     profileDescription = `Nome: ${firstName} ${lastName}, ruolo attuale: ${jobTitle}`;
   }
 
-  const prompt = `
-Sei un career coach specializzato in profili professionali (ingegneri, designer, data, tech, finanza, HR, accounting).
+  const outputLanguage = (language && typeof language === "string" && language.trim()) || "Italiano";
 
-In base a questo profilo:
+  const prompt = `
+You are a career coach specialised in professional profiles (engineers, designers, data, tech, finance, HR, accounting).
+
+Based on this profile:
 ${profileDescription}
 
-Proponi ESATTAMENTE 3 titoli di micro-corsi (non corsi generici), focalizzati su competenze che possono aiutare questa persona a far crescere la propria carriera nei prossimi 12 mesi.
-Per proporre i corsi fai un confronto con le competenze di altri profili LinkedIn con job uguali o simile.
+Propose EXACTLY 3 micro-course titles (not generic courses), focused on skills that can help this person grow their career in the next 12 months.
+Compare the profile against similar LinkedIn job titles and typical skill gaps at that seniority level.
 
-Requisiti:
-- Lingua: italiano
-- I titoli devono essere specifici e "actionable" (non vaghi)
-- Per ogni titolo aggiungi una breve descrizione (1–2 frasi) del beneficio per la carriera
+Requirements:
+- Output language: ${outputLanguage}
+- Titles must be specific and actionable (not vague)
+- Each title must be followed by a short description (1–2 sentences) of the career benefit
 
-Formato di output (mantienilo esattamente così):
+Output format (keep it exactly like this, no extra text before or after):
 
-1) Titolo corso 1
-   Descrizione breve...
+1) Course title 1
+   Short description...
 
-2) Titolo corso 2
-   Descrizione breve...
+2) Course title 2
+   Short description...
 
-3) Titolo corso 3
-   Descrizione breve...
+3) Course title 3
+   Short description...
 `;
 
   try {
