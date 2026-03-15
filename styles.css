@@ -52,17 +52,22 @@ body {
 }
 .band { background: rgba(20,24,35,.5); padding: 30px 0; margin: 30px 0; }
 
-.pricing h2, .cta h2 { margin-top: 0; }
-.price { font-size: 28px; font-weight:800; margin: 8px 0 0; }
+.pricing h2 { margin-top: 0; }
+.price { font-size: 28px; font-weight:800; margin: 8px 0 4px; }
 .highlight { outline: 2px solid var(--brand); }
 
-.cta { padding: 30px 0 50px; }
-#early-form { display:flex; gap:10px; flex-wrap: wrap; }
-#early-form input {
-  flex:1 1 260px; padding:12px 14px; border-radius:12px; border:1px solid #2a3145; background:#0c1020; color: var(--text);
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 16px;
+  font-size: 14px;
+  color: var(--muted);
 }
-#early-form button { flex: 0 0 auto; }
-.form-note { color: var(--muted); }
+.plan-features li::before {
+  content: "✓  ";
+  color: var(--brand-2);
+  font-weight: 700;
+}
 
 .footer {
   display:flex; justify-content: space-between; align-items:center; padding: 26px 0 40px; color: var(--muted);

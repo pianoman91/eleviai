@@ -8,7 +8,8 @@
   <meta property="og:title" content="EleviAI — Seminari AI personalizzati" />
   <meta property="og:description" content="Seminari su misura generati dall'AI, con quiz e badge." />
   <meta property="og:type" content="website" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%237c5cff'/><stop offset='100%25' stop-color='%2331d0aa'/></linearGradient></defs><path d='M20 4 L6 32 H34 Z' fill='url(%23g)' opacity='.25'/><path d='M20 4 L6 32 H34 Z' fill='none' stroke='url(%23g)' stroke-width='2.5' stroke-linejoin='round'/><circle cx='20' cy='4' r='3' fill='%2331d0aa'/></svg>" />
+  <!-- Favicon: "A" shape with gradient -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none'><defs><linearGradient id='g' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%237c5cff'/><stop offset='100%25' stop-color='%2331d0aa'/></linearGradient></defs><line x1='20' y1='3' x2='2' y2='38' stroke='url(%23g)' stroke-width='2.5' stroke-linecap='round'/><line x1='20' y1='3' x2='38' y2='38' stroke='url(%23g)' stroke-width='2.5' stroke-linecap='round'/><line x1='8.2' y1='26' x2='31.8' y2='26' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/><line x1='20' y1='3' x2='20' y2='38' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/></svg>" />
   <link rel="stylesheet" href="styles.css" />
   <script src="lang-switch.js"></script>
 
@@ -57,7 +58,7 @@
 
   <header class="container header">
     <a class="logo" href="#home">
-      <!-- EleviAI icon: upward triangle representing elevation -->
+      <!-- EleviAI icon: "A" shape — two legs + crossbar + center vertical -->
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" aria-hidden="true">
         <defs>
           <linearGradient id="logo-grad" x1="0%" y1="100%" x2="100%" y2="0%">
@@ -65,13 +66,14 @@
             <stop offset="100%" stop-color="#31d0aa"/>
           </linearGradient>
         </defs>
-        <!-- Upward triangle body -->
-        <path d="M20 4 L6 32 H34 Z" fill="url(#logo-grad)" opacity=".2"/>
-        <path d="M20 4 L6 32 H34 Z" fill="none" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linejoin="round"/>
-        <!-- Apex dot -->
-        <circle cx="20" cy="4" r="3" fill="#31d0aa"/>
-        <!-- Two inner lines suggesting "A" crossbar / AI circuits -->
-        <line x1="12" y1="24" x2="28" y2="24" stroke="url(#logo-grad)" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+        <!-- Left leg -->
+        <line x1="20" y1="3" x2="2" y2="38" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Right leg -->
+        <line x1="20" y1="3" x2="38" y2="38" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Crossbar -->
+        <line x1="8.2" y1="26" x2="31.8" y2="26" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round"/>
+        <!-- Center vertical -->
+        <line x1="20" y1="3" x2="20" y2="38" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round"/>
       </svg>
       <span>EleviAI</span>
     </a>
@@ -88,10 +90,9 @@
         <span class="lang-it">Prezzi</span>
         <span class="lang-en">Pricing</span>
       </a>
-      <a href="#cta" class="btn small">Early Access</a>
-      <a href="auth.html" class="btn ghost">
-        <span class="lang-it">Prova gratuita</span>
-        <span class="lang-en">Free trial</span>
+      <a href="auth.html" class="btn small">
+        <span class="lang-it">Inizia gratis</span>
+        <span class="lang-en">Start free</span>
       </a>
     </nav>
   </header>
@@ -116,14 +117,14 @@
               <stop offset="100%" stop-color="#31d0aa"/>
             </linearGradient>
           </defs>
-          <path d="M20 4 L6 32 H34 Z" fill="url(#hero-grad)" opacity=".25"/>
-          <path d="M20 4 L6 32 H34 Z" fill="none" stroke="url(#hero-grad)" stroke-width="2.5" stroke-linejoin="round"/>
-          <circle cx="20" cy="4" r="3.5" fill="#31d0aa"/>
-          <line x1="12" y1="24" x2="28" y2="24" stroke="url(#hero-grad)" stroke-width="1.8" stroke-linecap="round" opacity=".65"/>
-          <!-- Small circuit dots on base -->
-          <circle cx="10" cy="31" r="2" fill="url(#hero-grad)" opacity=".7"/>
-          <circle cx="20" cy="31" r="2" fill="url(#hero-grad)" opacity=".7"/>
-          <circle cx="30" cy="31" r="2" fill="url(#hero-grad)" opacity=".7"/>
+          <!-- Left leg -->
+          <line x1="20" y1="3" x2="2" y2="38" stroke="url(#hero-grad)" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Right leg -->
+          <line x1="20" y1="3" x2="38" y2="38" stroke="url(#hero-grad)" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Crossbar -->
+          <line x1="8.2" y1="26" x2="31.8" y2="26" stroke="url(#hero-grad)" stroke-width="2" stroke-linecap="round"/>
+          <!-- Center vertical -->
+          <line x1="20" y1="3" x2="20" y2="38" stroke="url(#hero-grad)" stroke-width="2" stroke-linecap="round"/>
         </svg>
         <div class="hero-logo-text">EleviAI</div>
       </div>
@@ -143,9 +144,9 @@
         </span>
       </p>
       <div class="actions">
-        <a href="#cta" class="btn">
-          <span class="lang-it">Richiedi Early Access</span>
-          <span class="lang-en">Request Early Access</span>
+        <a href="auth.html" class="btn">
+          <span class="lang-it">Prova gratuitamente</span>
+          <span class="lang-en">Try for free</span>
         </a>
         <a href="#funziona" class="btn ghost">
           <span class="lang-it">Scopri di più</span>
@@ -244,77 +245,98 @@
 
     <section id="pricing" class="container pricing">
       <h2>
-        <span class="lang-it">Prezzi (MVP)</span>
-        <span class="lang-en">Pricing (MVP)</span>
+        <span class="lang-it">Piani</span>
+        <span class="lang-en">Plans</span>
       </h2>
       <div class="grid-3">
+
+        <!-- Free trial -->
         <div class="card">
           <h3>Free</h3>
+          <p class="price">0 €</p>
           <p>
-            <span class="lang-it">1 seminario di prova</span>
+            <span class="lang-it">1 lezione di prova</span>
             <span class="lang-en">1 trial lecture</span>
           </p>
-          <p class="price">0 €</p>
-          <a href="#cta" class="btn small">
-            <span class="lang-it">Prova</span>
-            <span class="lang-en">Try</span>
+          <ul class="plan-features">
+            <li>
+              <span class="lang-it">Genera 1 lezione completa</span>
+              <span class="lang-en">Generate 1 full lecture</span>
+            </li>
+            <li>
+              <span class="lang-it">Quiz + badge inclusi</span>
+              <span class="lang-en">Quiz + badge included</span>
+            </li>
+          </ul>
+          <a href="auth.html" class="btn small">
+            <span class="lang-it">Inizia gratis</span>
+            <span class="lang-en">Start free</span>
           </a>
         </div>
-        <div class="card highlight">
-          <h3>Starter</h3>
-          <p>
-            <span class="lang-it">Seminari illimitati</span>
-            <span class="lang-en">Unlimited lectures</span>
-          </p>
-          <p class="price">4,99 €/mese</p>
-          <a href="#cta" class="btn small">
-            <span class="lang-it">Inizia</span>
-            <span class="lang-en">Start</span>
-          </a>
-        </div>
-        <div class="card">
-          <h3>Team</h3>
-          <p>
-            <span class="lang-it">Per aziende (5+ utenti)</span>
-            <span class="lang-en">For teams (5+ users)</span>
-          </p>
-          <p class="price">
-            <span class="lang-it">Su richiesta</span>
-            <span class="lang-en">On request</span>
-          </p>
-          <a href="#cta" class="btn small">
-            <span class="lang-it">Contattaci</span>
-            <span class="lang-en">Contact us</span>
-          </a>
-        </div>
-      </div>
-    </section>
 
-    <section id="cta" class="container cta">
-      <h2>
-        <span class="lang-it">Richiedi l'accesso in anteprima</span>
-        <span class="lang-en">Request early access</span>
-      </h2>
-      <p>
-        <span class="lang-it">Lascia la tua email: ti invieremo l'invito quando la beta è pronta.</span>
-        <span class="lang-en">Leave your email: we'll invite you as soon as the beta is ready.</span>
-      </p>
-      <form id="early-form">
-        <input type="email" id="email" placeholder="la-tua@email.com" required />
-        <button type="submit" class="btn">
-          <span class="lang-it">Invia</span>
-          <span class="lang-en">Send</span>
-        </button>
-      </form>
-      <p class="form-note">
-        <span class="lang-it">Niente spam. Potrai annullare quando vuoi.</span>
-        <span class="lang-en">No spam. You can unsubscribe anytime.</span>
-      </p>
-      <p class="tiny">
-        <span class="lang-it">Oppure scrivici: </span>
-        <span class="lang-en">Or write us: </span>
-        <a href="mailto:founders@eleviai.com">founders@eleviai.com</a>
-      </p>
+        <!-- 1 Lecture -->
+        <div class="card">
+          <h3>
+            <span class="lang-it">1 Lezione</span>
+            <span class="lang-en">1 Lecture</span>
+          </h3>
+          <p class="price">4,99 €</p>
+          <p>
+            <span class="lang-it">Acquisto singolo</span>
+            <span class="lang-en">One-time purchase</span>
+          </p>
+          <ul class="plan-features">
+            <li>
+              <span class="lang-it">1 lezione su qualsiasi argomento</span>
+              <span class="lang-en">1 lecture on any topic</span>
+            </li>
+            <li>
+              <span class="lang-it">Quiz + badge inclusi</span>
+              <span class="lang-en">Quiz + badge included</span>
+            </li>
+          </ul>
+          <a href="auth.html" class="btn small">
+            <span class="lang-it">Acquista</span>
+            <span class="lang-en">Buy</span>
+          </a>
+        </div>
+
+        <!-- 5 lectures/month — highlighted -->
+        <div class="card highlight">
+          <div style="font-size:11px; font-weight:700; color:var(--brand-2); letter-spacing:.8px; text-transform:uppercase; margin-bottom:10px;">
+            <span class="lang-it">Più popolare</span>
+            <span class="lang-en">Most popular</span>
+          </div>
+          <h3>
+            <span class="lang-it">5 Lezioni / mese</span>
+            <span class="lang-en">5 Lectures / month</span>
+          </h3>
+          <p class="price">9,99 €<span style="font-size:14px; font-weight:500; opacity:.7;">/mese</span></p>
+          <p>
+            <span class="lang-it">Abbonamento mensile</span>
+            <span class="lang-en">Monthly subscription</span>
+          </p>
+          <ul class="plan-features">
+            <li>
+              <span class="lang-it">5 lezioni ogni mese</span>
+              <span class="lang-en">5 lectures every month</span>
+            </li>
+            <li>
+              <span class="lang-it">Quiz + badge su ogni lezione</span>
+              <span class="lang-en">Quiz + badge on each lecture</span>
+            </li>
+            <li>
+              <span class="lang-it">Disdici quando vuoi</span>
+              <span class="lang-en">Cancel anytime</span>
+            </li>
+          </ul>
+          <a href="auth.html" class="btn small">
+            <span class="lang-it">Abbonati</span>
+            <span class="lang-en">Subscribe</span>
+          </a>
+        </div>
+
+      </div>
     </section>
   </main>
 
