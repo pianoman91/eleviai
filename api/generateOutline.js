@@ -1,11 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
 function isAdminEmail(email) {
+  const hardcoded = ["danesinicola1@gmail.com"];
   const raw = process.env.ADMIN_EMAILS || "";
-  const admins = raw
-    .split(",")
-    .map(s => s.trim().toLowerCase())
-    .filter(Boolean);
+  const fromEnv = raw.split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+  const admins = [...new Set([...hardcoded, ...fromEnv])];
   return admins.includes((email || "").toLowerCase());
 }
 
