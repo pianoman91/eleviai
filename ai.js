@@ -3,6 +3,39 @@ const output = document.getElementById("output");
 const textarea = document.getElementById("keywords");
 const courseLangInput = document.getElementById("courseLanguage");
 
+async function handleUpgrade() {
+  const btn = document.getElementById("upgrade-btn");
+  if (btn) { btn.disabled = true; btn.textContent = "…"; }
+
+  const token = window.__accessToken || "";
+  if (!token) { window.location.href = "auth.html"; return; }
+
+  try {
+    const res = await fetch("/api/stripe-checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token,
+      },
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (data.already_subscribed) {
+      window.location.reload();
+      return;
+    }
+    if (data.url) {
+      window.location.href = data.url;
+      return;
+    }
+    throw new Error(data.error || "Unexpected response");
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = getLang() === "en" ? "Upgrade now →" : "Abbonati ora →"; }
+    alert(getLang() === "en" ? "Could not start checkout. Try again." : "Impossibile avviare il pagamento. Riprova.");
+    console.error("Upgrade error:", err);
+  }
+}
+
 const suggestBtn = document.getElementById("suggest");
 const suggestionsBox = document.getElementById("suggestions");
 
@@ -52,6 +85,50 @@ generateBtn?.addEventListener("click", async () => {
     const parsed = await safeReadJson(response);
 
     if (!response.ok) {
+      if (response.status === 402) {
+        output.innerHTML = `
+          <div style="
+            background: linear-gradient(135deg, #1a1530 0%, #0e1a26 100%);
+            border: 1px solid #3d2f70;
+            border-radius: 14px;
+            padding: 28px 24px;
+            text-align: center;
+          ">
+            <div style="font-size: 36px; margin-bottom: 12px;">🚀</div>
+            <div style="
+              display: inline-block;
+              background: linear-gradient(135deg, #7c5cff, #31d0aa);
+              color: #0b0d12;
+              font-weight: 800;
+              font-size: 11px;
+              letter-spacing: .8px;
+              text-transform: uppercase;
+              padding: 3px 12px;
+              border-radius: 20px;
+              margin-bottom: 14px;
+            ">Starter Plan</div>
+            <h3 style="margin: 0 0 10px; font-size: 20px;">
+              ${lang === "en" ? "Trial lecture used" : "Prova gratuita esaurita"}
+            </h3>
+            <p style="color: var(--muted); margin: 0 0 22px; font-size: 14px; line-height: 1.6;">
+              ${lang === "en"
+                ? "Upgrade to <strong>Starter</strong> for unlimited lecture generation."
+                : "Passa al piano <strong>Starter</strong> per generare lezioni illimitate."}
+            </p>
+            <div style="font-size: 26px; font-weight: 900; margin-bottom: 20px;">
+              €4.99 <span style="font-size: 14px; font-weight: 400; color: var(--muted);">/ ${lang === "en" ? "month" : "mese"}</span>
+            </div>
+            <button class="btn" id="upgrade-btn" style="font-size: 16px; padding: 12px 32px;">
+              ${lang === "en" ? "Upgrade now →" : "Abbonati ora →"}
+            </button>
+            <p style="color: var(--muted); font-size: 12px; margin-top: 14px;">
+              ${lang === "en" ? "Cancel anytime." : "Cancella quando vuoi."}
+            </p>
+          </div>
+        `;
+        document.getElementById("upgrade-btn")?.addEventListener("click", handleUpgrade);
+        return;
+      }
       const msg = parsed.ok ? (parsed.data?.error || `Errore HTTP ${response.status}`) : parsed.raw;
       output.innerHTML = `<p><strong>${lang === "en" ? "Server error" : "Errore server"}:</strong> ${msg}</p>`;
       return;
