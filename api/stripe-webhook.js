@@ -16,21 +16,6 @@ function getRawBody(req) {
   });
 }
 
-async function setSubscriptionStatus(supabase, customerId, status) {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("stripe_customer_id", customerId)
-    .maybeSingle();
-
-  if (profile?.id) {
-    await supabase
-      .from("profiles")
-      .update({ subscription_status: status })
-      .eq("id", profile.id);
-  }
-}
-
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
@@ -57,52 +42,36 @@ export default async function handler(req, res) {
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  switch (event.type) {
-    case "checkout.session.completed": {
-      const session = event.data.object;
-      const uid = session.metadata?.supabase_uid;
-      if (uid) {
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
+    const uid = session.metadata?.supabase_uid;
+    const credits = parseInt(session.metadata?.credits, 10) || 0;
+
+    if (uid && credits > 0) {
+      // Atomically increment seminars_remaining
+      const { error } = await supabase.rpc("increment_seminars", {
+        user_id: uid,
+        amount: credits,
+      });
+
+      if (error) {
+        // Fallback: read current value and update
+        console.error("RPC increment_seminars failed, using fallback:", error.message);
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("seminars_remaining")
+          .eq("id", uid)
+          .maybeSingle();
+
+        const current = profile?.seminars_remaining || 0;
         await supabase
           .from("profiles")
-          .upsert({ id: uid, subscription_status: "active" }, { onConflict: "id" });
+          .upsert(
+            { id: uid, seminars_remaining: current + credits },
+            { onConflict: "id" }
+          );
       }
-      break;
     }
-
-    case "customer.subscription.updated": {
-      const sub = event.data.object;
-      const mapped =
-        sub.status === "active" ? "active" :
-        sub.status === "past_due" ? "past_due" :
-        sub.status === "canceled" ? "canceled" : "free";
-      await setSubscriptionStatus(supabase, sub.customer, mapped);
-      break;
-    }
-
-    case "customer.subscription.deleted": {
-      const sub = event.data.object;
-      await setSubscriptionStatus(supabase, sub.customer, "canceled");
-      break;
-    }
-
-    case "invoice.payment_failed": {
-      const invoice = event.data.object;
-      await setSubscriptionStatus(supabase, invoice.customer, "past_due");
-      break;
-    }
-
-    case "invoice.payment_succeeded": {
-      const invoice = event.data.object;
-      if (invoice.billing_reason !== "subscription_create") {
-        // Renewal payment succeeded — make sure status is active
-        await setSubscriptionStatus(supabase, invoice.customer, "active");
-      }
-      break;
-    }
-
-    default:
-      // Unhandled event — return 200 so Stripe doesn't retry
-      break;
   }
 
   return res.status(200).json({ received: true });

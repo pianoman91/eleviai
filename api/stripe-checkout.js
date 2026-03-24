@@ -1,6 +1,11 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
+const PLANS = {
+  single: { credits: 1, envKey: "STRIPE_PRICE_ID_SINGLE" },
+  pack5:  { credits: 5, envKey: "STRIPE_PRICE_ID_PACK5" },
+};
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST method is allowed" });
@@ -10,9 +15,18 @@ export default async function handler(req, res) {
   if (!process.env.SUPABASE_URL) missing.push("SUPABASE_URL");
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) missing.push("SUPABASE_SERVICE_ROLE_KEY");
   if (!process.env.STRIPE_SECRET_KEY) missing.push("STRIPE_SECRET_KEY");
-  if (!process.env.STRIPE_PRICE_ID) missing.push("STRIPE_PRICE_ID");
   if (missing.length) {
     return res.status(500).json({ error: "Missing env vars: " + missing.join(", ") });
+  }
+
+  // Determine which plan was requested
+  const { plan } = req.body || {};
+  const planKey = plan === "pack5" ? "pack5" : "single";
+  const planInfo = PLANS[planKey];
+
+  const priceId = process.env[planInfo.envKey];
+  if (!priceId) {
+    return res.status(500).json({ error: `Missing env var: ${planInfo.envKey}` });
   }
 
   // Auth
@@ -38,14 +52,9 @@ export default async function handler(req, res) {
   // Get or create Stripe customer
   const { data: profile } = await supabaseAdmin
     .from("profiles")
-    .select("stripe_customer_id, subscription_status")
+    .select("stripe_customer_id")
     .eq("id", user.id)
     .maybeSingle();
-
-  // If already active, return info instead of creating a new session
-  if (profile?.subscription_status === "active") {
-    return res.status(200).json({ already_subscribed: true });
-  }
 
   let customerId = profile?.stripe_customer_id;
   if (!customerId) {
@@ -63,19 +72,19 @@ export default async function handler(req, res) {
   const origin =
     process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-    (req.headers.origin) ||
+    req.headers.origin ||
     "https://eleviai.vercel.app";
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
-    mode: "subscription",
+    mode: "payment",
     payment_method_types: ["card"],
-    line_items: [{ price: process.env.STRIPE_PRICE_ID, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${origin}/success.html?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/prova.html`,
-    metadata: { supabase_uid: user.id },
-    subscription_data: {
-      metadata: { supabase_uid: user.id },
+    metadata: {
+      supabase_uid: user.id,
+      credits: String(planInfo.credits),
     },
   });
 

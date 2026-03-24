@@ -3,9 +3,9 @@ const output = document.getElementById("output");
 const textarea = document.getElementById("keywords");
 const courseLangInput = document.getElementById("courseLanguage");
 
-async function handleUpgrade() {
-  const btn = document.getElementById("upgrade-btn");
-  if (btn) { btn.disabled = true; btn.textContent = "…"; }
+async function handleUpgrade(plan) {
+  const btns = document.querySelectorAll(".upgrade-btn");
+  btns.forEach(b => { b.disabled = true; b.textContent = "…"; });
 
   const token = window.__accessToken || "";
   if (!token) { window.location.href = "auth.html"; return; }
@@ -17,20 +17,17 @@ async function handleUpgrade() {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token,
       },
+      body: JSON.stringify({ plan }),
     });
     const data = await res.json().catch(() => ({}));
 
-    if (data.already_subscribed) {
-      window.location.reload();
-      return;
-    }
     if (data.url) {
       window.location.href = data.url;
       return;
     }
     throw new Error(data.error || "Unexpected response");
   } catch (err) {
-    if (btn) { btn.disabled = false; btn.textContent = getLang() === "en" ? "Upgrade now →" : "Abbonati ora →"; }
+    btns.forEach(b => { b.disabled = false; b.textContent = b.dataset.label || "…"; });
     alert(getLang() === "en" ? "Could not start checkout. Try again." : "Impossibile avviare il pagamento. Riprova.");
     console.error("Upgrade error:", err);
   }
@@ -86,6 +83,7 @@ generateBtn?.addEventListener("click", async () => {
 
     if (!response.ok) {
       if (response.status === 402) {
+        const isEn = lang === "en";
         output.innerHTML = `
           <div style="
             background: linear-gradient(135deg, #1a1530 0%, #0e1a26 100%);
@@ -94,39 +92,68 @@ generateBtn?.addEventListener("click", async () => {
             padding: 28px 24px;
             text-align: center;
           ">
-            <div style="font-size: 36px; margin-bottom: 12px;">🚀</div>
-            <div style="
-              display: inline-block;
-              background: linear-gradient(135deg, #7c5cff, #31d0aa);
-              color: #0b0d12;
-              font-weight: 800;
-              font-size: 11px;
-              letter-spacing: .8px;
-              text-transform: uppercase;
-              padding: 3px 12px;
-              border-radius: 20px;
-              margin-bottom: 14px;
-            ">Starter Plan</div>
-            <h3 style="margin: 0 0 10px; font-size: 20px;">
-              ${lang === "en" ? "Trial lecture used" : "Prova gratuita esaurita"}
+            <h3 style="margin: 0 0 8px; font-size: 20px;">
+              ${isEn ? "Free trial used" : "Prova gratuita esaurita"}
             </h3>
-            <p style="color: var(--muted); margin: 0 0 22px; font-size: 14px; line-height: 1.6;">
-              ${lang === "en"
-                ? "Upgrade to <strong>Starter</strong> for unlimited lecture generation."
-                : "Passa al piano <strong>Starter</strong> per generare lezioni illimitate."}
+            <p style="color: var(--muted); margin: 0 0 24px; font-size: 14px; line-height: 1.6;">
+              ${isEn
+                ? "Purchase additional seminars to keep learning."
+                : "Acquista seminari aggiuntivi per continuare a imparare."}
             </p>
-            <div style="font-size: 26px; font-weight: 900; margin-bottom: 20px;">
-              €4.99 <span style="font-size: 14px; font-weight: 400; color: var(--muted);">/ ${lang === "en" ? "month" : "mese"}</span>
+            <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+              <div style="
+                background: #0c1020;
+                border: 1px solid #2a3145;
+                border-radius: 12px;
+                padding: 20px 24px;
+                flex: 1 1 180px;
+                max-width: 220px;
+              ">
+                <div style="font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;">
+                  1 Seminar
+                </div>
+                <div style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">
+                  €4.99
+                </div>
+                <button class="btn small upgrade-btn" data-plan="single" data-label="${isEn ? 'Buy 1' : 'Acquista 1'}" style="width:100%;">
+                  ${isEn ? "Buy 1" : "Acquista 1"}
+                </button>
+              </div>
+              <div style="
+                background: #0c1020;
+                border: 2px solid #7c5cff;
+                border-radius: 12px;
+                padding: 20px 24px;
+                flex: 1 1 180px;
+                max-width: 220px;
+                position: relative;
+              ">
+                <div style="
+                  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+                  background: linear-gradient(135deg, #7c5cff, #31d0aa);
+                  color: #0b0d12; font-weight: 800; font-size: 10px;
+                  letter-spacing: .8px; text-transform: uppercase;
+                  padding: 2px 10px; border-radius: 10px;
+                ">${isEn ? "Best value" : "Miglior offerta"}</div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;">
+                  5 Seminars
+                </div>
+                <div style="font-size: 28px; font-weight: 900; margin-bottom: 4px;">
+                  €9.99
+                </div>
+                <div style="font-size: 12px; color: #31d0aa; margin-bottom: 12px;">
+                  ${isEn ? "Save 60%" : "Risparmi il 60%"}
+                </div>
+                <button class="btn small upgrade-btn" data-plan="pack5" data-label="${isEn ? 'Buy 5' : 'Acquista 5'}" style="width:100%; background:linear-gradient(135deg,#7c5cff,#31d0aa); border:none; color:#0b0d12; font-weight:700;">
+                  ${isEn ? "Buy 5" : "Acquista 5"}
+                </button>
+              </div>
             </div>
-            <button class="btn" id="upgrade-btn" style="font-size: 16px; padding: 12px 32px;">
-              ${lang === "en" ? "Upgrade now →" : "Abbonati ora →"}
-            </button>
-            <p style="color: var(--muted); font-size: 12px; margin-top: 14px;">
-              ${lang === "en" ? "Cancel anytime." : "Cancella quando vuoi."}
-            </p>
           </div>
         `;
-        document.getElementById("upgrade-btn")?.addEventListener("click", handleUpgrade);
+        document.querySelectorAll(".upgrade-btn").forEach(btn => {
+          btn.addEventListener("click", () => handleUpgrade(btn.dataset.plan));
+        });
         return;
       }
       const msg = parsed.ok ? (parsed.data?.error || `Errore HTTP ${response.status}`) : parsed.raw;
