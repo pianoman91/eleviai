@@ -39,10 +39,87 @@ body {
 .btn.ghost { background: transparent; color: var(--text); border:1px solid #2a3145; }
 .btn.small { padding:8px 12px; font-size: 14px; }
 
+/* ---- Hero card ---- */
 .hero-card {
-  margin-top: 18px; background: var(--card); padding:16px; border-radius:16px; box-shadow: var(--shadow);
-  max-width: 520px; border: 1px solid #1e2435;
+  margin-top: 24px;
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  max-width: 540px;
+  border: 1px solid #1e2435;
+  overflow: hidden;
 }
+.hero-card-label {
+  padding: 8px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  color: #0b0d12;
+}
+.hero-card-rows { padding: 6px 0; }
+.hero-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #1a1f2e;
+}
+.hero-row:last-child { border-bottom: none; }
+.hero-row-key {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--brand-2);
+  white-space: nowrap;
+}
+.hero-row-val { font-size: 14px; color: var(--text); }
+.hero-row-output .hero-row-val { font-weight: 600; color: var(--brand-2); }
+
+/* ---- Steps section ---- */
+.steps-section { margin: 48px auto; }
+.section-title {
+  font-size: clamp(18px, 3vw, 26px);
+  font-weight: 800;
+  margin: 0 0 24px;
+  color: var(--text);
+}
+.step-card { position: relative; padding-top: 22px; }
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  color: #0b0d12;
+  font-weight: 900;
+  font-size: 16px;
+  margin-bottom: 14px;
+}
+.step-card h3 { margin: 0 0 8px; font-size: 16px; }
+.step-card p  { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+/* ---- Benefit cards ---- */
+.benefit-card { border-top: 3px solid transparent;
+  border-image: linear-gradient(90deg, var(--brand), var(--brand-2)) 1;
+  padding-top: 20px;
+}
+.benefit-icon {
+  font-size: 22px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  display: block;
+}
+.benefit-card h4 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
+.benefit-card p  { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
 
 .grid-3 { display:grid; grid-template-columns: repeat(3, 1fr); gap:18px; }
 @media (max-width: 860px){ .grid-3 { grid-template-columns:1fr; } }
