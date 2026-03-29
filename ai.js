@@ -291,7 +291,7 @@ function renderSuggestions(text, lang) {
         data-title="${escapeAttr(c.title)}"
         onclick="generateFromSuggestion(this.dataset.title)"
       >
-        ${lang === "en" ? "Generate this lecture →" : "Genera questa lezione →"}
+        ${lang === "en" ? "Generate this lecture →" : "Genera questo corso →"}
       </button>
     </div>
   `).join("");

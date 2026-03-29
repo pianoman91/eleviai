@@ -238,7 +238,7 @@
           <span class="lang-it">Password</span>
           <span class="lang-en">Password</span>
         </label>
-        <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+        <input id="login-password" type="text" placeholder="password" autocomplete="current-password" />
       </div>
       <button class="auth-submit" id="btn-login">
         <span class="lang-it">Accedi</span>
@@ -268,7 +268,11 @@
           <span class="lang-it">Password</span>
           <span class="lang-en">Password</span>
         </label>
-        <input id="signup-password" type="password" placeholder="••••••• (min 6 caratteri)" autocomplete="new-password" />
+        <input id="signup-password" type="text" placeholder="password (min 6 caratteri)" autocomplete="new-password" />
+      </div>
+      <div class="field-group" style="display:flex; gap:8px;">
+        <input id="signup-first-name" type="text" placeholder="Nome / First name" style="flex:1;" autocomplete="given-name" />
+        <input id="signup-last-name" type="text" placeholder="Cognome / Last name" style="flex:1;" autocomplete="family-name" />
       </div>
       <button class="auth-submit" id="btn-signup">
         <span class="lang-it">Crea account</span>
@@ -307,8 +311,10 @@
 
     const loginEmail    = document.getElementById("login-email");
     const loginPassword = document.getElementById("login-password");
-    const signupEmail    = document.getElementById("signup-email");
-    const signupPassword = document.getElementById("signup-password");
+    const signupEmail     = document.getElementById("signup-email");
+    const signupPassword  = document.getElementById("signup-password");
+    const signupFirstName = document.getElementById("signup-first-name");
+    const signupLastName  = document.getElementById("signup-last-name");
 
     const btnLogin  = document.getElementById("btn-login");
     const btnSignup = document.getElementById("btn-signup");
@@ -414,12 +420,14 @@
     // ---- Sign up ----
     btnSignup.addEventListener("click", async () => {
       hideMsg(signupMsg);
-      const email = signupEmail.value.trim();
-      const password = signupPassword.value;
+      const email     = signupEmail.value.trim();
+      const password  = signupPassword.value;
+      const firstName = signupFirstName.value.trim();
+      const lastName  = signupLastName.value.trim();
       const lang = document.documentElement.getAttribute("data-lang");
-      if (!email || !password) {
+      if (!email || !password || !firstName || !lastName) {
         showMsg(signupMsg,
-          lang === "en" ? "Please enter email and password." : "Inserisci email e password.",
+          lang === "en" ? "Please fill in all fields." : "Compila tutti i campi.",
           "error");
         return;
       }
@@ -434,7 +442,10 @@
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + "/auth.html" }
+          options: {
+            emailRedirectTo: window.location.origin + "/auth.html",
+            data: { first_name: firstName, last_name: lastName }
+          }
         });
         if (error) {
           showMsg(signupMsg, error.message, "error");
@@ -446,6 +457,8 @@
             "success");
           signupEmail.value = "";
           signupPassword.value = "";
+          signupFirstName.value = "";
+          signupLastName.value = "";
         }
       } catch (e) {
         showMsg(signupMsg, e?.message || "Errore di rete.", "error");
