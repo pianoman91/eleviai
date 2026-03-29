@@ -362,7 +362,8 @@
       // If already logged in and verified → redirect
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user?.email_confirmed_at) {
-        window.location.replace("prova.html");
+        const plan = new URLSearchParams(window.location.search).get("plan");
+        window.location.replace(plan ? "prova.html?checkout=" + encodeURIComponent(plan) : "prova.html");
       }
     } catch (e) {
       showMsg(loginMsg, "Errore di configurazione: " + (e?.message || String(e)), "error");
@@ -388,7 +389,8 @@
         }
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user?.email_confirmed_at) {
-          window.location.replace("prova.html");
+          const plan = new URLSearchParams(window.location.search).get("plan");
+          window.location.replace(plan ? "prova.html?checkout=" + encodeURIComponent(plan) : "prova.html");
         } else {
           const lang = document.documentElement.getAttribute("data-lang");
           showMsg(loginMsg,

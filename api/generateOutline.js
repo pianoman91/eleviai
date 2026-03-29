@@ -17,7 +17,7 @@ function isNoRowsError(err) {
 async function ensureProfileRow(supabaseAdmin, userId) {
   const { data, error } = await supabaseAdmin
     .from("profiles")
-    .select("trial_used")
+    .select("trial_used, seminars_remaining")
     .eq("id", userId)
     .maybeSingle();
 
@@ -87,21 +87,34 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: "Email not confirmed" });
     }
 
-    // 3) Trial gating: solo 1 volta (tranne admin)
+    // 3) Gating: 1 prova gratuita, poi crediti a pagamento (tranne admin)
     if (!admin) {
       const profile = await ensureProfileRow(supabaseAdmin, user.id);
+      const credits = profile?.seminars_remaining || 0;
 
-      if (profile?.trial_used) {
+      if (profile?.trial_used && credits <= 0) {
         return res.status(402).json({ error: "Free trial already used." });
       }
 
-      // Marca trial usato con upsert (robusto anche se la riga non esiste o è stata creata ora)
-      const { error: markErr } = await supabaseAdmin
-        .from("profiles")
-        .upsert({ id: user.id, trial_used: true }, { onConflict: "id" });
+      if (!profile?.trial_used) {
+        // Prima volta: usa la prova gratuita
+        const { error: markErr } = await supabaseAdmin
+          .from("profiles")
+          .upsert({ id: user.id, trial_used: true }, { onConflict: "id" });
 
-      if (markErr) {
-        return res.status(500).json({ error: "Profile update error: " + markErr.message });
+        if (markErr) {
+          return res.status(500).json({ error: "Profile update error: " + markErr.message });
+        }
+      } else {
+        // Decrementa i crediti acquistati
+        const { error: decErr } = await supabaseAdmin
+          .from("profiles")
+          .update({ seminars_remaining: credits - 1 })
+          .eq("id", user.id);
+
+        if (decErr) {
+          return res.status(500).json({ error: "Credit update error: " + decErr.message });
+        }
       }
     }
 

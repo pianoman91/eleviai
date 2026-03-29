@@ -3,6 +3,36 @@ const output = document.getElementById("output");
 const textarea = document.getElementById("keywords");
 const courseLangInput = document.getElementById("courseLanguage");
 
+async function handleUpgrade(plan) {
+  const btns = document.querySelectorAll(".upgrade-btn");
+  btns.forEach(b => { b.disabled = true; b.textContent = "…"; });
+
+  const token = window.__accessToken || "";
+  if (!token) { window.location.href = "auth.html"; return; }
+
+  try {
+    const res = await fetch("/api/stripe-checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token,
+      },
+      body: JSON.stringify({ plan }),
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (data.url) {
+      window.location.href = data.url;
+      return;
+    }
+    throw new Error(data.error || "Unexpected response");
+  } catch (err) {
+    btns.forEach(b => { b.disabled = false; b.textContent = b.dataset.label || "…"; });
+    alert(getLang() === "en" ? "Could not start checkout. Try again." : "Impossibile avviare il pagamento. Riprova.");
+    console.error("Upgrade error:", err);
+  }
+}
+
 const suggestBtn = document.getElementById("suggest");
 const suggestionsBox = document.getElementById("suggestions");
 
@@ -52,6 +82,80 @@ generateBtn?.addEventListener("click", async () => {
     const parsed = await safeReadJson(response);
 
     if (!response.ok) {
+      if (response.status === 402) {
+        const isEn = lang === "en";
+        output.innerHTML = `
+          <div style="
+            background: linear-gradient(135deg, #1a1530 0%, #0e1a26 100%);
+            border: 1px solid #3d2f70;
+            border-radius: 14px;
+            padding: 28px 24px;
+            text-align: center;
+          ">
+            <h3 style="margin: 0 0 8px; font-size: 20px;">
+              ${isEn ? "Free trial used" : "Prova gratuita esaurita"}
+            </h3>
+            <p style="color: var(--muted); margin: 0 0 24px; font-size: 14px; line-height: 1.6;">
+              ${isEn
+                ? "Purchase additional seminars to keep learning."
+                : "Acquista seminari aggiuntivi per continuare a imparare."}
+            </p>
+            <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+              <div style="
+                background: #0c1020;
+                border: 1px solid #2a3145;
+                border-radius: 12px;
+                padding: 20px 24px;
+                flex: 1 1 180px;
+                max-width: 220px;
+              ">
+                <div style="font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;">
+                  1 Seminar
+                </div>
+                <div style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">
+                  €4.99
+                </div>
+                <button class="btn small upgrade-btn" data-plan="single" data-label="${isEn ? 'Buy 1' : 'Acquista 1'}" style="width:100%;">
+                  ${isEn ? "Buy 1" : "Acquista 1"}
+                </button>
+              </div>
+              <div style="
+                background: #0c1020;
+                border: 2px solid #7c5cff;
+                border-radius: 12px;
+                padding: 20px 24px;
+                flex: 1 1 180px;
+                max-width: 220px;
+                position: relative;
+              ">
+                <div style="
+                  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+                  background: linear-gradient(135deg, #7c5cff, #31d0aa);
+                  color: #0b0d12; font-weight: 800; font-size: 10px;
+                  letter-spacing: .8px; text-transform: uppercase;
+                  padding: 2px 10px; border-radius: 10px;
+                ">${isEn ? "Best value" : "Miglior offerta"}</div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;">
+                  5 Seminars
+                </div>
+                <div style="font-size: 28px; font-weight: 900; margin-bottom: 4px;">
+                  €9.99
+                </div>
+                <div style="font-size: 12px; color: #31d0aa; margin-bottom: 12px;">
+                  ${isEn ? "Save 60%" : "Risparmi il 60%"}
+                </div>
+                <button class="btn small upgrade-btn" data-plan="pack5" data-label="${isEn ? 'Buy 5' : 'Acquista 5'}" style="width:100%; background:linear-gradient(135deg,#7c5cff,#31d0aa); border:none; color:#0b0d12; font-weight:700;">
+                  ${isEn ? "Buy 5" : "Acquista 5"}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        document.querySelectorAll(".upgrade-btn").forEach(btn => {
+          btn.addEventListener("click", () => handleUpgrade(btn.dataset.plan));
+        });
+        return;
+      }
       const msg = parsed.ok ? (parsed.data?.error || `Errore HTTP ${response.status}`) : parsed.raw;
       output.innerHTML = `<p><strong>${lang === "en" ? "Server error" : "Errore server"}:</strong> ${msg}</p>`;
       return;
@@ -217,3 +321,11 @@ function escapeHtml(s) {
 function escapeAttr(s) {
   return (s || "").replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 }
+
+// Auto-trigger checkout if redirected here from pricing page
+(function () {
+  const plan = new URLSearchParams(window.location.search).get("checkout");
+  if (plan === "single" || plan === "pack5") {
+    handleUpgrade(plan);
+  }
+})();
