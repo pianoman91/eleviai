@@ -20,6 +20,19 @@
     }
     .muted { color: var(--muted); }
     .disabled { opacity:.55; pointer-events:none; filter:grayscale(20%); }
+    #user-badge {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c5cff, #31d0aa);
+      color: #0b0d12;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -40,15 +53,18 @@
       </svg>
       <span>EleviAI</span>
     </a>
-    <div class="lang-switch">
-      <button class="lang-btn active" data-lang="it" type="button">IT</button>
-      <button class="lang-btn" data-lang="en" type="button">EN</button>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div id="user-badge" title=""></div>
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="it" type="button">IT</button>
+        <button class="lang-btn" data-lang="en" type="button">EN</button>
+      </div>
     </div>
   </header>
 
   <div class="container" style="padding:40px 0;">
     <h1>
-      <span class="lang-it">Prova gratuita – Genera un microcorso con l'AI</span>
+      <span class="lang-it">Prova gratuita – Genera un corso con l'AI</span>
       <span class="lang-en">Free trial – Generate a micro-course with AI</span>
     </h1>
     <p id="auth-status" class="muted">
@@ -78,12 +94,9 @@
           <span class="lang-en">Keywords</span>
         </strong>
       </label>
-      <textarea id="keywords">
-        <span class="lang-it">Inserisci 2-5 parole chiave...</span>
-        <span class="lang-en">Enter 2-5 keywords...</span>
-      </textarea>
+      <textarea id="keywords" placeholder="Inserisci 2-5 parole chiave... / Enter 2-5 keywords..."></textarea>
       <button class="btn" id="generate" style="margin-top:10px;">
-        <span class="lang-it">Genera lezione</span>
+        <span class="lang-it">Genera corso</span>
         <span class="lang-en">Generate lecture</span>
       </button>
 
@@ -138,7 +151,7 @@
       </div>
 
       <h3 style="margin-top:18px;">
-        <span class="lang-it">Suggerimenti di corso:</span>
+        <span class="lang-it">Suggerimenti:</span>
         <span class="lang-en">Course suggestions:</span>
       </h3>
       <div id="suggestions" class="box"></div>
@@ -185,6 +198,20 @@
     window.__accessToken = session?.access_token || "";
     if (session?.access_token) {
       sessionStorage.setItem("eleviai_token", session.access_token);
+    }
+
+    // Initials badge
+    if (session?.user) {
+      const meta = session.user.user_metadata || {};
+      const first = (meta.first_name || "").trim();
+      const last  = (meta.last_name  || "").trim();
+      const initials = (first[0] || "") + (last[0] || "");
+      const badge = document.getElementById("user-badge");
+      if (initials && badge) {
+        badge.textContent = initials.toUpperCase();
+        badge.title = [first, last].filter(Boolean).join(" ");
+        badge.style.display = "flex";
+      }
     }
   </script>
 
