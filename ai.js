@@ -321,3 +321,11 @@ function escapeHtml(s) {
 function escapeAttr(s) {
   return (s || "").replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 }
+
+// Auto-trigger checkout if redirected here from pricing page
+(function () {
+  const plan = new URLSearchParams(window.location.search).get("checkout");
+  if (plan === "single" || plan === "pack5") {
+    handleUpgrade(plan);
+  }
+})();
