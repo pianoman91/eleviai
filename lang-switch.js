@@ -1,5 +1,5 @@
 /**
- * lang-switch.js — Universal IT/EN language switcher for EleviAI.
+ * lang-switch.js — Universal IT/EN language switcher for PNL.
  * Include this script in <head> (or early in <body>) on every page.
  * Pages must have: <html data-lang="it"> as default.
  * Text wrapped in .lang-it / .lang-en spans will be shown/hidden via CSS (styles.css).

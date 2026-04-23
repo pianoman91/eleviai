@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     "Italiano";
 
   const prompt = `
-Sei EleviAI, un sistema che crea seminari tematici per professionisti.
+Sei PNL, un sistema che crea seminari tematici per professionisti.
 
 Lingua del corso: ${courseLanguage}.
 Parole chiave: ${keywords}.

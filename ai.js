@@ -121,7 +121,7 @@ generateBtn?.addEventListener("click", async () => {
               </div>
               <div style="
                 background: #0c1020;
-                border: 2px solid #7c5cff;
+                border: 2px solid var(--brand);
                 border-radius: 12px;
                 padding: 20px 24px;
                 flex: 1 1 180px;
@@ -130,7 +130,7 @@ generateBtn?.addEventListener("click", async () => {
               ">
                 <div style="
                   position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-                  background: linear-gradient(135deg, #7c5cff, #31d0aa);
+                  background: linear-gradient(135deg, var(--brand), var(--brand-2));
                   color: #0b0d12; font-weight: 800; font-size: 10px;
                   letter-spacing: .8px; text-transform: uppercase;
                   padding: 2px 10px; border-radius: 10px;
@@ -141,10 +141,10 @@ generateBtn?.addEventListener("click", async () => {
                 <div style="font-size: 28px; font-weight: 900; margin-bottom: 4px;">
                   €9.99
                 </div>
-                <div style="font-size: 12px; color: #31d0aa; margin-bottom: 12px;">
+                <div style="font-size: 12px; color: var(--brand-2); margin-bottom: 12px;">
                   ${isEn ? "Save 60%" : "Risparmi il 60%"}
                 </div>
-                <button class="btn small upgrade-btn" data-plan="pack5" data-label="${isEn ? 'Buy 5' : 'Acquista 5'}" style="width:100%; background:linear-gradient(135deg,#7c5cff,#31d0aa); border:none; color:#0b0d12; font-weight:700;">
+                <button class="btn small upgrade-btn" data-plan="pack5" data-label="${isEn ? 'Buy 5' : 'Acquista 5'}" style="width:100%; background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#0b0d12; font-weight:700;">
                   ${isEn ? "Buy 5" : "Acquista 5"}
                 </button>
               </div>

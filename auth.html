@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>EleviAI — Accedi</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='g' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%237c5cff'/><stop offset='100%25' stop-color='%2331d0aa'/></linearGradient></defs><line x1='4' y1='35' x2='20' y2='4' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/><line x1='20' y1='4' x2='36' y2='35' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/><line x1='20' y1='4' x2='20' y2='36' stroke='url(%23g)' stroke-width='2.5' stroke-linecap='round'/><line x1='8' y1='24' x2='32' y2='24' stroke='url(%23g)' stroke-width='1.5' stroke-linecap='round'/></svg>" />
+  <title>PNL — Accedi</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 40'><text y='36' font-family='serif' font-weight='900' font-size='38' fill='%234d8ed4'>P</text><text x='28' y='36' font-family='serif' font-weight='900' font-size='38' fill='%23c9a94c'>NL</text></svg>" />
   <link rel="stylesheet" href="styles.css" />
   <script src="lang-switch.js"></script>
 
@@ -33,20 +33,13 @@
     .auth-logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 0;
       margin-bottom: 28px;
       text-decoration: none;
       color: var(--text);
-    }
-    .auth-logo svg { width: 36px; height: 36px; }
-    .auth-logo-text {
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 900;
       letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #7c5cff 0%, #31d0aa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
 
     /* Tabs */
@@ -98,7 +91,7 @@
     }
     .field-group input:focus {
       border-color: var(--brand);
-      box-shadow: 0 0 0 3px rgba(124, 92, 255, .18);
+      box-shadow: 0 0 0 3px rgba(77, 142, 212, .18);
     }
     .field-group input::placeholder { color: #4a5270; }
 
@@ -113,7 +106,7 @@
       font-size: 16px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(124,92,255,.3);
+      box-shadow: 0 6px 20px rgba(77,142,212,.3);
       transition: opacity .15s, transform .1s;
       margin-top: 8px;
     }
@@ -131,8 +124,8 @@
     }
     .auth-msg.show { display: block; }
     .auth-msg.error { background: rgba(255, 80, 80, .12); border: 1px solid rgba(255,80,80,.3); color: #ff8080; }
-    .auth-msg.success { background: rgba(49, 208, 170, .1); border: 1px solid rgba(49,208,170,.3); color: var(--brand-2); }
-    .auth-msg.info { background: rgba(124, 92, 255, .1); border: 1px solid rgba(124,92,255,.3); color: #a78bfa; }
+    .auth-msg.success { background: rgba(201, 169, 76, .1); border: 1px solid rgba(201,169,76,.3); color: var(--brand-2); }
+    .auth-msg.info { background: rgba(77, 142, 212, .1); border: 1px solid rgba(77,142,212,.3); color: var(--brand); }
 
     /* Resend link */
     .auth-footer {
@@ -197,19 +190,7 @@
 
     <!-- Logo -->
     <a class="auth-logo" href="index.html">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="ag" x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#7c5cff"/>
-            <stop offset="100%" stop-color="#31d0aa"/>
-          </linearGradient>
-        </defs>
-        <line x1="4" y1="35" x2="20" y2="4" stroke="url(#ag)" stroke-width="2" stroke-linecap="round"/>
-        <line x1="20" y1="4" x2="36" y2="35" stroke="url(#ag)" stroke-width="2" stroke-linecap="round"/>
-        <line x1="20" y1="4" x2="20" y2="36" stroke="url(#ag)" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="8" y1="24" x2="32" y2="24" stroke="url(#ag)" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <span class="auth-logo-text">EleviAI</span>
+      <span class="logo-p">P</span><span class="logo-nl">NL</span>
     </a>
 
     <!-- Tabs -->
