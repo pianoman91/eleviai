@@ -3,8 +3,8 @@
   --card: #141823;
   --text: #e7eaf3;
   --muted: #a9b0c3;
-  --brand: #7c5cff;
-  --brand-2: #31d0aa;
+  --brand: #4d8ed4;
+  --brand-2: #c9a94c;
   --shadow: 0 10px 30px rgba(0,0,0,.25);
 }
 
@@ -145,13 +145,13 @@ body {
   display:flex; justify-content: space-between; align-items:center; padding: 26px 0 40px; color: var(--muted);
 }
 .tiny { font-size: 12px; color: var(--muted); }
-a { color: #b9c3ff; }
+a { color: #8bb8e8; }
 .badge-card {
   margin-top: 20px;
   padding: 14px 16px;
   border-radius: 14px;
   border: 1px solid var(--brand-2);
-  background: rgba(49, 208, 170, 0.06);
+  background: rgba(201, 169, 76, 0.06);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -189,14 +189,15 @@ a { color: #b9c3ff; }
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 800;
-  letter-spacing: .3px;
+  gap: 0;
+  font-weight: 900;
+  letter-spacing: -0.5px;
   text-decoration: none;
   color: var(--text);
-  font-size: 22px;
+  font-size: 24px;
 }
-.logo svg { flex-shrink: 0; }
+.logo-p  { color: #4d8ed4; font-weight: 900; }
+.logo-nl { color: #c9a94c; font-weight: 900; }
 
 /* ---- Lingue ---- */
 .lang-it { display: inline; }
@@ -232,7 +233,7 @@ html[data-lang="en"] .lang-en.block { display: block; }
 
 .lang-btn.active {
   border-color: var(--brand-2);
-  background: rgba(49, 208, 170, 0.12);
+  background: rgba(201, 169, 76, 0.12);
   opacity: 1;
   color: var(--brand-2);
   font-weight: 700;

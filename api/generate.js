@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     "Italiano";
 
   const prompt = `
-Sei EleviAI, un sistema che crea seminari estensivi per professionisti.
+Sei PNL, un sistema che crea seminari estensivi per professionisti.
 
 Lingua del corso: ${courseLanguage}.
 Scrivi TUTTO il contenuto nella lingua indicata, senza cambiare lingua a metà.
