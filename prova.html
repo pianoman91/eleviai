@@ -8,15 +8,15 @@
   <link rel="stylesheet" href="styles.css">
   <script src="lang-switch.js"></script>
   <style>
-    .box { background:#141823; padding:20px; border-radius:12px; }
+    .box { background: var(--card); border: 1px solid var(--border); padding:20px; border-radius:12px; }
     textarea {
       width:100%; height:80px; padding:10px; border-radius:8px;
-      background:#0c1020; color:white; border:1px solid #2a3145;
+      background: var(--input-bg); color: var(--text); border:1px solid var(--border);
     }
     input[type="text"] {
       width:100%; margin:8px 0 16px; padding:10px;
-      border-radius:8px; border:1px solid #2a3145;
-      background:#0c1020; color:white;
+      border-radius:8px; border:1px solid var(--border);
+      background: var(--input-bg); color: var(--text);
     }
     .muted { color: var(--muted); }
     .disabled { opacity:.55; pointer-events:none; filter:grayscale(20%); }
@@ -26,8 +26,8 @@
       justify-content: center;
       width: 34px; height: 34px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #7c5cff, #31d0aa);
-      color: #0b0d12;
+      background: linear-gradient(135deg, var(--brand), #1a4080);
+      color: #ffffff;
       font-weight: 700;
       font-size: 13px;
       letter-spacing: 0.5px;
@@ -94,7 +94,7 @@
       </h2>
       <div id="output" class="box"></div>
 
-      <hr style="margin: 32px 0; border-color: #2a3145;">
+      <hr style="margin: 32px 0; border-color: var(--border);">
 
       <h2>
         <span class="lang-it">Suggerimenti corsi dalla tua carriera</span>

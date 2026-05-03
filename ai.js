@@ -86,8 +86,8 @@ generateBtn?.addEventListener("click", async () => {
         const isEn = lang === "en";
         output.innerHTML = `
           <div style="
-            background: linear-gradient(135deg, #1a1530 0%, #0e1a26 100%);
-            border: 1px solid #3d2f70;
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 14px;
             padding: 28px 24px;
             text-align: center;
@@ -102,8 +102,8 @@ generateBtn?.addEventListener("click", async () => {
             </p>
             <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
               <div style="
-                background: #0c1020;
-                border: 1px solid #2a3145;
+                background: var(--input-bg);
+                border: 1px solid var(--border);
                 border-radius: 12px;
                 padding: 20px 24px;
                 flex: 1 1 180px;
@@ -120,7 +120,7 @@ generateBtn?.addEventListener("click", async () => {
                 </button>
               </div>
               <div style="
-                background: #0c1020;
+                background: var(--input-bg);
                 border: 2px solid var(--brand);
                 border-radius: 12px;
                 padding: 20px 24px;
@@ -131,7 +131,7 @@ generateBtn?.addEventListener("click", async () => {
                 <div style="
                   position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
                   background: linear-gradient(135deg, var(--brand), var(--brand-2));
-                  color: #0b0d12; font-weight: 800; font-size: 10px;
+                  color: #ffffff; font-weight: 800; font-size: 10px;
                   letter-spacing: .8px; text-transform: uppercase;
                   padding: 2px 10px; border-radius: 10px;
                 ">${isEn ? "Best value" : "Miglior offerta"}</div>
@@ -144,7 +144,7 @@ generateBtn?.addEventListener("click", async () => {
                 <div style="font-size: 12px; color: var(--brand-2); margin-bottom: 12px;">
                   ${isEn ? "Save 60%" : "Risparmi il 60%"}
                 </div>
-                <button class="btn small upgrade-btn" data-plan="pack5" data-label="${isEn ? 'Buy 5' : 'Acquista 5'}" style="width:100%; background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#0b0d12; font-weight:700;">
+                <button class="btn small upgrade-btn" data-plan="pack5" data-label="${isEn ? 'Buy 5' : 'Acquista 5'}" style="width:100%; background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#ffffff; font-weight:700;">
                   ${isEn ? "Buy 5" : "Acquista 5"}
                 </button>
               </div>
@@ -274,8 +274,8 @@ function renderSuggestions(text, lang) {
 
   const html = cards.map((c, i) => `
     <div style="
-      background:#0c1020;
-      border:1px solid #2a3145;
+      background: var(--card);
+      border:1px solid var(--border);
       border-radius:12px;
       padding:16px 18px;
       margin-bottom:12px;
@@ -287,7 +287,7 @@ function renderSuggestions(text, lang) {
       ${c.description ? `<div style="font-size:14px; color:var(--muted); line-height:1.5; margin-bottom:14px;">${escapeHtml(c.description)}</div>` : ""}
       <button
         class="btn small"
-        style="background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#0b0d12; font-weight:700;"
+        style="background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#ffffff; font-weight:700;"
         data-title="${escapeAttr(c.title)}"
         onclick="generateFromSuggestion(this.dataset.title)"
       >

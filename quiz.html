@@ -8,28 +8,27 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="lang-switch.js"></script>
   <style>
-    .box { background:#141823; padding:20px; border-radius:12px; }
+    .box { background: var(--card); border: 1px solid var(--border); padding:20px; border-radius:12px; }
     .toolbar {
       display:flex; gap:10px; flex-wrap:wrap; align-items:center;
       margin: 14px 0 6px;
       padding: 10px;
-      border: 1px solid #2a3145;
+      border: 1px solid var(--border);
       border-radius: 12px;
-      background: #0c1020;
+      background: var(--input-bg);
     }
     .toolbar label { font-size: 12px; opacity: 0.9; }
     .toolbar select, .toolbar input[type="range"] {
       padding: 8px;
       border-radius: 8px;
-      border: 1px solid #2a3145;
-      background:#0c1020;
-      color:white;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
     }
     @media print {
       .no-print { display: none !important; }
-      body { background: white !important; color: black !important; }
-      .box { background: white !important; border: none !important; padding: 0 !important; }
-      a { color: black !important; text-decoration: none !important; }
+      .box { border: none !important; padding: 0 !important; }
+      a { text-decoration: none !important; }
     }
   </style>
 </head>
