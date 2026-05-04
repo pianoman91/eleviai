@@ -86,6 +86,59 @@ body {
 .hero-row-val { font-size: 14px; color: var(--text); }
 .hero-row-output .hero-row-val { font-weight: 600; color: var(--brand); }
 
+/* ---- Examples table ---- */
+.examples-section { margin: 48px auto; }
+.examples-table {
+  display: grid;
+  grid-template-columns: 140px repeat(3, 1fr);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.examples-header {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--brand), #1a4080);
+}
+.examples-label {
+  padding: 18px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.examples-label:last-child { border-bottom: none; }
+.examples-label-output { color: var(--brand-2); }
+.examples-col {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+}
+.examples-cell {
+  padding: 18px 16px;
+  font-size: 14px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border-light);
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.examples-cell:last-child { border-bottom: none; }
+.examples-cell-output { font-weight: 700; color: var(--brand); }
+@media (max-width: 680px) {
+  .examples-table { grid-template-columns: 1fr; }
+  .examples-header { flex-direction: row; display: none; }
+  .examples-col { border-left: none; border-top: 2px solid var(--brand); margin-top: 12px; border-radius: 10px; border: 1px solid var(--border); }
+  .examples-col:first-of-type { margin-top: 0; }
+}
+
 /* ---- Steps section ---- */
 .steps-section { margin: 48px auto; }
 .section-title {
