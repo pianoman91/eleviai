@@ -46,12 +46,12 @@ export default async function handler(req, res) {
     "Italiano";
 
   const prompt = `
-Sei PNL, un sistema che crea corsi tecnici per professionisti.
+Sei PNL, un sistema che crea Masterclass tecniche per professionisti.
 
 Lingua del quiz: ${courseLanguage}.
 Parole chiave: ${keywords}.
 
-Questo è l'indice del corso che lo studente ha seguito:
+Questo è l'indice della Masterclass che lo studente ha seguito:
 
 ${outline}
 

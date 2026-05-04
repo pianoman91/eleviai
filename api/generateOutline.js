@@ -120,7 +120,7 @@ export default async function handler(req, res) {
 
     const prompt = `
 Sei un docente universitario e instructional designer.
-Devi creare un OUTLINE (indice dettagliato) di un micro-corso basato su queste parole chiave: ${keywords}.
+Devi creare un OUTLINE (indice dettagliato) di una Masterclass basata su queste parole chiave: ${keywords}.
 Lingua: ${language || "Italiano"}.
 
 Regole:

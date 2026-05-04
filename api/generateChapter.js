@@ -1,4 +1,4 @@
-// API per generare il contenuto di UN singolo capitolo del corso
+// API per generare il contenuto di UN singolo capitolo della Masterclass
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -52,12 +52,12 @@ export default async function handler(req, res) {
     "Italiano";
 
   const prompt = `
-Sei PNL, un sistema che crea seminari tematici per professionisti.
+Sei PNL, un sistema che crea Masterclass tematiche per professionisti.
 
-Lingua del corso: ${courseLanguage}.
+Lingua della Masterclass: ${courseLanguage}.
 Parole chiave: ${keywords}.
 
-Questo è l'indice completo del corso:
+Questo è l'indice completo della Masterclass:
 
 ${outline}
 
@@ -93,7 +93,7 @@ Lunghezza:
 - Pensato per almeno 10–15 minuti di lettura, almeno 800 parole.
 - quindi testo esteso e discorsivo, non riassuntivo o schematico.
 
-Non aggiungere nessun altro capitolo, nessun riepilogo dell'intero corso, nessun quiz.
+Non aggiungere nessun altro capitolo, nessun riepilogo dell'intera Masterclass, nessun quiz.
 Solo il testo del capitolo ${chapterNum}.
 `;
 

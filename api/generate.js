@@ -1,4 +1,4 @@
-// API per generare corso completo (indice + seminario lungo + quiz) usando OpenRouter
+// API per generare Masterclass completa (indice + contenuto lungo + quiz) usando OpenRouter
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -24,20 +24,20 @@ export default async function handler(req, res) {
     "Italiano";
 
   const prompt = `
-Sei PNL, un sistema che crea seminari estensivi per professionisti.
+Sei PNL, un sistema che crea Masterclass estensive per professionisti.
 
-Lingua del corso: ${courseLanguage}.
+Lingua della Masterclass: ${courseLanguage}.
 Scrivi TUTTO il contenuto nella lingua indicata, senza cambiare lingua a metà.
 
 Parole chiave fornite: ${keywords}.
 
-Genera un corso seminario con esattamente queste intestazioni a livello di Markdown:
+Genera una Masterclass con esattamente queste intestazioni a livello di Markdown:
 
-### INDICE DEL CORSO
+### INDICE DELLA MASTERCLASS
 [qui inserisci solo un indice strutturato: 6 capitoli e 5 sottosezioni per ogni capitolo, in forma di elenco puntato]
 
-### SEMINARIO DETTAGLIATO
-[qui sviluppi il contenuto vero e proprio del seminario, seguendo l'indice punto per punto, in forma discorsiva, con spiegazioni chiare ed esempi, tempo di lettura 2 ore, ogni sottosezione deve avere minimo 500 parole, quindi ogni capitolo minimo 2500 parole]
+### MASTERCLASS DETTAGLIATA
+[qui sviluppi il contenuto vero e proprio della Masterclass, seguendo l'indice punto per punto, in forma discorsiva, con spiegazioni chiare ed esempi, tempo di lettura 2 ore, ogni sottosezione deve avere minimo 500 parole, quindi ogni capitolo minimo 2500 parole]
 
 ### QUIZ FINALE
 [qui scrivi ESATTAMENTE 6 domande a scelta multipla con 4 opzioni (A, B, C, D). Prima elenca tutte le 6 domande con le opzioni, SENZA indicare subito la risposta. 
@@ -48,7 +48,7 @@ Alla fine, dopo le 6 domande, aggiungi una sottosezione intitolata "Soluzioni de
 4) D
 ...]
 
-Requisiti per il SEMINARIO DETTAGLIATO:
+Requisiti per la MASTERCLASS DETTAGLIATA:
 - Lunghezza: pensato per una lettura di circa 120 minuti, quindi 10000 parole (testo lungo, con molti dettagli, non riassumere)
 - Struttura: suddiviso in più moduli e sottosezioni di minimo 500 parole, con titoli chiari
 - Ogni sezione deve contenere descrizioni approfondite ed esempi applicativi

@@ -1,4 +1,4 @@
-// API per suggerire 3 titoli di corsi in base al profilo carriera
+// API per suggerire 3 titoli di Masterclass in base al profilo carriera
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Only POST method is allowed" });
@@ -43,7 +43,7 @@ You are a career coach specialised in professional profiles (engineers, designer
 Based on this profile:
 ${profileDescription}
 
-Propose EXACTLY 3 micro-course titles (not generic courses), focused on skills that can help this person grow their career in the next 12 months.
+Propose EXACTLY 3 Masterclass titles (not generic), focused on skills that can help this person grow their career in the next 12 months.
 Compare the profile against similar LinkedIn job titles and typical skill gaps at that seniority level.
 
 Requirements:
@@ -53,13 +53,13 @@ Requirements:
 
 Output format (keep it exactly like this, no extra text before or after):
 
-1) Course title 1
+1) Masterclass title 1
    Short description...
 
-2) Course title 2
+2) Masterclass title 2
    Short description...
 
-3) Course title 3
+3) Masterclass title 3
    Short description...
 `;
 
