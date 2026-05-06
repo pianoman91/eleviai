@@ -17,14 +17,6 @@
       border-radius: 12px;
       background: var(--input-bg);
     }
-    .toolbar label { font-size: 12px; opacity: 0.9; }
-    .toolbar select, .toolbar input[type="range"] {
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-    }
     .chapter-title { font-size: 26px; font-weight: 800; margin-bottom: 14px; }
     .chapter-subtitle { font-size: 18px; font-weight: 700; margin-top: 18px; margin-bottom: 8px; }
     .muted { color: var(--muted); }
@@ -33,6 +25,8 @@
       .no-print { display: none !important; }
       .box { border: none !important; padding: 0 !important; }
       a { text-decoration: none !important; }
+      body { color: #000 !important; background: #fff !important; }
+      .chapter-title { font-size: 22px; }
     }
   </style>
 </head>
@@ -55,17 +49,7 @@
     </h1>
     <p id="chapter-info" class="muted"></p>
 
-    <!-- TOOLBAR TTS + PDF -->
     <div class="toolbar no-print">
-      <button class="btn small" id="tts-play">
-        <span class="lang-it">▶ Ascolta</span>
-        <span class="lang-en">▶ Listen</span>
-      </button>
-      <button class="btn small ghost" id="tts-pause">
-        <span class="lang-it">⏸ Pausa</span>
-        <span class="lang-en">⏸ Pause</span>
-      </button>
-      <button class="btn small ghost" id="tts-stop">■ Stop</button>
       <button class="btn small" id="pdf">
         <span class="lang-it">Scarica PDF</span>
         <span class="lang-en">Download PDF</span>
@@ -110,9 +94,6 @@
       const nextBtn = document.getElementById("next-chapter");
       const quizBtn = document.getElementById("go-quiz");
 
-      const btnPlay = document.getElementById("tts-play");
-      const btnPause = document.getElementById("tts-pause");
-      const btnStop = document.getElementById("tts-stop");
       const pdfBtn = document.getElementById("pdf");
 
       function getLang() {
@@ -123,7 +104,6 @@
         contentEl.textContent = getLang() === "en"
           ? "No Masterclass found. Generate an outline from the free trial page first."
           : "Nessuna Masterclass trovata. Genera prima un indice dalla pagina di prova gratuita.";
-        disableTTS();
         return;
       }
 
@@ -198,145 +178,40 @@
             contentEl.textContent = getLang() === "en"
               ? "Error: no chapter content received from AI."
               : "Errore: nessun contenuto del capitolo ricevuto dall'AI.";
-            disableTTS();
             return;
           }
           localStorage.setItem(`eleviai_chapter_${currentChapter}_text`, data.chapterContent);
           contentEl.innerHTML = renderChapter(data.chapterContent);
-          setupTTS();
         })
         .catch((err) => {
           contentEl.textContent = getLang() === "en"
             ? "Network error while generating the chapter."
             : "Errore di rete durante la generazione del capitolo.";
           console.error("Network error (chapter):", err);
-          disableTTS();
         });
 
       prevBtn.addEventListener("click", () => {
-        stopSpeaking();
         if (currentChapter > 1) {
           localStorage.setItem("eleviai_current_chapter", String(currentChapter - 1));
           window.location.reload();
         }
       });
       nextBtn.addEventListener("click", () => {
-        stopSpeaking();
         if (currentChapter < totalChapters) {
           localStorage.setItem("eleviai_current_chapter", String(currentChapter + 1));
           window.location.reload();
         }
       });
       quizBtn.addEventListener("click", () => {
-        stopSpeaking();
         window.location.href = "quiz.html";
       });
 
       pdfBtn.addEventListener("click", () => {
-        stopSpeaking();
-        document.title = `PNL - Capitolo ${currentChapter}`;
+        const originalTitle = document.title;
+        document.title = `PNL – Chapter ${currentChapter}`;
         window.print();
+        document.title = originalTitle;
       });
-
-      function disableTTS() {
-        btnPlay.disabled = true;
-        btnPause.disabled = true;
-        btnStop.disabled = true;
-      }
-
-      function getReadableTextFromDOM() {
-        const parts = [];
-        contentEl.querySelectorAll(".chapter-title, .chapter-subtitle, p").forEach(n => {
-          const t = (n.textContent || "").trim();
-          if (t) parts.push(t);
-        });
-        return parts.join(" ");
-      }
-
-      // Split text into sentence-sized chunks to avoid Chrome's mid-speech cut-off bug
-      function splitIntoChunks(text, maxLen = 180) {
-        const sentences = text.match(/[^.!?]+[.!?]+[\s]*/g) || [text];
-        const chunks = [];
-        let current = "";
-        for (const s of sentences) {
-          if (current.length + s.length > maxLen) {
-            if (current.trim()) chunks.push(current.trim());
-            current = s;
-          } else {
-            current += s;
-          }
-        }
-        if (current.trim()) chunks.push(current.trim());
-        return chunks.length ? chunks : [text];
-      }
-
-      // Pick the best available voice for the content language
-      function pickBestVoice(lang) {
-        const voices = window.speechSynthesis.getVoices();
-        const lower = lang.toLowerCase();
-        const code = lower.startsWith("ital") ? "it"
-          : lower.startsWith("engl") || lower.startsWith("ingl") ? "en"
-          : lower.startsWith("span") || lower.startsWith("spag") ? "es"
-          : lower.startsWith("fran") ? "fr"
-          : lower.startsWith("deut") || lower.startsWith("germ") || lower.startsWith("tede") ? "de"
-          : lower.startsWith("port") ? "pt"
-          : "";
-        const preferred = ["premium", "neural", "enhanced", "natural", "google"];
-        let fallback = null;
-        for (const v of voices) {
-          if (code && !v.lang.toLowerCase().startsWith(code)) continue;
-          if (!fallback) fallback = v;
-          if (preferred.some(k => v.name.toLowerCase().includes(k))) return v;
-        }
-        return fallback;
-      }
-
-      function setupTTS() {
-        if (!("speechSynthesis" in window)) { disableTTS(); return; }
-
-        let chunks = [];
-        let chunkIdx = 0;
-
-        function speakNext() {
-          if (chunkIdx >= chunks.length) return;
-          const utter = new SpeechSynthesisUtterance(chunks[chunkIdx]);
-          utter.rate = 0.95;
-          const voice = pickBestVoice(language);
-          if (voice) utter.voice = voice;
-          utter.onend = () => { chunkIdx++; speakNext(); };
-          window.speechSynthesis.speak(utter);
-        }
-
-        function startReading() {
-          window.speechSynthesis.cancel();
-          const text = getReadableTextFromDOM();
-          if (!text) return;
-          chunks = splitIntoChunks(text);
-          chunkIdx = 0;
-          // Voices may not be ready on first call — wait if needed
-          if (window.speechSynthesis.getVoices().length === 0) {
-            window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.onvoiceschanged = null; speakNext(); };
-          } else {
-            speakNext();
-          }
-        }
-
-        btnPlay.addEventListener("click", startReading);
-
-        btnPause.addEventListener("click", () => {
-          if (window.speechSynthesis.paused) {
-            window.speechSynthesis.resume();
-          } else if (window.speechSynthesis.speaking) {
-            window.speechSynthesis.pause();
-          }
-        });
-
-        btnStop.addEventListener("click", () => {
-          window.speechSynthesis.cancel();
-          chunks = [];
-          chunkIdx = 0;
-        });
-      }
     })();
   </script>
 </body>
