@@ -8,25 +8,89 @@
   <link rel="stylesheet" href="styles.css" />
   <script src="lang-switch.js"></script>
   <style>
-    .box { background: var(--card); border: 1px solid var(--border); padding:20px; border-radius:12px; }
-    .toolbar {
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      margin: 14px 0 6px;
-      padding: 10px;
+    /* ---- Layout ---- */
+    .chapter-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 28px;
+      align-items: start;
+      padding: 32px 0 48px;
+    }
+
+    /* ---- Sidebar ---- */
+    .chapter-sidebar {
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      background: var(--input-bg);
+      padding: 14px 0;
+      scrollbar-width: thin;
     }
-    .chapter-title { font-size: 26px; font-weight: 800; margin-bottom: 14px; }
-    .chapter-subtitle { font-size: 18px; font-weight: 700; margin-top: 18px; margin-bottom: 8px; }
+    .sidebar-heading {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--brand);
+      padding: 0 14px 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 6px;
+    }
+    .sidebar-chapter {
+      display: block;
+      padding: 7px 14px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      border-radius: 0;
+      line-height: 1.4;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: background .12s;
+    }
+    .sidebar-chapter:hover { background: var(--input-bg); }
+    .sidebar-chapter.active {
+      font-weight: 800;
+      color: var(--brand);
+      background: var(--input-bg);
+      border-left: 3px solid var(--brand);
+      padding-left: 11px;
+    }
+    .sidebar-sub {
+      padding: 3px 14px 3px 22px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    /* ---- Main content ---- */
+    .chapter-main { min-width: 0; }
+    .box { background: var(--card); border: 1px solid var(--border); padding: 24px; border-radius: 12px; }
+    .chapter-title { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+    .chapter-subtitle { font-size: 17px; font-weight: 700; margin-top: 18px; margin-bottom: 6px; }
     .muted { color: var(--muted); }
+
+    /* ---- Responsive ---- */
+    @media (max-width: 720px) {
+      .chapter-layout { grid-template-columns: 1fr; }
+      .chapter-sidebar {
+        position: static;
+        max-height: 180px;
+        order: -1;
+      }
+    }
 
     @media print {
       .no-print { display: none !important; }
+      .chapter-layout { display: block; }
+      .chapter-sidebar { display: none; }
       .box { border: none !important; padding: 0 !important; }
-      a { text-decoration: none !important; }
       body { color: #000 !important; background: #fff !important; }
-      .chapter-title { font-size: 22px; }
     }
   </style>
 </head>
@@ -42,62 +106,77 @@
     </div>
   </header>
 
-  <div class="container" style="padding:40px 0;">
-    <h1 id="page-title">
-      <span class="lang-it">Capitolo</span>
-      <span class="lang-en">Chapter</span>
-    </h1>
-    <p id="chapter-info" class="muted"></p>
+  <div class="container">
+    <div class="chapter-layout">
 
-    <div class="toolbar no-print">
-      <button class="btn small" id="pdf">
-        <span class="lang-it">Scarica PDF</span>
-        <span class="lang-en">Download PDF</span>
-      </button>
-    </div>
+      <!-- Sidebar index -->
+      <aside class="chapter-sidebar no-print" id="sidebar"></aside>
 
-    <div id="chapter-content" class="box" style="margin-top:16px;"></div>
+      <!-- Main reading area -->
+      <div class="chapter-main">
+        <h1 id="page-title">
+          <span class="lang-it">Capitolo</span>
+          <span class="lang-en">Chapter</span>
+        </h1>
+        <p id="chapter-info" class="muted" style="margin-bottom:14px;"></p>
 
-    <div class="no-print" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
-      <button class="btn ghost" id="prev-chapter" style="display:none;">
-        <span class="lang-it">Capitolo precedente</span>
-        <span class="lang-en">Previous chapter</span>
-      </button>
-      <button class="btn" id="next-chapter" style="display:none;">
-        <span class="lang-it">Capitolo successivo</span>
-        <span class="lang-en">Next chapter</span>
-      </button>
-      <button class="btn" id="go-quiz" style="display:none;">
-        <span class="lang-it">Vai al quiz</span>
-        <span class="lang-en">Go to quiz</span>
-      </button>
-      <a href="prova.html" class="btn ghost">
-        <span class="lang-it">Torna alla prova gratuita</span>
-        <span class="lang-en">Back to free trial</span>
-      </a>
+        <div class="no-print" style="margin-bottom:14px;">
+          <button class="btn small" id="pdf">
+            <span class="lang-it">Scarica PDF</span>
+            <span class="lang-en">Download PDF</span>
+          </button>
+        </div>
+
+        <div id="chapter-content" class="box"></div>
+
+        <div class="no-print" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn ghost" id="prev-chapter" style="display:none;">
+            <span class="lang-it">← Capitolo precedente</span>
+            <span class="lang-en">← Previous</span>
+          </button>
+          <button class="btn" id="next-chapter" style="display:none;">
+            <span class="lang-it">Capitolo successivo →</span>
+            <span class="lang-en">Next →</span>
+          </button>
+          <button class="btn" id="go-quiz">
+            <span class="lang-it">Vai al quiz</span>
+            <span class="lang-en">Go to quiz</span>
+          </button>
+          <a href="prova.html" class="btn ghost">
+            <span class="lang-it">Nuova Masterclass</span>
+            <span class="lang-en">New Masterclass</span>
+          </a>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <script>
     (function () {
-      const outline = localStorage.getItem("eleviai_outline");
-      const keywords = localStorage.getItem("eleviai_keywords");
-      const language = localStorage.getItem("eleviai_language") || "Italiano";
+      const outline   = localStorage.getItem("eleviai_outline")   || "";
+      const keywords  = localStorage.getItem("eleviai_keywords")  || "";
+      const language  = localStorage.getItem("eleviai_language")  || "Italiano";
+      const authToken = sessionStorage.getItem("eleviai_token")   || "";
+
       let currentChapter = parseInt(localStorage.getItem("eleviai_current_chapter") || "1", 10);
-      const authToken = sessionStorage.getItem("eleviai_token") || "";
 
       const pageTitleEl = document.getElementById("page-title");
-      const infoEl = document.getElementById("chapter-info");
-      const contentEl = document.getElementById("chapter-content");
-
-      const prevBtn = document.getElementById("prev-chapter");
-      const nextBtn = document.getElementById("next-chapter");
-      const quizBtn = document.getElementById("go-quiz");
-
-      const pdfBtn = document.getElementById("pdf");
+      const infoEl      = document.getElementById("chapter-info");
+      const contentEl   = document.getElementById("chapter-content");
+      const sidebarEl   = document.getElementById("sidebar");
+      const prevBtn     = document.getElementById("prev-chapter");
+      const nextBtn     = document.getElementById("next-chapter");
+      const quizBtn     = document.getElementById("go-quiz");
+      const pdfBtn      = document.getElementById("pdf");
 
       function getLang() {
         return document.documentElement.getAttribute("data-lang") || "it";
+      }
+      function escapeHtml(s) {
+        return (s || "")
+          .replaceAll("&","&amp;").replaceAll("<","&lt;")
+          .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
       }
 
       if (!outline || !keywords) {
@@ -107,17 +186,21 @@
         return;
       }
 
-      const lines = outline.split("\n");
-      const chapterLines = lines.filter((l) => /^\s*\d+[\.\)]/.test(l));
+      // ---- Parse outline: only TOP-LEVEL chapters (e.g. "1. Title", "2) Title")
+      // The key fix: require a space after the separator so "1.1" does NOT match
+      const TOP_CHAPTER_RE = /^\s*\d+[.)]\s/;
+
+      const allLines     = outline.split("\n").map(l => l.trimEnd()).filter(l => l.trim());
+      const chapterLines = allLines.filter(l => TOP_CHAPTER_RE.test(l));
       const totalChapters = chapterLines.length || 1;
 
       if (currentChapter < 1) currentChapter = 1;
       if (currentChapter > totalChapters) currentChapter = totalChapters;
       localStorage.setItem("eleviai_current_chapter", String(currentChapter));
 
-      const currentLine = (chapterLines[currentChapter - 1] || `Capitolo ${currentChapter}`).trim();
+      const currentLine = (chapterLines[currentChapter - 1] || "").trim();
 
-      // Update page title (preserve lang spans, set number)
+      // ---- Page title ----
       pageTitleEl.innerHTML =
         `<span class="lang-it">Capitolo ${currentChapter}</span>` +
         `<span class="lang-en">Chapter ${currentChapter}</span>`;
@@ -126,20 +209,46 @@
       infoEl.textContent =
         `${langLabel} ${currentChapter}/${totalChapters} — ${currentLine} — ${language}`;
 
+      // ---- Navigation buttons ----
       if (currentChapter > 1) prevBtn.style.display = "inline-block";
       if (currentChapter < totalChapters) nextBtn.style.display = "inline-block";
-      quizBtn.style.display = "inline-block";
 
-      function escapeHtml(s) {
-        return s
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#039;");
+      // ---- Build sidebar ----
+      function buildSidebar() {
+        const isEn = getLang() === "en";
+        let html = `<div class="sidebar-heading">${isEn ? "Index" : "Indice"}</div>`;
+        let chapterIdx = 0;
+
+        allLines.forEach(line => {
+          if (TOP_CHAPTER_RE.test(line)) {
+            chapterIdx++;
+            const isActive = chapterIdx === currentChapter;
+            html += `<button class="sidebar-chapter${isActive ? " active" : ""}" data-ch="${chapterIdx}">${escapeHtml(line.trim())}</button>`;
+          } else {
+            html += `<div class="sidebar-sub">${escapeHtml(line.trim())}</div>`;
+          }
+        });
+
+        sidebarEl.innerHTML = html;
+
+        // Navigate on click
+        sidebarEl.querySelectorAll(".sidebar-chapter").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const ch = parseInt(btn.dataset.ch, 10);
+            if (ch !== currentChapter) {
+              localStorage.setItem("eleviai_current_chapter", String(ch));
+              window.location.reload();
+            }
+          });
+        });
+
+        // Scroll active item into view
+        const activeBtn = sidebarEl.querySelector(".sidebar-chapter.active");
+        if (activeBtn) activeBtn.scrollIntoView({ block: "center" });
       }
+      buildSidebar();
 
-      // Matches chapter heading in any language (CHAPTER, CAPITOLO, CHAPITRE, CAPÍTULO, KAPITEL…)
+      // ---- Render chapter content ----
       const CHAPTER_HEADING_RE = /^(CHAPTER|CAPITOLO|CHAPITRE|CAP[IÍ]TULO|KAPITEL)\s*\d/i;
 
       function renderChapter(text) {
@@ -157,23 +266,20 @@
           }
           html += `<p>${safe}</p>`;
         });
-        return html || (getLang() === "en" ? "<p>No content.</p>" : "<p>Nessun contenuto.</p>");
+        return html || `<p>${getLang() === "en" ? "No content." : "Nessun contenuto."}</p>`;
       }
 
       contentEl.textContent = getLang() === "en"
-        ? "Generating chapter... ⏳"
-        : "Generazione del capitolo in corso... ⏳";
+        ? "Generating chapter… ⏳"
+        : "Generazione del capitolo in corso… ⏳";
 
       fetch("/api/generateChapter", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + authToken
-        },
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + authToken },
         body: JSON.stringify({ keywords, language, outline, chapterNumber: currentChapter })
       })
-        .then((r) => r.json())
-        .then((data) => {
+        .then(r => r.json())
+        .then(data => {
           if (!data || !data.chapterContent) {
             contentEl.textContent = getLang() === "en"
               ? "Error: no chapter content received from AI."
@@ -183,34 +289,30 @@
           localStorage.setItem(`eleviai_chapter_${currentChapter}_text`, data.chapterContent);
           contentEl.innerHTML = renderChapter(data.chapterContent);
         })
-        .catch((err) => {
+        .catch(err => {
           contentEl.textContent = getLang() === "en"
             ? "Network error while generating the chapter."
             : "Errore di rete durante la generazione del capitolo.";
           console.error("Network error (chapter):", err);
         });
 
+      // ---- Button handlers ----
       prevBtn.addEventListener("click", () => {
-        if (currentChapter > 1) {
-          localStorage.setItem("eleviai_current_chapter", String(currentChapter - 1));
-          window.location.reload();
-        }
+        localStorage.setItem("eleviai_current_chapter", String(currentChapter - 1));
+        window.location.reload();
       });
       nextBtn.addEventListener("click", () => {
-        if (currentChapter < totalChapters) {
-          localStorage.setItem("eleviai_current_chapter", String(currentChapter + 1));
-          window.location.reload();
-        }
+        localStorage.setItem("eleviai_current_chapter", String(currentChapter + 1));
+        window.location.reload();
       });
       quizBtn.addEventListener("click", () => {
         window.location.href = "quiz.html";
       });
-
       pdfBtn.addEventListener("click", () => {
-        const originalTitle = document.title;
+        const orig = document.title;
         document.title = `PNL – Chapter ${currentChapter}`;
         window.print();
-        document.title = originalTitle;
+        document.title = orig;
       });
     })();
   </script>
