@@ -49,7 +49,7 @@ async function safeReadJson(response) {
   }
 }
 
-// ---- Generate lecture outline ----
+// ---- Generate Masterclass outline ----
 generateBtn?.addEventListener("click", async () => {
   const kw = textarea ? textarea.value.trim() : "";
   const langPrefRaw = courseLangInput ? courseLangInput.value.trim() : "";
@@ -67,7 +67,7 @@ generateBtn?.addEventListener("click", async () => {
     return;
   }
 
-  output.innerHTML = `<p>${lang === "en" ? "Generating course outline... ⏳" : "Generazione dell'indice del corso in corso... ⏳"}</p>`;
+  output.innerHTML = `<p>${lang === "en" ? "Generating Masterclass outline... ⏳" : "Generazione dell'indice della Masterclass in corso... ⏳"}</p>`;
 
   try {
     const response = await fetch("/api/generateOutline", {
@@ -97,8 +97,8 @@ generateBtn?.addEventListener("click", async () => {
             </h3>
             <p style="color: var(--muted); margin: 0 0 24px; font-size: 14px; line-height: 1.6;">
               ${isEn
-                ? "Purchase additional seminars to keep learning."
-                : "Acquista seminari aggiuntivi per continuare a imparare."}
+                ? "Purchase additional Masterclass to keep learning."
+                : "Acquista Masterclass aggiuntive per continuare a imparare."}
             </p>
             <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
               <div style="
@@ -110,7 +110,7 @@ generateBtn?.addEventListener("click", async () => {
                 max-width: 220px;
               ">
                 <div style="font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;">
-                  1 Seminar
+                  1 Masterclass
                 </div>
                 <div style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">
                   €4.99
@@ -136,7 +136,7 @@ generateBtn?.addEventListener("click", async () => {
                   padding: 2px 10px; border-radius: 10px;
                 ">${isEn ? "Best value" : "Miglior offerta"}</div>
                 <div style="font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;">
-                  5 Seminars
+                  5 Masterclass
                 </div>
                 <div style="font-size: 28px; font-weight: 900; margin-bottom: 4px;">
                   €9.99
@@ -178,7 +178,7 @@ generateBtn?.addEventListener("click", async () => {
     localStorage.setItem("eleviai_current_chapter", "1");
 
     output.innerHTML = `
-      <h2>${lang === "en" ? "Course outline" : "Indice del corso"}</h2>
+      <h2>${lang === "en" ? "Masterclass outline" : "Indice della Masterclass"}</h2>
       <pre style="white-space:pre-wrap; margin-bottom:16px;">${outlineText}</pre>
       <button class="btn small" id="start-course">
         ${lang === "en" ? "Start from chapter 1" : "Inizia dal capitolo 1"}
@@ -195,7 +195,7 @@ generateBtn?.addEventListener("click", async () => {
   }
 });
 
-// ---- Career course suggestions ----
+// ---- Career Masterclass suggestions ----
 suggestBtn?.addEventListener("click", async () => {
   const lang = getLang();
   const linkedin = (document.getElementById("linkedin")?.value || "").trim();
@@ -291,7 +291,7 @@ function renderSuggestions(text, lang) {
         data-title="${escapeAttr(c.title)}"
         onclick="generateFromSuggestion(this.dataset.title)"
       >
-        ${lang === "en" ? "Generate this lecture →" : "Genera questo corso →"}
+        ${lang === "en" ? "Generate this Masterclass →" : "Genera questa Masterclass →"}
       </button>
     </div>
   `).join("");

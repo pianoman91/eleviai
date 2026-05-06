@@ -1,4 +1,4 @@
-// API per generare il contenuto di UN singolo capitolo del corso
+// API per generare il contenuto di UN singolo capitolo della Masterclass
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -52,12 +52,14 @@ export default async function handler(req, res) {
     "Italiano";
 
   const prompt = `
-Sei PNL, un sistema che crea seminari tematici per professionisti.
+Sei PNL, un sistema che crea Masterclass tematiche per professionisti.
 
-Lingua del corso: ${courseLanguage}.
+Lingua della Masterclass: ${courseLanguage}.
 Parole chiave: ${keywords}.
 
-Questo è l'indice completo del corso:
+IMPORTANTE: scrivi TUTTO il contenuto, inclusi i titoli strutturali, nella lingua "${courseLanguage}". Non usare mai parole di un'altra lingua.
+
+Questo è l'indice completo della Masterclass:
 
 ${outline}
 
@@ -70,13 +72,8 @@ REGOLE DI FORMATO (OBBLIGATORIE):
 - Scrivi solo testo normale.
 
 STRUTTURA DEL TESTO:
-- Inizia con il titolo del capitolo in MAIUSCOLO, su una riga separata.
-  Esempio:
-  CAPITOLO ${chapterNum} – Titolo del capitolo
-
-- I sottotitoli devono essere scritti in GRASSETTO (solo il testo, non usare simboli).
-  Esempio:
-  Obiettivi del capitolo
+- La prima riga deve essere il titolo del capitolo in MAIUSCOLO, usando la parola corretta per "capitolo" nella lingua "${courseLanguage}" (es. CHAPTER in inglese, CAPITOLO in italiano, CHAPITRE in francese, CAPÍTULO in spagnolo, KAPITEL in tedesco).
+- I sottotitoli devono essere scritti su righe brevi (max 70 caratteri), senza punteggiatura finale.
 
 Requisiti per il capitolo:
 - Scrivi il contenuto solo di questo capitolo (nessun altro).
@@ -93,7 +90,7 @@ Lunghezza:
 - Pensato per almeno 10–15 minuti di lettura, almeno 800 parole.
 - quindi testo esteso e discorsivo, non riassuntivo o schematico.
 
-Non aggiungere nessun altro capitolo, nessun riepilogo dell'intero corso, nessun quiz.
+Non aggiungere nessun altro capitolo, nessun riepilogo dell'intera Masterclass, nessun quiz.
 Solo il testo del capitolo ${chapterNum}.
 `;
 

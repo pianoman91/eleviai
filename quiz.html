@@ -124,8 +124,8 @@
 
       if (!outline || !keywords) {
         quizBox.textContent = getLang() === "en"
-          ? "No quiz available. Generate a course from the free trial page first."
-          : "Nessun quiz disponibile. Genera prima un corso dalla pagina di prova gratuita.";
+          ? "No quiz available. Generate a Masterclass from the free trial page first."
+          : "Nessun quiz disponibile. Genera prima una Masterclass dalla pagina di prova gratuita.";
         disableTTS();
         return;
       }
@@ -159,11 +159,11 @@
           const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
           const firstLine =
             (outline.split("\n").map((l) => l.trim()).filter(Boolean)[0]) ||
-            "Corso PNL";
+            "Masterclass PNL";
 
           const badgeTitleText = getLang() === "en"
-            ? "PNL Badge – Verified course"
-            : "Badge PNL – Corso verificato";
+            ? "PNL Badge – Verified Masterclass"
+            : "Badge PNL – Masterclass verificata";
           const completedLabel = getLang() === "en" ? "Completed on" : "Completato il";
           const verifyLabel = getLang() === "en" ? "Verification ID" : "ID verifica";
           const shareLabel = getLang() === "en" ? "Share on LinkedIn" : "Condividi su LinkedIn";
@@ -174,7 +174,7 @@
               <div class="badge-text">
                 <div class="badge-title">${badgeTitleText}</div>
                 <div class="badge-body">
-                  ${getLang() === "en" ? "Course" : "Corso"}: ${escapeHtml(firstLine)}<br/>
+                  Masterclass: ${escapeHtml(firstLine)}<br/>
                   ${completedLabel}: ${now}<br/>
                   ${verifyLabel}: ${badgeId}
                 </div>
@@ -188,7 +188,7 @@
           const shareBtn = document.querySelector(".badge-share");
           if (shareBtn) {
             shareBtn.addEventListener("click", () => {
-              const title = shareBtn.dataset.courseTitle || "Corso PNL";
+              const title = shareBtn.dataset.courseTitle || "Masterclass PNL";
               const baseUrl = window.location.origin + "/prova.html";
               const urlWithCourse = baseUrl + "?course=" + encodeURIComponent(title);
               const linkedinUrl =

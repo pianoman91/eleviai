@@ -58,28 +58,14 @@
     <!-- TOOLBAR TTS + PDF -->
     <div class="toolbar no-print">
       <button class="btn small" id="tts-play">
-        <span class="lang-it">Ascolta</span>
-        <span class="lang-en">Listen</span>
+        <span class="lang-it">▶ Ascolta</span>
+        <span class="lang-en">▶ Listen</span>
       </button>
       <button class="btn small ghost" id="tts-pause">
-        <span class="lang-it">Pausa</span>
-        <span class="lang-en">Pause</span>
+        <span class="lang-it">⏸ Pausa</span>
+        <span class="lang-en">⏸ Pause</span>
       </button>
-      <button class="btn small ghost" id="tts-stop">Stop</button>
-
-      <label>
-        <span class="lang-it">Velocità</span>
-        <span class="lang-en">Speed</span>
-        <input id="tts-rate" type="range" min="0.7" max="1.3" step="0.05" value="1" />
-        <span id="tts-rate-label">1.00x</span>
-      </label>
-
-      <label>
-        <span class="lang-it">Voce</span>
-        <span class="lang-en">Voice</span>
-        <select id="tts-voice"></select>
-      </label>
-
+      <button class="btn small ghost" id="tts-stop">■ Stop</button>
       <button class="btn small" id="pdf">
         <span class="lang-it">Scarica PDF</span>
         <span class="lang-en">Download PDF</span>
@@ -127,9 +113,6 @@
       const btnPlay = document.getElementById("tts-play");
       const btnPause = document.getElementById("tts-pause");
       const btnStop = document.getElementById("tts-stop");
-      const rateEl = document.getElementById("tts-rate");
-      const rateLabel = document.getElementById("tts-rate-label");
-      const voiceSelect = document.getElementById("tts-voice");
       const pdfBtn = document.getElementById("pdf");
 
       function getLang() {
@@ -138,8 +121,8 @@
 
       if (!outline || !keywords) {
         contentEl.textContent = getLang() === "en"
-          ? "No course found. Generate an outline from the free trial page first."
-          : "Nessun corso trovato. Genera prima un indice dalla pagina di prova gratuita.";
+          ? "No Masterclass found. Generate an outline from the free trial page first."
+          : "Nessuna Masterclass trovata. Genera prima un indice dalla pagina di prova gratuita.";
         disableTTS();
         return;
       }
@@ -176,12 +159,15 @@
           .replaceAll("'", "&#039;");
       }
 
+      // Matches chapter heading in any language (CHAPTER, CAPITOLO, CHAPITRE, CAPÍTULO, KAPITEL…)
+      const CHAPTER_HEADING_RE = /^(CHAPTER|CAPITOLO|CHAPITRE|CAP[IÍ]TULO|KAPITEL)\s*\d/i;
+
       function renderChapter(text) {
         const rawLines = text.split("\n").map(l => l.trim()).filter(Boolean);
         let html = "";
         rawLines.forEach((line, idx) => {
           const safe = escapeHtml(line);
-          if (idx === 0 && line.toUpperCase().startsWith("CAPITOLO")) {
+          if (idx === 0 && CHAPTER_HEADING_RE.test(line)) {
             html += `<div class="chapter-title">${safe}</div>`;
             return;
           }
@@ -252,20 +238,10 @@
         window.print();
       });
 
-      let utter = null;
-
       function disableTTS() {
         btnPlay.disabled = true;
         btnPause.disabled = true;
         btnStop.disabled = true;
-        rateEl.disabled = true;
-        voiceSelect.disabled = true;
-      }
-
-      function stopSpeaking() {
-        try {
-          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-        } catch {}
       }
 
       function getReadableTextFromDOM() {
@@ -274,53 +250,92 @@
           const t = (n.textContent || "").trim();
           if (t) parts.push(t);
         });
-        return parts.join("\n\n");
+        return parts.join(" ");
+      }
+
+      // Split text into sentence-sized chunks to avoid Chrome's mid-speech cut-off bug
+      function splitIntoChunks(text, maxLen = 180) {
+        const sentences = text.match(/[^.!?]+[.!?]+[\s]*/g) || [text];
+        const chunks = [];
+        let current = "";
+        for (const s of sentences) {
+          if (current.length + s.length > maxLen) {
+            if (current.trim()) chunks.push(current.trim());
+            current = s;
+          } else {
+            current += s;
+          }
+        }
+        if (current.trim()) chunks.push(current.trim());
+        return chunks.length ? chunks : [text];
+      }
+
+      // Pick the best available voice for the content language
+      function pickBestVoice(lang) {
+        const voices = window.speechSynthesis.getVoices();
+        const lower = lang.toLowerCase();
+        const code = lower.startsWith("ital") ? "it"
+          : lower.startsWith("engl") || lower.startsWith("ingl") ? "en"
+          : lower.startsWith("span") || lower.startsWith("spag") ? "es"
+          : lower.startsWith("fran") ? "fr"
+          : lower.startsWith("deut") || lower.startsWith("germ") || lower.startsWith("tede") ? "de"
+          : lower.startsWith("port") ? "pt"
+          : "";
+        const preferred = ["premium", "neural", "enhanced", "natural", "google"];
+        let fallback = null;
+        for (const v of voices) {
+          if (code && !v.lang.toLowerCase().startsWith(code)) continue;
+          if (!fallback) fallback = v;
+          if (preferred.some(k => v.name.toLowerCase().includes(k))) return v;
+        }
+        return fallback;
       }
 
       function setupTTS() {
         if (!("speechSynthesis" in window)) { disableTTS(); return; }
 
-        rateLabel.textContent = Number(rateEl.value).toFixed(2) + "x";
+        let chunks = [];
+        let chunkIdx = 0;
 
-        function populateVoices() {
-          const voices = window.speechSynthesis.getVoices() || [];
-          voiceSelect.innerHTML = "";
-          voices.forEach((v, idx) => {
-            const opt = document.createElement("option");
-            opt.value = String(idx);
-            opt.textContent = `${v.name} (${v.lang})`;
-            voiceSelect.appendChild(opt);
-          });
+        function speakNext() {
+          if (chunkIdx >= chunks.length) return;
+          const utter = new SpeechSynthesisUtterance(chunks[chunkIdx]);
+          utter.rate = 0.95;
+          const voice = pickBestVoice(language);
+          if (voice) utter.voice = voice;
+          utter.onend = () => { chunkIdx++; speakNext(); };
+          window.speechSynthesis.speak(utter);
         }
-        populateVoices();
-        window.speechSynthesis.onvoiceschanged = populateVoices;
 
-        rateEl.addEventListener("input", () => {
-          rateLabel.textContent = Number(rateEl.value).toFixed(2) + "x";
-        });
-
-        btnPlay.addEventListener("click", () => {
-          stopSpeaking();
+        function startReading() {
+          window.speechSynthesis.cancel();
           const text = getReadableTextFromDOM();
           if (!text) return;
-          utter = new SpeechSynthesisUtterance(text);
-          utter.rate = Number(rateEl.value);
-          const voices = window.speechSynthesis.getVoices() || [];
-          const voiceIdx = parseInt(voiceSelect.value || "0", 10);
-          if (voices[voiceIdx]) utter.voice = voices[voiceIdx];
-          window.speechSynthesis.speak(utter);
-        });
+          chunks = splitIntoChunks(text);
+          chunkIdx = 0;
+          // Voices may not be ready on first call — wait if needed
+          if (window.speechSynthesis.getVoices().length === 0) {
+            window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.onvoiceschanged = null; speakNext(); };
+          } else {
+            speakNext();
+          }
+        }
+
+        btnPlay.addEventListener("click", startReading);
 
         btnPause.addEventListener("click", () => {
-          if (!("speechSynthesis" in window)) return;
-          if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-            window.speechSynthesis.pause();
-          } else if (window.speechSynthesis.paused) {
+          if (window.speechSynthesis.paused) {
             window.speechSynthesis.resume();
+          } else if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.pause();
           }
         });
 
-        btnStop.addEventListener("click", () => stopSpeaking());
+        btnStop.addEventListener("click", () => {
+          window.speechSynthesis.cancel();
+          chunks = [];
+          chunkIdx = 0;
+        });
       }
     })();
   </script>
