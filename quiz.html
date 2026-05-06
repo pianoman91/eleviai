@@ -320,11 +320,13 @@
       }
       localStorage.setItem("eleviai_last_quiz_text", data.quiz);
       const parsed = parseQuiz(data.quiz);
-      if (parsed.questions.length >= 2 && parsed.solutions.length >= 2) {
+      console.log("Quiz parsed:", parsed.questions.length, "questions,", parsed.solutions.length, "solutions");
+      if (parsed.questions.length >= 2) {
         renderInteractiveQuiz(parsed);
       } else {
-        // Fallback: raw text
-        quizArea.innerHTML = `<div class="box" style="white-space:pre-wrap;">${escapeHtml(data.quiz)}</div>`;
+        // Fallback: raw text but hide solutions section
+        const visibleText = data.quiz.replace(/\n(?:soluzioni|solutions?)[\s\S]*$/i, "").trim();
+        quizArea.innerHTML = `<div class="box" style="white-space:pre-wrap;">${escapeHtml(visibleText)}</div>`;
       }
     })
     .catch(err => {
@@ -336,43 +338,67 @@
 
     // ---- Quiz parser ----
     function parseQuiz(text) {
-      const lines = text.split("\n").map(l => l.trim());
-      const questions = [];
+      // Strip markdown bold/italic/code
+      const clean = text
+        .replace(/\*\*(.+?)\*\*/g, "$1")
+        .replace(/\*(.+?)\*/g, "$1")
+        .replace(/`(.+?)`/g, "$1");
+
+      // Split off solutions section (handles "Soluzioni del quiz", "Solutions:", etc.)
+      const solSplit = clean.split(/\n\s*(?:soluzioni|solutions?|answers?|risposte|correct answers?)[^\n]*\n/i);
+      const questionsText = solSplit[0];
+      const solutionsText = solSplit[1] || "";
+
+      // Parse solutions: "1. A" "1) A" "1: A" "1 - A"
       const solutions = [];
-      let cur = null;
-      let inSolutions = false;
+      solutionsText.split("\n").forEach(line => {
+        const m = line.trim().match(/^(\d+)[.):\-\s]+([A-D])/i);
+        if (m) solutions[parseInt(m[1]) - 1] = m[2].toUpperCase();
+      });
 
-      for (const line of lines) {
-        if (!line) continue;
+      // Split into blocks — each block starts with a question number
+      const blocks = questionsText
+        .split(/(?=^\s*(?:(?:domanda|question|q\.?)\s*)?\d+[.):\s])/im)
+        .map(b => b.trim()).filter(Boolean);
 
-        // Detect solutions section
-        if (/^(soluzioni|solutions?|answers?|risposte)/i.test(line)) {
-          inSolutions = true;
-          if (cur) { questions.push(cur); cur = null; }
-          continue;
+      const questions = [];
+
+      for (const block of blocks) {
+        const blockLines = block.split("\n").map(l => l.trim()).filter(Boolean);
+        if (!blockLines.length) continue;
+
+        // Extract question number prefix and initial text from first line
+        const firstLine = blockLines[0];
+        const headMatch = firstLine.match(/^(?:(?:domanda|question|q\.?)\s*)?(\d+)[.):\s]+(.*)$/i);
+        let questionText = headMatch ? headMatch[2].replace(/^[.:]\s*/, "").trim() : firstLine;
+        let optionStart = 1;
+
+        // If question text is too short, next non-option line continues it
+        if (questionText.length < 5 && blockLines[1] && !/^[A-D][.)]/i.test(blockLines[1])) {
+          questionText = blockLines[1];
+          optionStart = 2;
         }
-        if (inSolutions) {
-          const m = line.match(/^(\d+)[.)]\s*([A-D])/i);
-          if (m) solutions[parseInt(m[1]) - 1] = m[2].toUpperCase();
-          continue;
+
+        // Accumulate additional question text lines before options start
+        let i = optionStart;
+        while (i < blockLines.length && !/^[A-D][.)]/i.test(blockLines[i])) {
+          if (blockLines[i].length > 0) questionText += " " + blockLines[i];
+          i++;
+        }
+        questionText = questionText.trim();
+
+        // Parse A) B) C) D) options
+        const options = [];
+        for (; i < blockLines.length; i++) {
+          const optM = blockLines[i].match(/^([A-D])[.)]\s*(.+)/i);
+          if (optM) options.push({ letter: optM[1].toUpperCase(), text: optM[2].trim() });
         }
 
-        // Option line A) B) C) D)
-        const optM = line.match(/^([A-D])[.)]\s*(.+)/i);
-        if (optM && cur) {
-          cur.options.push({ letter: optM[1].toUpperCase(), text: optM[2] });
-          continue;
-        }
-
-        // Question line: "1." "1)" "Question 1:" "Domanda 1:"
-        const qM = line.match(/^(?:(?:domanda|question|q)\s*)?(\d+)[.):]?\s*(.{5,})/i);
-        if (qM && !optM) {
-          if (cur) questions.push(cur);
-          cur = { text: qM[2].replace(/^[.:]\s*/, ""), options: [] };
-          continue;
+        if (questionText.length >= 5 && options.length >= 2) {
+          questions.push({ text: questionText, options });
         }
       }
-      if (cur) questions.push(cur);
+
       return { questions, solutions };
     }
 
