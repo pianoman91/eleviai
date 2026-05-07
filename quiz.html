@@ -190,18 +190,8 @@
     .diploma-meta strong { color: #002060; }
     .diploma-qr img {
       display: block;
-      border: 3px solid #002060;
-      border-radius: 6px;
-      padding: 4px;
-      background: #fff;
-    }
-    .diploma-qr-label {
-      font-size: 9px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: #aaa;
-      text-align: center;
-      margin-top: 4px;
+      border-radius: 4px;
+      opacity: 0.7;
     }
 
     .cert-actions {
@@ -213,8 +203,10 @@
     }
 
     @media print {
-      .no-print { display: none !important; }
-      #certificate { margin-top: 0; }
+      * { visibility: hidden; }
+      #certificate, #certificate * { visibility: visible; }
+      #certificate { position: fixed; top: 0; left: 0; margin: 0; width: 100%; }
+      .cert-actions { display: none !important; }
     }
     @media (max-width: 600px) {
       .diploma { padding: 36px 24px 32px; }
@@ -222,6 +214,7 @@
       .diploma-footer { flex-direction: column; align-items: center; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 </head>
 <body>
 
@@ -293,8 +286,9 @@
         .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
 
-    // ---- Course title from outline ----
-    const courseTitle = outline.split("\n").map(l => l.trim()).filter(Boolean)[0] || "Masterclass PNL";
+    // ---- Course title from outline (strip leading "1. " number) ----
+    const courseTitle = (outline.split("\n").map(l => l.trim()).filter(Boolean)[0] || "Masterclass PNL")
+      .replace(/^\d+[.)]\s*/, "");
 
     if (!outline || !keywords) {
       quizArea.textContent = getLang() === "en"
@@ -497,13 +491,9 @@
           <div class="diploma-footer">
             <div class="diploma-meta">
               <div><strong>${lang === "en" ? "Issued on" : "Data"}</strong> ${dateStr}</div>
-              <div><strong>${lang === "en" ? "Verification ID" : "Codice verifica"}</strong> ${verifyId}</div>
-              <div><strong>${lang === "en" ? "Issuer" : "Emesso da"}</strong> PNL – pnl.ai</div>
-              <div><strong>${lang === "en" ? "Score" : "Risultato"}</strong> 6 / 6 ✓</div>
             </div>
             <div class="diploma-qr">
-              <img src="${qrUrl}" width="100" height="100" alt="QR verify" />
-              <div class="diploma-qr-label">${lang === "en" ? "Scan to verify" : "Scansiona per verificare"}</div>
+              <img src="${qrUrl}" width="80" height="80" alt="QR verify" />
             </div>
           </div>
         </div>
@@ -520,10 +510,39 @@
 
       certArea.scrollIntoView({ behavior: "smooth", block: "start" });
 
-      document.getElementById("cert-linkedin")?.addEventListener("click", () => {
-        const shareUrl = window.location.origin + "/prova.html";
-        const linkedinUrl = "https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(shareUrl);
-        window.open(linkedinUrl, "_blank", "noopener");
+      async function captureDiploma() {
+        const diploma = certArea.querySelector(".diploma");
+        return await html2canvas(diploma, {
+          scale: 2,
+          backgroundColor: "#FFFCF5",
+          useCORS: true,
+          logging: false
+        });
+      }
+
+      document.getElementById("cert-linkedin")?.addEventListener("click", async () => {
+        const btn = document.getElementById("cert-linkedin");
+        btn.disabled = true;
+        btn.textContent = "…";
+        try {
+          const canvas = await captureDiploma();
+          const a = document.createElement("a");
+          a.download = `PNL-Certificate-${courseTitle.slice(0, 30).replace(/\s+/g, "-")}.png`;
+          a.href = canvas.toDataURL("image/png");
+          a.click();
+
+          const summary = lang === "en"
+            ? `I just completed the "${courseTitle}" Masterclass on PNL — an AI-powered professional learning platform. 🎓`
+            : `Ho appena completato la Masterclass "${courseTitle}" su PNL, la piattaforma di formazione professionale AI. 🎓`;
+          const shareUrl = window.location.origin + "/prova.html";
+          const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}&summary=${encodeURIComponent(summary)}`;
+          setTimeout(() => window.open(linkedinUrl, "_blank", "noopener"), 800);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = lang === "en" ? "Share on LinkedIn" : "Condividi su LinkedIn";
+        }
       });
 
       document.getElementById("cert-pdf")?.addEventListener("click", () => {
