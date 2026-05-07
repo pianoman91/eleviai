@@ -3,34 +3,218 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PNL – Quiz finale</title>
+  <title>PNL – Final Quiz</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 40'><text y='36' font-family='serif' font-weight='900' font-size='38' fill='%234d8ed4'>P</text><text x='28' y='36' font-family='serif' font-weight='900' font-size='38' fill='%23c9a94c'>NL</text></svg>" />
   <link rel="stylesheet" href="styles.css" />
   <script src="lang-switch.js"></script>
   <style>
-    .box { background: var(--card); border: 1px solid var(--border); padding:20px; border-radius:12px; }
-    .toolbar {
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      margin: 14px 0 6px;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--input-bg);
-    }
-    .toolbar label { font-size: 12px; opacity: 0.9; }
-    .toolbar select, .toolbar input[type="range"] {
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
+    /* ---- Quiz interactive ---- */
+    .question-card {
       background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .question-card.done { border-color: #28a745; }
+    .question-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--brand);
+      margin-bottom: 8px;
+    }
+    .question-text {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      line-height: 1.5;
       color: var(--text);
     }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color .15s, background .15s;
+    }
+    .option-btn:hover:not(:disabled) { border-color: var(--brand); background: var(--card); }
+    .option-btn .opt-letter {
+      min-width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      font-weight: 800; font-size: 13px;
+      background: var(--border);
+      color: var(--text);
+      transition: background .15s, color .15s;
+    }
+    .option-btn.correct { border-color: #28a745; background: #f0fff4; color: #155724; }
+    .option-btn.correct .opt-letter { background: #28a745; color: #fff; }
+    .option-btn.wrong   { border-color: #dc3545; background: #fff5f5; color: #721c24; }
+    .option-btn.wrong .opt-letter   { background: #dc3545; color: #fff; }
+    .option-btn:disabled { cursor: default; opacity: 0.85; }
+
+    .quiz-progress {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .progress-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brand), #28a745);
+      border-radius: 99px;
+      transition: width .4s ease;
+      width: 0%;
+    }
+
+    /* ---- Certificate / Diploma ---- */
+    #certificate {
+      display: none;
+      margin: 40px auto 0;
+      max-width: 760px;
+    }
+    .diploma {
+      position: relative;
+      background: #FFFCF5;
+      border: 8px solid #002060;
+      border-radius: 4px;
+      box-shadow: 0 0 0 2px #D6C29A, 0 0 0 4px #002060, 0 20px 60px rgba(0,32,96,.18);
+      padding: 52px 60px 44px;
+      text-align: center;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+    /* Corner ornaments */
+    .diploma-corner {
+      position: absolute;
+      width: 36px; height: 36px;
+      border-color: #D6C29A;
+      border-style: solid;
+    }
+    .diploma-corner.tl { top: 14px; left: 14px; border-width: 2px 0 0 2px; }
+    .diploma-corner.tr { top: 14px; right: 14px; border-width: 2px 2px 0 0; }
+    .diploma-corner.bl { bottom: 14px; left: 14px; border-width: 0 0 2px 2px; }
+    .diploma-corner.br { bottom: 14px; right: 14px; border-width: 0 2px 2px 0; }
+
+    .diploma-logo {
+      font-family: Georgia, serif;
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+    .diploma-logo .dp { color: #002060; }
+    .diploma-logo .dnl { color: #D6C29A; }
+    .diploma-tagline {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #D6C29A;
+      margin-bottom: 28px;
+    }
+    .diploma-divider {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #D6C29A 30%, #D6C29A 70%, transparent);
+      margin: 20px auto;
+      width: 80%;
+    }
+    .diploma-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 6px;
+    }
+    .diploma-certifies {
+      font-size: 15px;
+      color: #555;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .diploma-name {
+      font-size: 36px;
+      font-weight: 700;
+      color: #002060;
+      letter-spacing: 1px;
+      margin: 8px 0 16px;
+      font-style: italic;
+    }
+    .diploma-completed {
+      font-size: 14px;
+      color: #555;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .diploma-course {
+      font-size: 20px;
+      font-weight: 700;
+      color: #002060;
+      margin: 8px auto 24px;
+      max-width: 90%;
+      line-height: 1.3;
+    }
+    .diploma-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .diploma-meta {
+      text-align: left;
+      font-size: 12px;
+      color: #888;
+      line-height: 1.9;
+    }
+    .diploma-meta strong { color: #002060; }
+    .diploma-qr img {
+      display: block;
+      border-radius: 4px;
+      opacity: 0.7;
+    }
+
+    .cert-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
     @media print {
-      .no-print { display: none !important; }
-      .box { border: none !important; padding: 0 !important; }
-      a { text-decoration: none !important; }
+      * { visibility: hidden; }
+      #certificate, #certificate * { visibility: visible; }
+      #certificate { position: fixed; top: 0; left: 0; margin: 0; width: 100%; }
+      .cert-actions { display: none !important; }
+    }
+    @media (max-width: 600px) {
+      .diploma { padding: 36px 24px 32px; }
+      .diploma-name { font-size: 26px; }
+      .diploma-footer { flex-direction: column; align-items: center; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 </head>
 <body>
 
@@ -49,245 +233,327 @@
       <span class="lang-it">Quiz finale</span>
       <span class="lang-en">Final quiz</span>
     </h1>
-    <p class="muted">
-      <span class="lang-it">Dopo il quiz, in fondo trovi soluzioni e badge verificato.</span>
-      <span class="lang-en">After the quiz, you'll find solutions and a verified badge at the bottom.</span>
+    <p class="muted" id="quiz-subtitle">
+      <span class="lang-it">Seleziona la risposta corretta per ogni domanda.</span>
+      <span class="lang-en">Select the correct answer for each question.</span>
     </p>
 
-    <div class="toolbar no-print">
-      <button class="btn small" id="tts-play">
-        <span class="lang-it">Ascolta</span>
-        <span class="lang-en">Listen</span>
-      </button>
-      <button class="btn small ghost" id="tts-pause">
-        <span class="lang-it">Pausa</span>
-        <span class="lang-en">Pause</span>
-      </button>
-      <button class="btn small ghost" id="tts-stop">Stop</button>
-
-      <label>
-        <span class="lang-it">Velocità</span>
-        <span class="lang-en">Speed</span>
-        <input id="tts-rate" type="range" min="0.7" max="1.3" step="0.05" value="1" />
-        <span id="tts-rate-label">1.00x</span>
-      </label>
-
-      <label>
-        <span class="lang-it">Voce</span>
-        <span class="lang-en">Voice</span>
-        <select id="tts-voice"></select>
-      </label>
-
-      <button class="btn small" id="pdf">
-        <span class="lang-it">Scarica PDF</span>
-        <span class="lang-en">Download PDF</span>
-      </button>
+    <!-- Progress bar -->
+    <div class="quiz-progress no-print" id="quiz-progress" style="display:none;">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <span id="progress-label">0 / 6</span>
     </div>
 
-    <div id="quiz" class="box" style="margin-top:16px; white-space:pre-wrap;"></div>
+    <!-- Loading / quiz questions -->
+    <div id="quiz-area"></div>
 
-    <div id="badge-area" style="margin-top:20px;"></div>
+    <!-- Certificate -->
+    <div id="certificate"></div>
 
-    <div class="no-print" style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+    <div class="no-print" style="margin-top:24px; display:flex; gap:10px; flex-wrap:wrap;">
       <a href="chapter.html" class="btn ghost">
         <span class="lang-it">Torna ai capitoli</span>
         <span class="lang-en">Back to chapters</span>
       </a>
       <a href="prova.html" class="btn ghost">
-        <span class="lang-it">Torna alla prova gratuita</span>
-        <span class="lang-en">Back to free trial</span>
+        <span class="lang-it">Nuova Masterclass</span>
+        <span class="lang-en">New Masterclass</span>
       </a>
     </div>
   </div>
 
   <script>
-    (function () {
-      const outline = localStorage.getItem("eleviai_outline");
-      const keywords = localStorage.getItem("eleviai_keywords");
-      const language = localStorage.getItem("eleviai_language") || "Italiano";
-      const authToken = sessionStorage.getItem("eleviai_token") || "";
+  (function () {
+    const outline  = localStorage.getItem("eleviai_outline")  || "";
+    const keywords = localStorage.getItem("eleviai_keywords") || "";
+    const language = localStorage.getItem("eleviai_language") || "Italiano";
+    const userName = localStorage.getItem("eleviai_user_name") || "";
+    const authToken = sessionStorage.getItem("eleviai_token") || "";
 
-      const quizBox = document.getElementById("quiz");
-      const badgeArea = document.getElementById("badge-area");
+    const quizArea      = document.getElementById("quiz-area");
+    const certArea      = document.getElementById("certificate");
+    const progressWrap  = document.getElementById("quiz-progress");
+    const progressFill  = document.getElementById("progress-fill");
+    const progressLabel = document.getElementById("progress-label");
 
-      const btnPlay = document.getElementById("tts-play");
-      const btnPause = document.getElementById("tts-pause");
-      const btnStop = document.getElementById("tts-stop");
-      const rateEl = document.getElementById("tts-rate");
-      const rateLabel = document.getElementById("tts-rate-label");
-      const voiceSelect = document.getElementById("tts-voice");
-      const pdfBtn = document.getElementById("pdf");
+    function getLang() {
+      return document.documentElement.getAttribute("data-lang") || "it";
+    }
 
-      function getLang() {
-        return document.documentElement.getAttribute("data-lang") || "it";
-      }
+    function escapeHtml(s) {
+      return (s || "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;")
+        .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
 
-      if (!outline || !keywords) {
-        quizBox.textContent = getLang() === "en"
-          ? "No quiz available. Generate a Masterclass from the free trial page first."
-          : "Nessun quiz disponibile. Genera prima una Masterclass dalla pagina di prova gratuita.";
-        disableTTS();
+    // ---- Course title from outline (strip leading "1. " number) ----
+    const courseTitle = (outline.split("\n").map(l => l.trim()).filter(Boolean)[0] || "Masterclass PNL")
+      .replace(/^\d+[.)]\s*/, "");
+
+    if (!outline || !keywords) {
+      quizArea.textContent = getLang() === "en"
+        ? "No quiz available. Generate a Masterclass from the free trial page first."
+        : "Nessun quiz disponibile. Genera prima una Masterclass dalla pagina di prova gratuita.";
+      return;
+    }
+
+    quizArea.innerHTML = `<p class="muted">${getLang() === "en" ? "Generating quiz… ⏳" : "Generazione del quiz in corso… ⏳"}</p>`;
+
+    fetch("/api/generateQuiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + authToken },
+      body: JSON.stringify({ outline, keywords, language })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (!data || !data.quiz) {
+        quizArea.textContent = getLang() === "en"
+          ? "Error: no quiz received from AI."
+          : "Errore: nessun quiz ricevuto dall'AI.";
         return;
       }
-
-      quizBox.textContent = getLang() === "en"
-        ? "Generating final quiz... ⏳"
-        : "Generazione del quiz finale in corso... ⏳";
-
-      fetch("/api/generateQuiz", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + authToken
-        },
-        body: JSON.stringify({ outline, keywords, language })
-      })
-        .then((r) => r.json())
-        .then((data) => {
-          if (!data || !data.quiz) {
-            quizBox.textContent = getLang() === "en"
-              ? "Error: no quiz received from AI."
-              : "Errore: nessun quiz ricevuto dall'AI.";
-            disableTTS();
-            return;
-          }
-
-          quizBox.textContent = data.quiz;
-          localStorage.setItem("eleviai_last_quiz_text", data.quiz);
-
-          const now = new Date().toLocaleDateString(getLang() === "en" ? "en-US" : "it-IT");
-          const badgeId = `EAI-${Date.now().toString().slice(-6)}`;
-          const firstLine =
-            (outline.split("\n").map((l) => l.trim()).filter(Boolean)[0]) ||
-            "Masterclass PNL";
-
-          const badgeTitleText = getLang() === "en"
-            ? "PNL Badge – Verified Masterclass"
-            : "Badge PNL – Masterclass verificata";
-          const completedLabel = getLang() === "en" ? "Completed on" : "Completato il";
-          const verifyLabel = getLang() === "en" ? "Verification ID" : "ID verifica";
-          const shareLabel = getLang() === "en" ? "Share on LinkedIn" : "Condividi su LinkedIn";
-
-          badgeArea.innerHTML = `
-            <div class="badge-card">
-              <div class="badge-icon">✓</div>
-              <div class="badge-text">
-                <div class="badge-title">${badgeTitleText}</div>
-                <div class="badge-body">
-                  Masterclass: ${escapeHtml(firstLine)}<br/>
-                  ${completedLabel}: ${now}<br/>
-                  ${verifyLabel}: ${badgeId}
-                </div>
-                <button class="btn small badge-share no-print" data-course-title="${escapeAttr(firstLine)}" style="margin-top:8px;">
-                  ${shareLabel}
-                </button>
-              </div>
-            </div>
-          `;
-
-          const shareBtn = document.querySelector(".badge-share");
-          if (shareBtn) {
-            shareBtn.addEventListener("click", () => {
-              const title = shareBtn.dataset.courseTitle || "Masterclass PNL";
-              const baseUrl = window.location.origin + "/prova.html";
-              const urlWithCourse = baseUrl + "?course=" + encodeURIComponent(title);
-              const linkedinUrl =
-                "https://www.linkedin.com/sharing/share-offsite/?url=" +
-                encodeURIComponent(urlWithCourse);
-              window.open(linkedinUrl, "_blank", "noopener");
-            });
-          }
-
-          setupTTS();
-        })
-        .catch((err) => {
-          quizBox.textContent = getLang() === "en"
-            ? "Network error while generating the quiz."
-            : "Errore di rete durante la generazione del quiz.";
-          console.error("Network error (quiz):", err);
-          disableTTS();
-        });
-
-      function escapeHtml(s) {
-        return (s || "")
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#039;");
+      localStorage.setItem("eleviai_last_quiz_text", data.quiz);
+      const parsed = parseQuiz(data.quiz);
+      console.log("Quiz parsed:", parsed.questions.length, "questions,", parsed.solutions.length, "solutions");
+      if (parsed.questions.length >= 2) {
+        renderInteractiveQuiz(parsed);
+      } else {
+        // Fallback: raw text but hide solutions section
+        const visibleText = data.quiz.replace(/\n(?:soluzioni|solutions?)[\s\S]*$/i, "").trim();
+        quizArea.innerHTML = `<div class="box" style="white-space:pre-wrap;">${escapeHtml(visibleText)}</div>`;
       }
-      function escapeAttr(s) {
-        return (s || "").replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
-      }
+    })
+    .catch(err => {
+      quizArea.textContent = getLang() === "en"
+        ? "Network error while generating the quiz."
+        : "Errore di rete durante la generazione del quiz.";
+      console.error(err);
+    });
 
-      pdfBtn.addEventListener("click", () => {
-        stopSpeaking();
-        document.title = "PNL - Quiz";
-        window.print();
+    // ---- Quiz parser ----
+    function parseQuiz(text) {
+      // Strip markdown bold/italic/code
+      const clean = text
+        .replace(/\*\*(.+?)\*\*/g, "$1")
+        .replace(/\*(.+?)\*/g, "$1")
+        .replace(/`(.+?)`/g, "$1");
+
+      // Split off solutions section (handles "Soluzioni del quiz", "Solutions:", etc.)
+      const solSplit = clean.split(/\n\s*(?:soluzioni|solutions?|answers?|risposte|correct answers?)[^\n]*\n/i);
+      const questionsText = solSplit[0];
+      const solutionsText = solSplit[1] || "";
+
+      // Parse solutions: "1. A" "1) A" "1: A" "1 - A"
+      const solutions = [];
+      solutionsText.split("\n").forEach(line => {
+        const m = line.trim().match(/^(\d+)[.):\-\s]+([A-D])/i);
+        if (m) solutions[parseInt(m[1]) - 1] = m[2].toUpperCase();
       });
 
-      let utter = null;
+      // Split into blocks — each block starts with a question number
+      const blocks = questionsText
+        .split(/(?=^\s*(?:(?:domanda|question|q\.?)\s*)?\d+[.):\s])/im)
+        .map(b => b.trim()).filter(Boolean);
 
-      function disableTTS() {
-        btnPlay.disabled = true;
-        btnPause.disabled = true;
-        btnStop.disabled = true;
-        rateEl.disabled = true;
-        voiceSelect.disabled = true;
-      }
+      const questions = [];
 
-      function stopSpeaking() {
-        try {
-          if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-        } catch {}
-      }
+      for (const block of blocks) {
+        const blockLines = block.split("\n").map(l => l.trim()).filter(Boolean);
+        if (!blockLines.length) continue;
 
-      function setupTTS() {
-        if (!("speechSynthesis" in window)) { disableTTS(); return; }
+        // Extract question number prefix and initial text from first line
+        const firstLine = blockLines[0];
+        const headMatch = firstLine.match(/^(?:(?:domanda|question|q\.?)\s*)?(\d+)[.):\s]+(.*)$/i);
+        let questionText = headMatch ? headMatch[2].replace(/^[.:]\s*/, "").trim() : firstLine;
+        let optionStart = 1;
 
-        rateLabel.textContent = Number(rateEl.value).toFixed(2) + "x";
-
-        function populateVoices() {
-          const voices = window.speechSynthesis.getVoices() || [];
-          voiceSelect.innerHTML = "";
-          voices.forEach((v, idx) => {
-            const opt = document.createElement("option");
-            opt.value = String(idx);
-            opt.textContent = `${v.name} (${v.lang})`;
-            voiceSelect.appendChild(opt);
-          });
+        // If question text is too short, next non-option line continues it
+        if (questionText.length < 5 && blockLines[1] && !/^[A-D][.)]/i.test(blockLines[1])) {
+          questionText = blockLines[1];
+          optionStart = 2;
         }
-        populateVoices();
-        window.speechSynthesis.onvoiceschanged = populateVoices;
 
-        rateEl.addEventListener("input", () => {
-          rateLabel.textContent = Number(rateEl.value).toFixed(2) + "x";
-        });
+        // Accumulate additional question text lines before options start
+        let i = optionStart;
+        while (i < blockLines.length && !/^[A-D][.)]/i.test(blockLines[i])) {
+          if (blockLines[i].length > 0) questionText += " " + blockLines[i];
+          i++;
+        }
+        questionText = questionText.trim();
 
-        btnPlay.addEventListener("click", () => {
-          stopSpeaking();
-          const text = (quizBox.textContent || "").trim();
-          if (!text) return;
-          utter = new SpeechSynthesisUtterance(text);
-          utter.rate = Number(rateEl.value);
-          const voices = window.speechSynthesis.getVoices() || [];
-          const voiceIdx = parseInt(voiceSelect.value || "0", 10);
-          if (voices[voiceIdx]) utter.voice = voices[voiceIdx];
-          window.speechSynthesis.speak(utter);
-        });
+        // Parse A) B) C) D) options
+        const options = [];
+        for (; i < blockLines.length; i++) {
+          const optM = blockLines[i].match(/^([A-D])[.)]\s*(.+)/i);
+          if (optM) options.push({ letter: optM[1].toUpperCase(), text: optM[2].trim() });
+        }
 
-        btnPause.addEventListener("click", () => {
-          if (!("speechSynthesis" in window)) return;
-          if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-            window.speechSynthesis.pause();
-          } else if (window.speechSynthesis.paused) {
-            window.speechSynthesis.resume();
-          }
-        });
-
-        btnStop.addEventListener("click", () => stopSpeaking());
+        if (questionText.length >= 5 && options.length >= 2) {
+          questions.push({ text: questionText, options });
+        }
       }
-    })();
+
+      return { questions, solutions };
+    }
+
+    // ---- Render interactive quiz ----
+    function renderInteractiveQuiz({ questions, solutions }) {
+      const total = questions.length;
+      let correctCount = 0;
+      const isCorrect = new Array(total).fill(false);
+
+      progressWrap.style.display = "flex";
+      updateProgress();
+
+      quizArea.innerHTML = "";
+
+      questions.forEach((q, qi) => {
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.innerHTML = `
+          <div class="question-num">${getLang() === "en" ? "Question" : "Domanda"} ${qi + 1} / ${total}</div>
+          <div class="question-text">${escapeHtml(q.text)}</div>
+          <div class="options"></div>
+        `;
+        const optContainer = card.querySelector(".options");
+
+        q.options.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.className = "option-btn";
+          btn.innerHTML = `<span class="opt-letter">${escapeHtml(opt.letter)}</span><span>${escapeHtml(opt.text)}</span>`;
+          btn.addEventListener("click", () => {
+            if (isCorrect[qi]) return; // already solved
+
+            const correctLetter = solutions[qi];
+            if (opt.letter === correctLetter) {
+              btn.classList.add("correct");
+              btn.disabled = true;
+              // Disable all other options for this question
+              optContainer.querySelectorAll(".option-btn").forEach(b => { b.disabled = true; });
+              card.classList.add("done");
+              isCorrect[qi] = true;
+              correctCount++;
+              updateProgress();
+              if (correctCount === total) {
+                setTimeout(showCertificate, 600);
+              }
+            } else {
+              btn.classList.add("wrong");
+              btn.disabled = true;
+            }
+          });
+          optContainer.appendChild(btn);
+        });
+
+        quizArea.appendChild(card);
+      });
+
+      function updateProgress() {
+        const pct = (correctCount / total) * 100;
+        progressFill.style.width = pct + "%";
+        progressLabel.textContent = `${correctCount} / ${total}`;
+      }
+    }
+
+    // ---- Certificate ----
+    function showCertificate() {
+      const lang = getLang();
+      const now = new Date();
+      const dateStr = now.toLocaleDateString(lang === "en" ? "en-GB" : "it-IT", { day: "numeric", month: "long", year: "numeric" });
+      const verifyId = "PNL-" + Date.now().toString(36).toUpperCase().slice(-7);
+      const verifyText = `PNL Certificate | ID: ${verifyId} | ${courseTitle.slice(0, 50)}`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&color=002060&bgcolor=FFFCF5&data=${encodeURIComponent(verifyText)}`;
+
+      const displayName = escapeHtml(userName || (lang === "en" ? "Graduate" : "Partecipante"));
+      const titleClean  = escapeHtml(courseTitle);
+
+      certArea.style.display = "block";
+      certArea.innerHTML = `
+        <div class="diploma">
+          <div class="diploma-corner tl"></div>
+          <div class="diploma-corner tr"></div>
+          <div class="diploma-corner bl"></div>
+          <div class="diploma-corner br"></div>
+
+          <div class="diploma-logo"><span class="dp">P</span><span class="dnl">NL</span></div>
+          <div class="diploma-tagline">Elevate your expertise · Shape your future</div>
+
+          <hr class="diploma-divider" />
+
+          <div class="diploma-label">${lang === "en" ? "Certificate of Completion" : "Certificato di completamento"}</div>
+          <div class="diploma-certifies">${lang === "en" ? "This is to certify that" : "Si certifica che"}</div>
+          <div class="diploma-name">${displayName}</div>
+          <div class="diploma-completed">${lang === "en" ? "has successfully completed the Masterclass" : "ha completato con successo la Masterclass"}</div>
+          <div class="diploma-course">${titleClean}</div>
+
+          <hr class="diploma-divider" />
+
+          <div class="diploma-footer">
+            <div class="diploma-meta">
+              <div><strong>${lang === "en" ? "Issued on" : "Data"}</strong> ${dateStr}</div>
+            </div>
+            <div class="diploma-qr">
+              <img src="${qrUrl}" width="80" height="80" alt="QR verify" />
+            </div>
+          </div>
+        </div>
+
+        <div class="cert-actions no-print">
+          <button class="btn" id="cert-linkedin">
+            ${lang === "en" ? "Share on LinkedIn" : "Condividi su LinkedIn"}
+          </button>
+          <button class="btn ghost" id="cert-pdf">
+            ${lang === "en" ? "Download PDF" : "Scarica PDF"}
+          </button>
+        </div>
+      `;
+
+      certArea.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      async function captureDiploma() {
+        const diploma = certArea.querySelector(".diploma");
+        return await html2canvas(diploma, {
+          scale: 2,
+          backgroundColor: "#FFFCF5",
+          useCORS: true,
+          logging: false
+        });
+      }
+
+      document.getElementById("cert-linkedin")?.addEventListener("click", async () => {
+        const btn = document.getElementById("cert-linkedin");
+        btn.disabled = true;
+        btn.textContent = "…";
+        try {
+          const canvas = await captureDiploma();
+          const a = document.createElement("a");
+          a.download = `PNL-Certificate-${courseTitle.slice(0, 30).replace(/\s+/g, "-")}.png`;
+          a.href = canvas.toDataURL("image/png");
+          a.click();
+
+          const summary = lang === "en"
+            ? `I just completed the "${courseTitle}" Masterclass on PNL — an AI-powered professional learning platform. 🎓`
+            : `Ho appena completato la Masterclass "${courseTitle}" su PNL, la piattaforma di formazione professionale AI. 🎓`;
+          const shareUrl = window.location.origin + "/prova.html";
+          const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}&summary=${encodeURIComponent(summary)}`;
+          setTimeout(() => window.open(linkedinUrl, "_blank", "noopener"), 800);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = lang === "en" ? "Share on LinkedIn" : "Condividi su LinkedIn";
+        }
+      });
+
+      document.getElementById("cert-pdf")?.addEventListener("click", () => {
+        const orig = document.title;
+        document.title = `PNL Certificate – ${courseTitle}`;
+        window.print();
+        document.title = orig;
+      });
+    }
+
+  })();
   </script>
 </body>
 </html>

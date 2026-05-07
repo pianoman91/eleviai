@@ -200,6 +200,8 @@
         badge.title = [first, last].filter(Boolean).join(" ");
         badge.style.display = "flex";
       }
+      const fullName = [first, last].filter(Boolean).join(" ");
+      if (fullName) localStorage.setItem("eleviai_user_name", fullName);
     }
   </script>
 
