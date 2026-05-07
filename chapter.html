@@ -61,6 +61,19 @@
       border-left: 3px solid var(--brand);
       padding-left: 11px;
     }
+    /* Sub-chapter entries (1.1, 2.3, etc.) */
+    .sidebar-chapter.sub {
+      padding-left: 22px;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+    .sidebar-chapter.sub:hover { background: var(--input-bg); }
+    .sidebar-chapter.sub.active {
+      font-weight: 700;
+      color: var(--brand);
+      padding-left: 19px;
+    }
     .sidebar-sub {
       padding: 3px 14px 3px 22px;
       font-size: 11px;
@@ -186,12 +199,12 @@
         return;
       }
 
-      // ---- Parse outline: only TOP-LEVEL chapters (e.g. "1. Title", "2) Title")
-      // The key fix: require a space after the separator so "1.1" does NOT match
+      // Match top-level chapters ("1. Title", "2) Title") and sub-chapters ("1.1 Title", "2.3 Title")
       const TOP_CHAPTER_RE = /^\s*\d+[.)]\s/;
+      const ALL_CHAPTER_RE = /^\s*(?:\d+[.)]\s|\d+\.\d+[\s.])/;
 
       const allLines     = outline.split("\n").map(l => l.trimEnd()).filter(l => l.trim());
-      const chapterLines = allLines.filter(l => TOP_CHAPTER_RE.test(l));
+      const chapterLines = allLines.filter(l => ALL_CHAPTER_RE.test(l));
       const totalChapters = chapterLines.length || 1;
 
       if (currentChapter < 1) currentChapter = 1;
@@ -207,7 +220,7 @@
 
       const langLabel = getLang() === "en" ? "Page" : "Pagina";
       infoEl.textContent =
-        `${langLabel} ${currentChapter}/${totalChapters} — ${currentLine} — ${language}`;
+        `${langLabel} ${currentChapter}/${totalChapters} — ${currentLine}`;
 
       // ---- Navigation buttons ----
       if (currentChapter > 1) prevBtn.style.display = "inline-block";
@@ -220,10 +233,11 @@
         let chapterIdx = 0;
 
         allLines.forEach(line => {
-          if (TOP_CHAPTER_RE.test(line)) {
+          if (ALL_CHAPTER_RE.test(line)) {
             chapterIdx++;
             const isActive = chapterIdx === currentChapter;
-            html += `<button class="sidebar-chapter${isActive ? " active" : ""}" data-ch="${chapterIdx}">${escapeHtml(line.trim())}</button>`;
+            const isSub = !TOP_CHAPTER_RE.test(line);
+            html += `<button class="sidebar-chapter${isSub ? " sub" : ""}${isActive ? " active" : ""}" data-ch="${chapterIdx}">${escapeHtml(line.trim())}</button>`;
           } else {
             html += `<div class="sidebar-sub">${escapeHtml(line.trim())}</div>`;
           }
