@@ -202,6 +202,8 @@ suggestBtn?.addEventListener("click", async () => {
   const firstName = (document.getElementById("firstName")?.value || "").trim();
   const lastName = (document.getElementById("lastName")?.value || "").trim();
   const jobTitle = (document.getElementById("jobTitle")?.value || "").trim();
+  const suggestLang = (document.getElementById("suggestLanguage")?.value || "").trim()
+    || (lang === "en" ? "English" : "Italiano");
 
   if (!linkedin && !(firstName && lastName && jobTitle)) {
     suggestionsBox.innerHTML = `<p style="color:#ff8080;">${
@@ -228,7 +230,7 @@ suggestBtn?.addEventListener("click", async () => {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token
       },
-      body: JSON.stringify({ linkedin, firstName, lastName, jobTitle, language: lang === "en" ? "English" : "Italiano" })
+      body: JSON.stringify({ linkedin, firstName, lastName, jobTitle, language: suggestLang })
     });
 
     const parsed = await safeReadJson(response);
@@ -244,7 +246,7 @@ suggestBtn?.addEventListener("click", async () => {
       return;
     }
 
-    renderSuggestions(parsed.data.suggestions, lang);
+    renderSuggestions(parsed.data.suggestions, lang, suggestLang);
 
   } catch (err) {
     suggestionsBox.innerHTML = `<p style="color:#ff8080;">${lang === "en" ? "Network error. Try again." : "Errore di rete. Riprova."}</p>`;
@@ -254,7 +256,7 @@ suggestBtn?.addEventListener("click", async () => {
   }
 });
 
-function renderSuggestions(text, lang) {
+function renderSuggestions(text, lang, suggestLang) {
   // Parse the numbered format:  "1) Title\n   Description..."
   const blocks = text.split(/\n\s*(?=\d+\))/g).map(b => b.trim()).filter(Boolean);
   const cards = blocks.map(block => {
@@ -289,7 +291,8 @@ function renderSuggestions(text, lang) {
         class="btn small"
         style="background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#ffffff; font-weight:700;"
         data-title="${escapeAttr(c.title)}"
-        onclick="generateFromSuggestion(this.dataset.title)"
+        data-lang="${escapeAttr(suggestLang)}"
+        onclick="generateFromSuggestion(this.dataset.title, this.dataset.lang)"
       >
         ${lang === "en" ? "Generate this Masterclass →" : "Genera questa Masterclass →"}
       </button>
@@ -300,10 +303,11 @@ function renderSuggestions(text, lang) {
 }
 
 // Called by the suggestion card buttons
-window.generateFromSuggestion = function (courseTitle) {
+window.generateFromSuggestion = function (courseTitle, suggestLang) {
   if (textarea) textarea.value = courseTitle;
-  if (!courseLangInput.value.trim()) {
-    courseLangInput.value = getLang() === "en" ? "English" : "Italiano";
+  // Always apply the language chosen in the suggestion section
+  if (courseLangInput) {
+    courseLangInput.value = suggestLang || (getLang() === "en" ? "English" : "Italiano");
   }
   // Scroll to and trigger the generate button
   output.scrollIntoView({ behavior: "smooth", block: "start" });
