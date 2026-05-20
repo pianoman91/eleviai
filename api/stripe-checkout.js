@@ -73,7 +73,7 @@ export default async function handler(req, res) {
     process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
     req.headers.origin ||
-    "https://eleviai.vercel.app";
+    "https://pnl.vercel.app";
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
