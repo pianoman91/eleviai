@@ -285,32 +285,40 @@
         return html || `<p>${getLang() === "en" ? "No content." : "Nessun contenuto."}</p>`;
       }
 
-      contentEl.innerHTML =
-        `<p><span class="lang-it">Generazione del capitolo in corso… ⏳</span>` +
-        `<span class="lang-en">Generating chapter… ⏳</span></p>`;
+      // ---- Load chapter: use cache if available, otherwise fetch from AI ----
+      const cacheKey = `eleviai_chapter_${currentChapter}_text`;
+      const cached = localStorage.getItem(cacheKey);
 
-      fetch("/api/generateChapter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + authToken },
-        body: JSON.stringify({ keywords, language, outline, chapterNumber: currentChapter, chapterTitle: currentLine })
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (!data || !data.chapterContent) {
-            contentEl.textContent = getLang() === "en"
-              ? "Error: no chapter content received from AI."
-              : "Errore: nessun contenuto del capitolo ricevuto dall'AI.";
-            return;
-          }
-          localStorage.setItem(`eleviai_chapter_${currentChapter}_text`, data.chapterContent);
-          contentEl.innerHTML = renderChapter(data.chapterContent);
+      if (cached) {
+        contentEl.innerHTML = renderChapter(cached);
+      } else {
+        contentEl.innerHTML =
+          `<p><span class="lang-it">Generazione del capitolo in corso… ⏳</span>` +
+          `<span class="lang-en">Generating chapter… ⏳</span></p>`;
+
+        fetch("/api/generateChapter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + authToken },
+          body: JSON.stringify({ keywords, language, outline, chapterNumber: currentChapter, chapterTitle: currentLine })
         })
-        .catch(err => {
-          contentEl.textContent = getLang() === "en"
-            ? "Network error while generating the chapter."
-            : "Errore di rete durante la generazione del capitolo.";
-          console.error("Network error (chapter):", err);
-        });
+          .then(r => r.json())
+          .then(data => {
+            if (!data || !data.chapterContent) {
+              contentEl.innerHTML =
+                `<p><span class="lang-it">Errore: nessun contenuto ricevuto dall'AI.</span>` +
+                `<span class="lang-en">Error: no chapter content received from AI.</span></p>`;
+              return;
+            }
+            localStorage.setItem(cacheKey, data.chapterContent);
+            contentEl.innerHTML = renderChapter(data.chapterContent);
+          })
+          .catch(err => {
+            contentEl.innerHTML =
+              `<p><span class="lang-it">Errore di rete durante la generazione del capitolo.</span>` +
+              `<span class="lang-en">Network error while generating the chapter.</span></p>`;
+            console.error("Network error (chapter):", err);
+          });
+      }
 
       // ---- Button handlers ----
       prevBtn.addEventListener("click", () => {
