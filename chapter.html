@@ -193,9 +193,9 @@
       }
 
       if (!outline || !keywords) {
-        contentEl.textContent = getLang() === "en"
-          ? "No Masterclass found. Generate an outline from the free trial page first."
-          : "Nessuna Masterclass trovata. Genera prima un indice dalla pagina di prova gratuita.";
+        contentEl.innerHTML =
+          `<p><span class="lang-it">Nessuna Masterclass trovata. Genera prima un indice dalla pagina di prova gratuita.</span>` +
+          `<span class="lang-en">No Masterclass found. Generate an outline from the free trial page first.</span></p>`;
         return;
       }
 
@@ -285,9 +285,9 @@
         return html || `<p>${getLang() === "en" ? "No content." : "Nessun contenuto."}</p>`;
       }
 
-      contentEl.textContent = getLang() === "en"
-        ? "Generating chapter… ⏳"
-        : "Generazione del capitolo in corso… ⏳";
+      contentEl.innerHTML =
+        `<p><span class="lang-it">Generazione del capitolo in corso… ⏳</span>` +
+        `<span class="lang-en">Generating chapter… ⏳</span></p>`;
 
       fetch("/api/generateChapter", {
         method: "POST",

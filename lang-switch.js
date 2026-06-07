@@ -3,6 +3,7 @@
  * Include this script in <head> (or early in <body>) on every page.
  * Pages must have: <html data-lang="it"> as default.
  * Text wrapped in .lang-it / .lang-en spans will be shown/hidden via CSS (styles.css).
+ * Form fields with data-placeholder-it / data-placeholder-en get their placeholder updated too.
  */
 (function () {
   // Apply saved language immediately (before paint) to avoid flash
@@ -10,7 +11,17 @@
   const lang = saved === "en" ? "en" : "it";
   document.documentElement.setAttribute("data-lang", lang);
 
+  function applyPlaceholders(l) {
+    document.querySelectorAll("[data-placeholder-it]").forEach(function (el) {
+      el.placeholder = l === "en"
+        ? (el.getAttribute("data-placeholder-en") || "")
+        : (el.getAttribute("data-placeholder-it") || "");
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    applyPlaceholders(lang);
+
     // If the page already has a .lang-switch in the DOM, just init buttons
     // Otherwise inject a fixed floating widget in the bottom-right corner
     if (!document.querySelector(".lang-switch")) {
@@ -31,6 +42,7 @@
         const l = btn.dataset.lang;
         document.documentElement.setAttribute("data-lang", l);
         localStorage.setItem("eleviai_lang", l);
+        applyPlaceholders(l);
         buttons.forEach(function (b) {
           b.classList.toggle("active", b === btn);
         });
