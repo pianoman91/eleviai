@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const PLANS = {
   single: { credits: 1, envKey: "STRIPE_PRICE_ID_SINGLE" },
-  pack5:  { credits: 5, envKey: "STRIPE_PRICE_ID_PACK5" },
+  pack3:  { credits: 3, envKey: "STRIPE_PRICE_ID_PACK3" },
 };
 
 export default async function handler(req, res) {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   // Determine which plan was requested
   const { plan } = req.body || {};
-  const planKey = plan === "pack5" ? "pack5" : "single";
+  const planKey = plan === "pack3" ? "pack3" : "single";
   const planInfo = PLANS[planKey];
 
   const priceId = process.env[planInfo.envKey];

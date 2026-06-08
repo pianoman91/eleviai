@@ -113,7 +113,7 @@ generateBtn?.addEventListener("click", async () => {
                   1 Masterclass
                 </div>
                 <div style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">
-                  €4.99
+                  €9.99
                 </div>
                 <button class="btn small upgrade-btn" data-plan="single" data-label="${isEn ? 'Buy 1' : 'Acquista 1'}" style="width:100%;">
                   ${isEn ? "Buy 1" : "Acquista 1"}
@@ -136,16 +136,16 @@ generateBtn?.addEventListener("click", async () => {
                   padding: 2px 10px; border-radius: 10px;
                 ">${isEn ? "Best value" : "Miglior offerta"}</div>
                 <div style="font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;">
-                  5 Masterclass
+                  3 Masterclass
                 </div>
                 <div style="font-size: 28px; font-weight: 900; margin-bottom: 4px;">
-                  €9.99
+                  €19.99
                 </div>
                 <div style="font-size: 12px; color: var(--brand-2); margin-bottom: 12px;">
-                  ${isEn ? "Save 60%" : "Risparmi il 60%"}
+                  ${isEn ? "Save 33%" : "Risparmi il 33%"}
                 </div>
-                <button class="btn small upgrade-btn" data-plan="pack5" data-label="${isEn ? 'Buy 5' : 'Acquista 5'}" style="width:100%; background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#ffffff; font-weight:700;">
-                  ${isEn ? "Buy 5" : "Acquista 5"}
+                <button class="btn small upgrade-btn" data-plan="pack3" data-label="${isEn ? 'Buy 3' : 'Acquista 3'}" style="width:100%; background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#ffffff; font-weight:700;">
+                  ${isEn ? "Buy 3" : "Acquista 3"}
                 </button>
               </div>
             </div>
@@ -329,7 +329,7 @@ function escapeAttr(s) {
 // Auto-trigger checkout if redirected here from pricing page
 (function () {
   const plan = new URLSearchParams(window.location.search).get("checkout");
-  if (plan === "single" || plan === "pack5") {
+  if (plan === "single" || plan === "pack3") {
     handleUpgrade(plan);
   }
 })();
