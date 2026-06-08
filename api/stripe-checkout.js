@@ -76,21 +76,10 @@ export default async function handler(req, res) {
     "https://pnl.vercel.app";
 
   // Resolve promo code → Stripe promotion code ID
-  let discounts = undefined;
-  if (promoCode && typeof promoCode === "string" && promoCode.trim()) {
-    try {
-      const promoCodes = await stripe.promotionCodes.list({
-        code: promoCode.trim(),
-        active: true,
-        limit: 1,
-      });
-      if (promoCodes.data.length > 0) {
-        discounts = [{ promotion_code: promoCodes.data[0].id }];
-      }
-    } catch (e) {
-      // Invalid code — ignore and proceed without discount
-    }
-  }
+  const PROMO_CODES = {
+    "Alaska2018": "promo_1Tg8TTJG0WA2IQY0DJhM4srh",
+  };
+  const promoId = promoCode ? PROMO_CODES[promoCode.trim()] : null;
 
   const sessionParams = {
     customer: customerId,
@@ -105,8 +94,8 @@ export default async function handler(req, res) {
     },
   };
 
-  if (discounts) {
-    sessionParams.discounts = discounts;
+  if (promoId) {
+    sessionParams.discounts = [{ promotion_code: promoId }];
   } else {
     sessionParams.allow_promotion_codes = true;
   }
