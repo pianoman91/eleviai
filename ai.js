@@ -4,6 +4,7 @@ const textarea = document.getElementById("keywords");
 const courseLangInput = document.getElementById("courseLanguage");
 
 async function handleUpgrade(plan) {
+  const promoCode = (document.getElementById("promo-code-input")?.value || "").trim();
   const btns = document.querySelectorAll(".upgrade-btn");
   btns.forEach(b => { b.disabled = true; b.textContent = "…"; });
 
@@ -17,7 +18,7 @@ async function handleUpgrade(plan) {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token,
       },
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, promoCode }),
     });
     const data = await res.json().catch(() => ({}));
 
@@ -148,6 +149,16 @@ generateBtn?.addEventListener("click", async () => {
                   ${isEn ? "Buy 3" : "Acquista 3"}
                 </button>
               </div>
+            </div>
+
+            <div style="margin-top:20px;">
+              <input id="promo-code-input" type="text"
+                placeholder="${isEn ? 'Discount code (optional)' : 'Codice sconto (opzionale)'}"
+                style="
+                  padding: 10px 14px; border-radius: 10px;
+                  border: 1px solid var(--border); background: var(--input-bg);
+                  color: var(--text); font-size: 14px; width: 220px; text-align: center;
+                " />
             </div>
           </div>
         `;

@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   }
 
   // Determine which plan was requested
-  const { plan } = req.body || {};
+  const { plan, promoCode } = req.body || {};
   const planKey = plan === "pack3" ? "pack3" : "single";
   const planInfo = PLANS[planKey];
 
@@ -75,7 +75,24 @@ export default async function handler(req, res) {
     req.headers.origin ||
     "https://pnl.vercel.app";
 
-  const session = await stripe.checkout.sessions.create({
+  // Resolve promo code → Stripe promotion code ID
+  let discounts = undefined;
+  if (promoCode && typeof promoCode === "string" && promoCode.trim()) {
+    try {
+      const promoCodes = await stripe.promotionCodes.list({
+        code: promoCode.trim(),
+        active: true,
+        limit: 1,
+      });
+      if (promoCodes.data.length > 0) {
+        discounts = [{ promotion_code: promoCodes.data[0].id }];
+      }
+    } catch (e) {
+      // Invalid code — ignore and proceed without discount
+    }
+  }
+
+  const sessionParams = {
     customer: customerId,
     mode: "payment",
     payment_method_types: ["card"],
@@ -86,7 +103,15 @@ export default async function handler(req, res) {
       supabase_uid: user.id,
       credits: String(planInfo.credits),
     },
-  });
+  };
+
+  if (discounts) {
+    sessionParams.discounts = discounts;
+  } else {
+    sessionParams.allow_promotion_codes = true;
+  }
+
+  const session = await stripe.checkout.sessions.create(sessionParams);
 
   return res.status(200).json({ url: session.url });
 }
