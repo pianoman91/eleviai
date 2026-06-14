@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import nodemailer from "nodemailer";
 
 // Disable Vercel's default body parser so we get the raw body
 // required for Stripe signature verification
@@ -48,14 +49,12 @@ export default async function handler(req, res) {
     const credits = parseInt(session.metadata?.credits, 10) || 0;
 
     if (uid && credits > 0) {
-      // Atomically increment seminars_remaining
       const { error } = await supabase.rpc("increment_seminars", {
         user_id: uid,
         amount: credits,
       });
 
       if (error) {
-        // Fallback: read current value and update
         console.error("RPC increment_seminars failed, using fallback:", error.message);
         const { data: profile } = await supabase
           .from("profiles")
@@ -72,7 +71,57 @@ export default async function handler(req, res) {
           );
       }
     }
+
+    await sendPurchaseEmail(session, supabase, credits);
   }
 
   return res.status(200).json({ received: true });
+}
+
+async function sendPurchaseEmail(session, supabase, credits) {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
+
+  const uid = session.metadata?.supabase_uid;
+  if (!uid || !credits) return;
+
+  const { data: authUser } = await supabase.auth.admin.getUserById(uid);
+  const email = authUser?.user?.email;
+  if (!email) return;
+
+  const meta = authUser.user.user_metadata || {};
+  const name = [meta.first_name, meta.last_name].filter(Boolean).join(" ") || "there";
+
+  const isIt = true; // send in Italian by default; could detect from user metadata if needed
+  const subject = isIt
+    ? `✅ Acquisto confermato – ${credits} Masterclass PNL`
+    : `✅ Purchase confirmed – ${credits} PNL Masterclass`;
+
+  const body = isIt
+    ? `<p>Ciao ${name},</p>
+       <p>Il tuo acquisto è stato completato con successo. Hai ricevuto <strong>${credits} Masterclass</strong> aggiuntive sul tuo account PNL.</p>
+       <p>Puoi generare le tue Masterclass accedendo a <a href="https://eleviai.vercel.app/prova.html">eleviai.vercel.app</a>.</p>
+       <p>Grazie per aver scelto PNL!</p>
+       <p style="color:#888; font-size:12px;">PNL – Masterclass AI personalizzate</p>`
+    : `<p>Hi ${name},</p>
+       <p>Your purchase was completed successfully. You received <strong>${credits} Masterclass</strong> on your PNL account.</p>
+       <p>You can generate your Masterclass at <a href="https://eleviai.vercel.app/prova.html">eleviai.vercel.app</a>.</p>
+       <p>Thank you for choosing PNL!</p>
+       <p style="color:#888; font-size:12px;">PNL – Personalised AI Masterclass</p>`;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    });
+    await transporter.sendMail({
+      from: `"PNL" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject,
+      html: body,
+    });
+  } catch (err) {
+    console.error("Failed to send purchase confirmation email:", err.message);
+  }
 }

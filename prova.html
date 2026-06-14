@@ -86,10 +86,19 @@
         data-placeholder-it="Inserisci 2-5 parole chiave..."
         data-placeholder-en="Enter 2-5 keywords..."
         placeholder="Inserisci 2-5 parole chiave..."></textarea>
-      <button class="btn" id="generate" style="margin-top:10px;">
-        <span class="lang-it">Genera Masterclass</span>
-        <span class="lang-en">Generate Masterclass</span>
-      </button>
+      <div style="display:flex; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap;">
+        <button class="btn" id="generate">
+          <span class="lang-it">Genera Masterclass</span>
+          <span class="lang-en">Generate Masterclass</span>
+        </button>
+        <input id="promo-code-input" type="text"
+          data-placeholder-it="Codice sconto (opzionale)"
+          data-placeholder-en="Discount code (optional)"
+          placeholder="Codice sconto (opzionale)"
+          style="padding:10px 14px; border-radius:8px; border:1px solid var(--border);
+                 background:var(--input-bg); color:var(--text); font-size:14px;
+                 width:200px;" />
+      </div>
 
       <h2 style="margin-top:28px;">
         <span class="lang-it">Risultato:</span>

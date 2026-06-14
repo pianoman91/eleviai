@@ -151,15 +151,9 @@ generateBtn?.addEventListener("click", async () => {
               </div>
             </div>
 
-            <div style="margin-top:20px;">
-              <input id="promo-code-input" type="text"
-                placeholder="${isEn ? 'Discount code (optional)' : 'Codice sconto (opzionale)'}"
-                style="
-                  padding: 10px 14px; border-radius: 10px;
-                  border: 1px solid var(--border); background: var(--input-bg);
-                  color: var(--text); font-size: 14px; width: 220px; text-align: center;
-                " />
-            </div>
+            <p style="margin-top:16px; font-size:13px; color:var(--muted);">
+              ${isEn ? "Have a discount code? Enter it in the field next to the Generate button." : "Hai un codice sconto? Inseriscilo nel campo accanto al pulsante Genera."}
+            </p>
           </div>
         `;
         document.querySelectorAll(".upgrade-btn").forEach(btn => {
