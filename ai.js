@@ -4,6 +4,7 @@ const textarea = document.getElementById("keywords");
 const courseLangInput = document.getElementById("courseLanguage");
 
 async function handleUpgrade(plan) {
+  const promoCode = (document.getElementById("promo-code-input")?.value || "").trim();
   const btns = document.querySelectorAll(".upgrade-btn");
   btns.forEach(b => { b.disabled = true; b.textContent = "…"; });
 
@@ -17,7 +18,7 @@ async function handleUpgrade(plan) {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token,
       },
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, promoCode }),
     });
     const data = await res.json().catch(() => ({}));
 
@@ -113,7 +114,7 @@ generateBtn?.addEventListener("click", async () => {
                   1 Masterclass
                 </div>
                 <div style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">
-                  €4.99
+                  €9.99
                 </div>
                 <button class="btn small upgrade-btn" data-plan="single" data-label="${isEn ? 'Buy 1' : 'Acquista 1'}" style="width:100%;">
                   ${isEn ? "Buy 1" : "Acquista 1"}
@@ -136,19 +137,23 @@ generateBtn?.addEventListener("click", async () => {
                   padding: 2px 10px; border-radius: 10px;
                 ">${isEn ? "Best value" : "Miglior offerta"}</div>
                 <div style="font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;">
-                  5 Masterclass
+                  3 Masterclass
                 </div>
                 <div style="font-size: 28px; font-weight: 900; margin-bottom: 4px;">
-                  €9.99
+                  €19.99
                 </div>
                 <div style="font-size: 12px; color: var(--brand-2); margin-bottom: 12px;">
-                  ${isEn ? "Save 60%" : "Risparmi il 60%"}
+                  ${isEn ? "Save 33%" : "Risparmi il 33%"}
                 </div>
-                <button class="btn small upgrade-btn" data-plan="pack5" data-label="${isEn ? 'Buy 5' : 'Acquista 5'}" style="width:100%; background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#ffffff; font-weight:700;">
-                  ${isEn ? "Buy 5" : "Acquista 5"}
+                <button class="btn small upgrade-btn" data-plan="pack3" data-label="${isEn ? 'Buy 3' : 'Acquista 3'}" style="width:100%; background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#ffffff; font-weight:700;">
+                  ${isEn ? "Buy 3" : "Acquista 3"}
                 </button>
               </div>
             </div>
+
+            <p style="margin-top:16px; font-size:13px; color:var(--muted);">
+              ${isEn ? "Have a discount code? Enter it in the field next to the Generate button." : "Hai un codice sconto? Inseriscilo nel campo accanto al pulsante Genera."}
+            </p>
           </div>
         `;
         document.querySelectorAll(".upgrade-btn").forEach(btn => {
@@ -202,6 +207,8 @@ suggestBtn?.addEventListener("click", async () => {
   const firstName = (document.getElementById("firstName")?.value || "").trim();
   const lastName = (document.getElementById("lastName")?.value || "").trim();
   const jobTitle = (document.getElementById("jobTitle")?.value || "").trim();
+  const suggestLang = (document.getElementById("suggestLanguage")?.value || "").trim()
+    || (lang === "en" ? "English" : "Italiano");
 
   if (!linkedin && !(firstName && lastName && jobTitle)) {
     suggestionsBox.innerHTML = `<p style="color:#ff8080;">${
@@ -228,7 +235,7 @@ suggestBtn?.addEventListener("click", async () => {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token
       },
-      body: JSON.stringify({ linkedin, firstName, lastName, jobTitle, language: lang === "en" ? "English" : "Italiano" })
+      body: JSON.stringify({ linkedin, firstName, lastName, jobTitle, language: suggestLang })
     });
 
     const parsed = await safeReadJson(response);
@@ -244,7 +251,7 @@ suggestBtn?.addEventListener("click", async () => {
       return;
     }
 
-    renderSuggestions(parsed.data.suggestions, lang);
+    renderSuggestions(parsed.data.suggestions, lang, suggestLang);
 
   } catch (err) {
     suggestionsBox.innerHTML = `<p style="color:#ff8080;">${lang === "en" ? "Network error. Try again." : "Errore di rete. Riprova."}</p>`;
@@ -254,7 +261,7 @@ suggestBtn?.addEventListener("click", async () => {
   }
 });
 
-function renderSuggestions(text, lang) {
+function renderSuggestions(text, lang, suggestLang) {
   // Parse the numbered format:  "1) Title\n   Description..."
   const blocks = text.split(/\n\s*(?=\d+\))/g).map(b => b.trim()).filter(Boolean);
   const cards = blocks.map(block => {
@@ -289,7 +296,8 @@ function renderSuggestions(text, lang) {
         class="btn small"
         style="background:linear-gradient(135deg,var(--brand),var(--brand-2)); border:none; color:#ffffff; font-weight:700;"
         data-title="${escapeAttr(c.title)}"
-        onclick="generateFromSuggestion(this.dataset.title)"
+        data-lang="${escapeAttr(suggestLang)}"
+        onclick="generateFromSuggestion(this.dataset.title, this.dataset.lang)"
       >
         ${lang === "en" ? "Generate this Masterclass →" : "Genera questa Masterclass →"}
       </button>
@@ -300,10 +308,11 @@ function renderSuggestions(text, lang) {
 }
 
 // Called by the suggestion card buttons
-window.generateFromSuggestion = function (courseTitle) {
+window.generateFromSuggestion = function (courseTitle, suggestLang) {
   if (textarea) textarea.value = courseTitle;
-  if (!courseLangInput.value.trim()) {
-    courseLangInput.value = getLang() === "en" ? "English" : "Italiano";
+  // Always apply the language chosen in the suggestion section
+  if (courseLangInput) {
+    courseLangInput.value = suggestLang || (getLang() === "en" ? "English" : "Italiano");
   }
   // Scroll to and trigger the generate button
   output.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -325,7 +334,7 @@ function escapeAttr(s) {
 // Auto-trigger checkout if redirected here from pricing page
 (function () {
   const plan = new URLSearchParams(window.location.search).get("checkout");
-  if (plan === "single" || plan === "pack5") {
+  if (plan === "single" || plan === "pack3") {
     handleUpgrade(plan);
   }
 })();

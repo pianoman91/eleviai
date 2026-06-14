@@ -82,11 +82,23 @@
           <span class="lang-en">Keywords</span>
         </strong>
       </label>
-      <textarea id="keywords" placeholder="Inserisci 2-5 parole chiave... / Enter 2-5 keywords..."></textarea>
-      <button class="btn" id="generate" style="margin-top:10px;">
-        <span class="lang-it">Genera Masterclass</span>
-        <span class="lang-en">Generate Masterclass</span>
-      </button>
+      <textarea id="keywords"
+        data-placeholder-it="Inserisci 2-5 parole chiave..."
+        data-placeholder-en="Enter 2-5 keywords..."
+        placeholder="Inserisci 2-5 parole chiave..."></textarea>
+      <div style="display:flex; align-items:center; gap:12px; margin-top:10px; flex-wrap:wrap;">
+        <button class="btn" id="generate">
+          <span class="lang-it">Genera Masterclass</span>
+          <span class="lang-en">Generate Masterclass</span>
+        </button>
+        <input id="promo-code-input" type="text"
+          data-placeholder-it="Codice sconto (opzionale)"
+          data-placeholder-en="Discount code (optional)"
+          placeholder="Codice sconto (opzionale)"
+          style="padding:10px 14px; border-radius:8px; border:1px solid var(--border);
+                 background:var(--input-bg); color:var(--text); font-size:14px;
+                 width:200px;" />
+      </div>
 
       <h2 style="margin-top:28px;">
         <span class="lang-it">Risultato:</span>
@@ -132,7 +144,19 @@
           <input type="text" id="jobTitle" placeholder="Job title (es: Mechanical Design Engineer)" style="flex:1 1 220px;" />
         </div>
 
-        <button class="btn small" id="suggest" style="margin-top:12px;">
+        <label style="display:block; margin-top:14px;">
+          <strong>
+            <span class="lang-it">Lingua della Masterclass</span>
+            <span class="lang-en">Masterclass language</span>
+          </strong>
+          <span style="font-size:13px; color:var(--muted);"> &nbsp;
+            <span class="lang-it">(scrivi qualsiasi lingua)</span>
+            <span class="lang-en">(any language)</span>
+          </span>
+        </label>
+        <input type="text" id="suggestLanguage" placeholder="es: Italiano, English, Español, 日本語..." style="margin:6px 0 0;" />
+
+        <button class="btn small" id="suggest" style="margin-top:14px;">
           <span class="lang-it">Suggerisci 3 Masterclass per la mia carriera</span>
           <span class="lang-en">Suggest 3 Masterclass for my career</span>
         </button>

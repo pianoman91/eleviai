@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Invalid session token" });
   }
 
-  const { keywords, language, outline, chapterNumber } = req.body || {};
+  const { keywords, language, outline, chapterNumber, chapterTitle } = req.body || {};
 
   if (!keywords || !outline || !chapterNumber) {
     res.status(400).json({ error: "Missing keywords, outline or chapterNumber" });
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
   }
 
   const chapterNum = parseInt(chapterNumber, 10);
-  if (!Number.isInteger(chapterNum) || chapterNum < 1 || chapterNum > 99) {
+  if (!Number.isInteger(chapterNum) || chapterNum < 1 || chapterNum > 999) {
     res.status(400).json({ error: "Invalid chapterNumber" });
     return;
   }
@@ -51,6 +51,10 @@ export default async function handler(req, res) {
     (language && typeof language === "string" && language.trim()) ||
     "Italiano";
 
+  const chapterRef = chapterTitle && typeof chapterTitle === "string" && chapterTitle.trim()
+    ? `"${chapterTitle.trim()}"`
+    : `numero ${chapterNum}`;
+
   const prompt = `
 Sei PNL, un sistema che crea Masterclass tematiche per professionisti.
 
@@ -63,8 +67,8 @@ Questo è l'indice completo della Masterclass:
 
 ${outline}
 
-Devi GENERARE SOLO il contenuto del capitolo numero ${chapterNum}.
-Assumi che il capitolo ${chapterNum} corrisponda a una delle righe numerate dell'indice.
+Devi GENERARE SOLO il contenuto del capitolo ${chapterRef}.
+Questo capitolo corrisponde esattamente alla riga dell'indice che riporta il titolo ${chapterRef}.
 
 REGOLE DI FORMATO (OBBLIGATORIE):
 - NON usare Markdown.
@@ -88,10 +92,10 @@ Requisiti per il capitolo:
 
 Lunghezza:
 - Pensato per almeno 10–15 minuti di lettura, almeno 800 parole.
-- quindi testo esteso e discorsivo, non riassuntivo o schematico.
+- Testo esteso e discorsivo, non riassuntivo o schematico.
 
 Non aggiungere nessun altro capitolo, nessun riepilogo dell'intera Masterclass, nessun quiz.
-Solo il testo del capitolo ${chapterNum}.
+Solo il testo del capitolo ${chapterRef}.
 `;
 
   try {

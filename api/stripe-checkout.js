@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const PLANS = {
   single: { credits: 1, envKey: "STRIPE_PRICE_ID_SINGLE" },
-  pack5:  { credits: 5, envKey: "STRIPE_PRICE_ID_PACK5" },
+  pack3:  { credits: 3, envKey: "STRIPE_PRICE_ID_PACK3" },
 };
 
 export default async function handler(req, res) {
@@ -20,8 +20,8 @@ export default async function handler(req, res) {
   }
 
   // Determine which plan was requested
-  const { plan } = req.body || {};
-  const planKey = plan === "pack5" ? "pack5" : "single";
+  const { plan, promoCode } = req.body || {};
+  const planKey = plan === "pack3" ? "pack3" : "single";
   const planInfo = PLANS[planKey];
 
   const priceId = process.env[planInfo.envKey];
@@ -73,9 +73,15 @@ export default async function handler(req, res) {
     process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
     req.headers.origin ||
-    "https://eleviai.vercel.app";
+    "https://pnl.vercel.app";
 
-  const session = await stripe.checkout.sessions.create({
+  // Resolve promo code → Stripe promotion code ID
+  const PROMO_CODES = {
+    "Alaska2018": "promo_1Tg8TTJG0WA2IQY0DJhM4srh",
+  };
+  const promoId = promoCode ? PROMO_CODES[promoCode.trim()] : null;
+
+  const sessionParams = {
     customer: customerId,
     mode: "payment",
     payment_method_types: ["card"],
@@ -86,7 +92,15 @@ export default async function handler(req, res) {
       supabase_uid: user.id,
       credits: String(planInfo.credits),
     },
-  });
+  };
+
+  if (promoId) {
+    sessionParams.discounts = [{ promotion_code: promoId }];
+  } else {
+    sessionParams.allow_promotion_codes = true;
+  }
+
+  const session = await stripe.checkout.sessions.create(sessionParams);
 
   return res.status(200).json({ url: session.url });
 }

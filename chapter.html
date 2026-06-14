@@ -193,9 +193,9 @@
       }
 
       if (!outline || !keywords) {
-        contentEl.textContent = getLang() === "en"
-          ? "No Masterclass found. Generate an outline from the free trial page first."
-          : "Nessuna Masterclass trovata. Genera prima un indice dalla pagina di prova gratuita.";
+        contentEl.innerHTML =
+          `<p><span class="lang-it">Nessuna Masterclass trovata. Genera prima un indice dalla pagina di prova gratuita.</span>` +
+          `<span class="lang-en">No Masterclass found. Generate an outline from the free trial page first.</span></p>`;
         return;
       }
 
@@ -213,14 +213,17 @@
 
       const currentLine = (chapterLines[currentChapter - 1] || "").trim();
 
-      // ---- Page title ----
-      pageTitleEl.innerHTML =
-        `<span class="lang-it">Capitolo ${currentChapter}</span>` +
-        `<span class="lang-en">Chapter ${currentChapter}</span>`;
+      // Parse the chapter number code (e.g. "1.2") and title text from the line
+      const lineNumMatch = currentLine.match(/^(\d+(?:\.\d+)*)[.) ]+(.+)/);
+      const chNum   = lineNumMatch ? lineNumMatch[1] : String(currentChapter);
+      const chTitle = lineNumMatch ? lineNumMatch[2].trim() : currentLine;
 
-      const langLabel = getLang() === "en" ? "Page" : "Pagina";
-      infoEl.textContent =
-        `${langLabel} ${currentChapter}/${totalChapters} — ${currentLine}`;
+      // ---- Page title: "Chapter 1.2 – Historical Context and Movements" ----
+      pageTitleEl.innerHTML =
+        `<span class="lang-it">Capitolo ${escapeHtml(chNum)} – ${escapeHtml(chTitle)}</span>` +
+        `<span class="lang-en">Chapter ${escapeHtml(chNum)} – ${escapeHtml(chTitle)}</span>`;
+
+      infoEl.textContent = `${currentChapter} / ${totalChapters}`;
 
       // ---- Navigation buttons ----
       if (currentChapter > 1) prevBtn.style.display = "inline-block";
@@ -263,17 +266,16 @@
       buildSidebar();
 
       // ---- Render chapter content ----
-      const CHAPTER_HEADING_RE = /^(CHAPTER|CAPITOLO|CHAPITRE|CAP[IÍ]TULO|KAPITEL)\s*\d/i;
+      // Match heading words with or without a digit (AI sometimes omits it for sub-chapters)
+      const CHAPTER_HEADING_RE = /^(CHAPTER|CAPITOLO|CHAPITRE|CAP[IÍ]TULO|KAPITEL)\b/i;
 
       function renderChapter(text) {
         const rawLines = text.split("\n").map(l => l.trim()).filter(Boolean);
         let html = "";
         rawLines.forEach((line, idx) => {
+          // Skip the first line if it's just the chapter heading word — title is in the page header
+          if (idx === 0 && CHAPTER_HEADING_RE.test(line)) return;
           const safe = escapeHtml(line);
-          if (idx === 0 && CHAPTER_HEADING_RE.test(line)) {
-            html += `<div class="chapter-title">${safe}</div>`;
-            return;
-          }
           if (line.length <= 70 && !line.endsWith(".") && !line.endsWith(":")) {
             html += `<div class="chapter-subtitle">${safe}</div>`;
             return;
@@ -283,32 +285,40 @@
         return html || `<p>${getLang() === "en" ? "No content." : "Nessun contenuto."}</p>`;
       }
 
-      contentEl.textContent = getLang() === "en"
-        ? "Generating chapter… ⏳"
-        : "Generazione del capitolo in corso… ⏳";
+      // ---- Load chapter: use cache if available, otherwise fetch from AI ----
+      const cacheKey = `eleviai_chapter_${currentChapter}_text`;
+      const cached = localStorage.getItem(cacheKey);
 
-      fetch("/api/generateChapter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + authToken },
-        body: JSON.stringify({ keywords, language, outline, chapterNumber: currentChapter })
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (!data || !data.chapterContent) {
-            contentEl.textContent = getLang() === "en"
-              ? "Error: no chapter content received from AI."
-              : "Errore: nessun contenuto del capitolo ricevuto dall'AI.";
-            return;
-          }
-          localStorage.setItem(`eleviai_chapter_${currentChapter}_text`, data.chapterContent);
-          contentEl.innerHTML = renderChapter(data.chapterContent);
+      if (cached) {
+        contentEl.innerHTML = renderChapter(cached);
+      } else {
+        contentEl.innerHTML =
+          `<p><span class="lang-it">Generazione del capitolo in corso… ⏳</span>` +
+          `<span class="lang-en">Generating chapter… ⏳</span></p>`;
+
+        fetch("/api/generateChapter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + authToken },
+          body: JSON.stringify({ keywords, language, outline, chapterNumber: currentChapter, chapterTitle: currentLine })
         })
-        .catch(err => {
-          contentEl.textContent = getLang() === "en"
-            ? "Network error while generating the chapter."
-            : "Errore di rete durante la generazione del capitolo.";
-          console.error("Network error (chapter):", err);
-        });
+          .then(r => r.json())
+          .then(data => {
+            if (!data || !data.chapterContent) {
+              contentEl.innerHTML =
+                `<p><span class="lang-it">Errore: nessun contenuto ricevuto dall'AI.</span>` +
+                `<span class="lang-en">Error: no chapter content received from AI.</span></p>`;
+              return;
+            }
+            localStorage.setItem(cacheKey, data.chapterContent);
+            contentEl.innerHTML = renderChapter(data.chapterContent);
+          })
+          .catch(err => {
+            contentEl.innerHTML =
+              `<p><span class="lang-it">Errore di rete durante la generazione del capitolo.</span>` +
+              `<span class="lang-en">Network error while generating the chapter.</span></p>`;
+            console.error("Network error (chapter):", err);
+          });
+      }
 
       // ---- Button handlers ----
       prevBtn.addEventListener("click", () => {
