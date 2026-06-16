@@ -64,8 +64,21 @@
         <span class="lang-it">Genera una Masterclass →</span>
         <span class="lang-en">Generate a Masterclass →</span>
       </a>
+      <p id="redirect-msg" style="margin-top:18px; font-size:13px; color:var(--muted);">
+        <span class="lang-it">Sarai reindirizzato in <strong id="cdown">5</strong> secondi…</span>
+        <span class="lang-en">Redirecting in <strong id="cdown">5</strong> seconds…</span>
+      </p>
     </div>
   </div>
 
+<script>
+  var n = 5;
+  var el = document.getElementById("cdown");
+  var t = setInterval(function() {
+    n--;
+    if (el) el.textContent = n;
+    if (n <= 0) { clearInterval(t); window.location.href = "prova.html"; }
+  }, 1000);
+</script>
 </body>
 </html>

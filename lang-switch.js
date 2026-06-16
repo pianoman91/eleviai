@@ -29,12 +29,16 @@
       el.className = "lang-switch lang-switch-fixed";
       el.setAttribute("aria-label", "Language selector");
       el.innerHTML =
-        '<button class="lang-btn" data-lang="it" type="button" aria-label="Italiano">IT</button>' +
-        '<button class="lang-btn" data-lang="en" type="button" aria-label="English">EN</button>';
+        '<button class="lang-btn" data-lang="it" type="button" aria-label="Italiano">🇮🇹&nbsp;IT</button>' +
+        '<button class="lang-btn" data-lang="en" type="button" aria-label="English">🇬🇧&nbsp;EN</button>';
       document.body.appendChild(el);
     }
 
     const buttons = document.querySelectorAll(".lang-btn");
+    buttons.forEach(function(btn) {
+      if (btn.dataset.lang === "it") btn.innerHTML = "🇮🇹&nbsp;IT";
+      if (btn.dataset.lang === "en") btn.innerHTML = "🇬🇧&nbsp;EN";
+    });
     const current = localStorage.getItem("eleviai_lang") || "it";
     buttons.forEach(function (btn) {
       btn.classList.toggle("active", btn.dataset.lang === current);
