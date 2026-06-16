@@ -30,6 +30,8 @@ body {
 .logo { font-weight: 800; letter-spacing:.3px; text-decoration: none; color: var(--text); }
 .nav a { color: var(--text); text-decoration: none; margin-left:18px; opacity:.85; }
 .nav a:hover { opacity: 1; }
+.nav a.btn { color: #ffffff; }
+.nav a.btn:hover { color: #ffffff; opacity: 1; }
 .nav .btn { margin-left: 10px; }
 
 .hero { padding: 64px 0 24px; text-align: left; }
@@ -270,8 +272,8 @@ html[data-lang="en"] .lang-en.block { display: block; }
 }
 
 .lang-btn {
-  font-size: 12px;
-  padding: 4px 10px;
+  font-size: 13px;
+  padding: 5px 13px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--input-bg);

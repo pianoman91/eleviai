@@ -41,7 +41,11 @@
     <a class="logo" href="index.html">
       <span class="logo-p">P</span><span class="logo-nl">NL</span>
     </a>
-    <div style="display:flex; align-items:center; gap:12px;">
+    <div style="display:flex; align-items:center; gap:16px;">
+      <a href="mailto:PNL.masterclass@gmail.com" style="font-size:13px; color:var(--muted); text-decoration:none; opacity:.8;" class="lang-contact">
+        <span class="lang-it">Contatti</span>
+        <span class="lang-en">Contact</span>
+      </a>
       <div id="user-badge" title=""></div>
       <div class="lang-switch">
         <button class="lang-btn active" data-lang="it" type="button">IT</button>
@@ -98,6 +102,20 @@
           style="padding:10px 14px; border-radius:8px; border:1px solid var(--border);
                  background:var(--input-bg); color:var(--text); font-size:14px;
                  width:200px;" />
+      </div>
+
+      <div id="continue-banner" style="display:none; background:var(--card); border:1px solid var(--brand); border-radius:12px; padding:16px 20px; margin-top:18px; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div>
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--brand); margin-bottom:4px;">
+            <span class="lang-it">Masterclass in corso</span>
+            <span class="lang-en">Masterclass in progress</span>
+          </div>
+          <div id="continue-title" style="font-size:15px; font-weight:700; color:var(--text);"></div>
+        </div>
+        <a href="chapter.html" class="btn small" style="text-decoration:none; white-space:nowrap;">
+          <span class="lang-it">Continua →</span>
+          <span class="lang-en">Continue →</span>
+        </a>
       </div>
 
       <h2 style="margin-top:28px;">
@@ -226,6 +244,19 @@
       }
       const fullName = [first, last].filter(Boolean).join(" ");
       if (fullName) localStorage.setItem("eleviai_user_name", fullName);
+    }
+
+    // Show continue banner if there's a saved masterclass
+    const savedOutline = localStorage.getItem("eleviai_outline");
+    const savedKeywords = localStorage.getItem("eleviai_keywords");
+    if (savedOutline && savedKeywords) {
+      const banner = document.getElementById("continue-banner");
+      const titleEl = document.getElementById("continue-title");
+      if (banner && titleEl) {
+        const firstLine = savedOutline.split("\n").map(l => l.trim()).filter(Boolean)[0] || savedKeywords;
+        titleEl.textContent = firstLine.replace(/^\d+[.)]\s*/, "");
+        banner.style.display = "flex";
+      }
     }
   </script>
 
