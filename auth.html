@@ -276,6 +276,19 @@
           <span class="lang-en">Used on your completion certificate.</span>
         </p>
       </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:flex; align-items:flex-start; gap:10px; font-size:13px; color:var(--muted); cursor:pointer; line-height:1.5;">
+          <input id="signup-consent" type="checkbox" style="margin-top:3px; flex-shrink:0;" />
+          <span class="lang-it">
+            Ho letto e accetto la <a href="privacy.html" target="_blank" style="color:var(--brand);">Privacy Policy</a>
+            e i <a href="terms.html" target="_blank" style="color:var(--brand);">Termini di Servizio</a>. *
+          </span>
+          <span class="lang-en">
+            I have read and agree to the <a href="privacy.html" target="_blank" style="color:var(--brand);">Privacy Policy</a>
+            and <a href="terms.html" target="_blank" style="color:var(--brand);">Terms of Service</a>. *
+          </span>
+        </label>
+      </div>
       <button class="auth-submit" id="btn-signup">
         <span class="lang-it">Crea account</span>
         <span class="lang-en">Create account</span>
@@ -427,9 +440,16 @@
       const firstName = signupFirstName.value.trim();
       const lastName  = signupLastName.value.trim();
       const lang = document.documentElement.getAttribute("data-lang");
+      const consent = document.getElementById("signup-consent")?.checked;
       if (!email || !password || !firstName || !lastName) {
         showMsg(signupMsg,
           lang === "en" ? "Please fill in all fields." : "Compila tutti i campi.",
+          "error");
+        return;
+      }
+      if (!consent) {
+        showMsg(signupMsg,
+          lang === "en" ? "Please accept the Privacy Policy and Terms of Service." : "Accetta la Privacy Policy e i Termini di Servizio per continuare.",
           "error");
         return;
       }
