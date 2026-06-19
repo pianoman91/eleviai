@@ -119,16 +119,20 @@ export default async function handler(req, res) {
     }
 
     const prompt = `
-Sei un docente universitario e instructional designer.
-Devi creare un OUTLINE (indice dettagliato) di una Masterclass basata su queste parole chiave: ${keywords}.
-Lingua: ${language || "Italiano"}.
+You are an expert professor designing a professional Masterclass outline.
+Topic keywords: ${keywords}.
+Language: ${language || "Italiano"}.
 
-Regole:
-- Struttura in capitoli numerati (1, 2, 3...)
-- Ogni capitolo con 3-6 punti sottosezione
-- Niente testo lungo, solo outline
-- Niente quiz
-- Niente introduzioni tipo "Ecco l'indice:", vai diretto con l'elenco
+Create a structured outline with 5–7 chapters. Each chapter must have 3–5 sub-sections.
+The outline should progress logically from foundations to advanced application.
+Include one final chapter titled "Key References and Further Reading" listing 5–8 relevant books, papers or frameworks on the topic.
+
+Rules:
+- Number chapters (1, 2, 3...) and sub-sections (1.1, 1.2...)
+- Titles only — no explanatory text
+- No quiz chapter
+- No intro phrase like "Here is the outline:" — start directly with "1."
+- Write all titles in ${language || "Italiano"}
 `;
 
     const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
