@@ -118,6 +118,10 @@
         <span class="lang-it">Contatti</span>
         <span class="lang-en">Contact</span>
       </a>
+      <button onclick="sessionStorage.removeItem('eleviai_token'); window.location.href='auth.html';" style="font-size:12px; color:var(--muted); background:none; border:1px solid var(--border); border-radius:8px; padding:5px 10px; cursor:pointer;">
+        <span class="lang-it">Esci</span>
+        <span class="lang-en">Logout</span>
+      </button>
       <div class="lang-switch">
         <button class="lang-btn active" data-lang="it" type="button">IT</button>
         <button class="lang-btn" data-lang="en" type="button">EN</button>
@@ -139,10 +143,14 @@
         </h1>
         <p id="chapter-info" class="muted" style="margin-bottom:14px;"></p>
 
-        <div class="no-print" style="margin-bottom:14px;">
+        <div class="no-print" style="margin-bottom:14px; display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn small" id="pdf">
-            <span class="lang-it">Scarica PDF</span>
-            <span class="lang-en">Download PDF</span>
+            <span class="lang-it">Scarica PDF capitolo</span>
+            <span class="lang-en">Download chapter PDF</span>
+          </button>
+          <button class="btn small ghost" id="pdf-full">
+            <span class="lang-it">Scarica Masterclass completa PDF</span>
+            <span class="lang-en">Download full Masterclass PDF</span>
           </button>
         </div>
 
@@ -343,6 +351,97 @@
         document.title = `PNL – Chapter ${currentChapter}`;
         window.print();
         document.title = orig;
+      });
+
+      document.getElementById("pdf-full")?.addEventListener("click", async () => {
+        const btn = document.getElementById("pdf-full");
+        const lang = getLang();
+        const courseTitle = (chapterLines[0] || keywords).replace(/^\d+[.)]\s*/, "");
+
+        // Fetch all missing chapters first
+        const missing = chapterLines.filter((_, idx) =>
+          !localStorage.getItem(`eleviai_chapter_${idx + 1}_text`)
+        );
+
+        if (missing.length > 0) {
+          btn.disabled = true;
+          btn.innerHTML = lang === "en"
+            ? `Generating ${missing.length} missing chapter(s)… 0/${missing.length}`
+            : `Genero ${missing.length} capitolo/i mancante/i… 0/${missing.length}`;
+
+          let done = 0;
+          for (let idx = 0; idx < chapterLines.length; idx++) {
+            const cacheKey = `eleviai_chapter_${idx + 1}_text`;
+            if (localStorage.getItem(cacheKey)) continue;
+            const line = chapterLines[idx];
+            try {
+              const r = await fetch("/api/generateChapter", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + authToken },
+                body: JSON.stringify({ keywords, language, outline, chapterNumber: idx + 1, chapterTitle: line })
+              });
+              const data = await r.json();
+              if (data?.chapterContent) localStorage.setItem(cacheKey, data.chapterContent);
+            } catch (e) { console.error("Chapter fetch error:", e); }
+            done++;
+            btn.innerHTML = lang === "en"
+              ? `Generating… ${done}/${missing.length}`
+              : `Genero… ${done}/${missing.length}`;
+          }
+
+          btn.disabled = false;
+          btn.innerHTML = lang === "en"
+            ? "Download full Masterclass PDF"
+            : "Scarica Masterclass completa PDF";
+        }
+
+        // Build the PDF HTML with all chapters
+        const HEADING_RE = /^(CHAPTER|CAPITOLO|CHAPITRE|CAP[IÍ]TULO|KAPITEL)\b/i;
+        const now = new Date().toLocaleDateString(lang === "en" ? "en-GB" : "it-IT", { day:"numeric", month:"long", year:"numeric" });
+
+        let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+          <title>PNL – ${escapeHtml(courseTitle)}</title>
+          <style>
+            body { font-family: Georgia, serif; max-width: 720px; margin: 40px auto; color: #0d1526; line-height: 1.7; padding: 0 24px; }
+            h2 { font-size: 20px; margin-top: 40px; color: #002060; }
+            h3 { font-size: 16px; margin-top: 24px; font-weight: 700; }
+            p { margin: 10px 0; font-size: 15px; }
+            .chapter-break { page-break-before: always; margin-top: 48px; }
+            .cover { text-align:center; padding: 80px 0 60px; page-break-after: always; }
+            .cover .logo { font-size: 64px; font-weight: 900; letter-spacing: -2px; color: #002060; }
+            .cover .logo em { color: #D6C29A; font-style: normal; }
+            .cover h1 { font-size: 24px; margin-top: 24px; color: #0d1526; }
+            .cover .meta { color: #6b738a; font-size: 14px; margin-top: 12px; }
+          </style>
+        </head><body>
+        <div class="cover">
+          <div class="logo">P<em>NL</em></div>
+          <h1>${escapeHtml(courseTitle)}</h1>
+          <p class="meta">${lang === "en" ? "Generated by PNL · " : "Generata da PNL · "}${now}</p>
+        </div>`;
+
+        chapterLines.forEach((line, idx) => {
+          const num = idx + 1;
+          const cached = localStorage.getItem(`eleviai_chapter_${num}_text`) || "";
+          const lineMatch = line.trim().match(/^(\d+(?:\.\d+)*)[.) ]+(.+)/);
+          const chNum = lineMatch ? lineMatch[1] : String(num);
+          const chTitle = lineMatch ? lineMatch[2].trim() : line.trim();
+
+          html += `<div class="${idx === 0 ? "" : "chapter-break"}"><h2>${escapeHtml(chNum + ". " + chTitle)}</h2>`;
+          cached.split("\n").map(l => l.trim()).filter(Boolean).forEach((l, i) => {
+            if (i === 0 && HEADING_RE.test(l)) return;
+            html += l.length <= 70 && !l.endsWith(".") && !l.endsWith(":")
+              ? `<h3>${escapeHtml(l)}</h3>`
+              : `<p>${escapeHtml(l)}</p>`;
+          });
+          html += `</div>`;
+        });
+
+        html += `</body></html>`;
+        const win = window.open("", "_blank");
+        win.document.write(html);
+        win.document.close();
+        win.onload = () => win.print();
       });
     })();
   </script>
