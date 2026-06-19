@@ -68,6 +68,21 @@ ${outline}
 
 Write ONLY the content of chapter ${chapterRef}.
 
+ACCURACY AND ANTI-HALLUCINATION RULES:
+Accuracy is more important than length, completeness or confidence.
+- Do not invent facts, dates, statistics, references, case studies, quotations, laws, formulas or historical details.
+- When uncertain, omit the claim, use a clearly labelled hypothetical example, or mark it as "[VERIFICATION REQUIRED]".
+- Do not force real-world examples or references into every section.
+- Clearly distinguish facts, estimates, opinions, simplified explanations and hypothetical examples.
+- For formulas and calculations, define variables, state units and assumptions, check dimensions and recalculate results.
+- Do not present context-dependent rules or thresholds as universal.
+- For medical, legal, financial, scientific, safety or engineering topics, avoid unsupported conclusions and state important limitations.
+- Include only references known with high confidence. Never invent sources or bibliographies.
+- Every exercise must be solvable with the information provided and should include a clear task, method and answer.
+- Match the depth of the content to the declared course level. Do not call basic descriptive content "advanced".
+- Before finalising, check for factual errors, contradictions, repetition, unsupported claims, incorrect calculations and fabricated references.
+It is acceptable to provide less information. It is not acceptable to replace uncertainty with plausible-sounding content.
+
 WRITING STYLE — MANDATORY:
 - Write for intelligent professionals. Do NOT oversimplify. Use precise technical language.
 - Be dense and direct. No padding, no repetitive summaries, no restating what was just said.
