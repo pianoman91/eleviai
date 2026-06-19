@@ -56,46 +56,41 @@ export default async function handler(req, res) {
     : `numero ${chapterNum}`;
 
   const prompt = `
-Sei PNL, un sistema che crea Masterclass tematiche per professionisti.
+You are an expert professor and practitioner writing a chapter for a professional Masterclass.
 
-Lingua della Masterclass: ${courseLanguage}.
-Parole chiave: ${keywords}.
+Language: ${courseLanguage}.
+Topic keywords: ${keywords}.
 
-IMPORTANTE: scrivi TUTTO il contenuto, inclusi i titoli strutturali, nella lingua "${courseLanguage}". Non usare mai parole di un'altra lingua.
+IMPORTANT: Write ALL content including structural titles in "${courseLanguage}". Never mix languages.
 
-Questo è l'indice completo della Masterclass:
-
+Full Masterclass outline for context:
 ${outline}
 
-Devi GENERARE SOLO il contenuto del capitolo ${chapterRef}.
-Questo capitolo corrisponde esattamente alla riga dell'indice che riporta il titolo ${chapterRef}.
+Write ONLY the content of chapter ${chapterRef}.
 
-REGOLE DI FORMATO (OBBLIGATORIE):
-- NON usare Markdown.
-- NON usare simboli come #, ##, *, -, • o elenchi puntati.
-- Scrivi solo testo normale.
+WRITING STYLE — MANDATORY:
+- Write for intelligent professionals. Do NOT oversimplify. Use precise technical language.
+- Be dense and direct. No padding, no repetitive summaries, no restating what was just said.
+- Each sentence must add new information. Cut any sentence that merely echoes the previous one.
+- Target length: 550–700 words total. Quality over quantity.
+- NO Markdown. NO symbols like #, *, -, •. Plain text only.
+- Subtitles: short lines (max 70 chars), no trailing punctuation.
+- First line: chapter title in ALL CAPS using the correct word for "chapter" in ${courseLanguage} (e.g. CHAPTER / CAPITOLO / CHAPITRE / CAPÍTULO / KAPITEL).
 
-STRUTTURA DEL TESTO:
-- La prima riga deve essere il titolo del capitolo in MAIUSCOLO, usando la parola corretta per "capitolo" nella lingua "${courseLanguage}" (es. CHAPTER in inglese, CAPITOLO in italiano, CHAPITRE in francese, CAPÍTULO in spagnolo, KAPITEL in tedesco).
-- I sottotitoli devono essere scritti su righe brevi (max 70 caratteri), senza punteggiatura finale.
+REQUIRED STRUCTURE FOR EACH SECTION:
+1. Core concept — explained at expert level, with nuance and depth
+2. Real-world example — specific, named, concrete (company, case study, historical event, data point)
+3. Practical exercise — one actionable task the reader can do immediately
+4. Key reference — cite a relevant book, paper, framework or standard (e.g. "See Kahneman's Thinking Fast and Slow", "ISO 9001:2015 §8.5", "HBR, March 2019")
 
-Requisiti per il capitolo:
-- Scrivi il contenuto solo di questo capitolo (nessun altro).
-- Non riscrivere l'indice.
-- Non scrivere il quiz.
-- Struttura il capitolo con sezioni e sottosezioni chiare (introduzione, parti principali, conclusioni).
-- Per ogni sezione:
-  - spiega in modo dettagliato (livello avanzato ma chiaro),
-  - inserisci esempi pratici,
-  - evidenzia errori comuni,
-  - suggerisci best practice.
+WHAT TO AVOID:
+- Do not write "In this chapter we will see…" or "As we discussed…" type phrases
+- Do not rewrite the outline
+- Do not add a quiz or summary of the entire Masterclass
+- Do not use bullet points or numbered lists
+- Do not end with generic motivational phrases
 
-Lunghezza:
-- Pensato per almeno 10–15 minuti di lettura, almeno 800 parole.
-- Testo esteso e discorsivo, non riassuntivo o schematico.
-
-Non aggiungere nessun altro capitolo, nessun riepilogo dell'intera Masterclass, nessun quiz.
-Solo il testo del capitolo ${chapterRef}.
+Write only the text of chapter ${chapterRef}.
 `;
 
   try {
@@ -108,7 +103,7 @@ Solo il testo del capitolo ${chapterRef}.
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 2500
+        max_tokens: 1800
       })
     });
 
