@@ -47,6 +47,10 @@
         <span class="lang-en">Contact</span>
       </a>
       <div id="user-badge" title=""></div>
+      <button id="btn-logout" style="display:none; font-size:12px; color:var(--muted); background:none; border:1px solid var(--border); border-radius:8px; padding:5px 10px; cursor:pointer;">
+        <span class="lang-it">Esci</span>
+        <span class="lang-en">Logout</span>
+      </button>
       <div class="lang-switch">
         <button class="lang-btn active" data-lang="it" type="button">IT</button>
         <button class="lang-btn" data-lang="en" type="button">EN</button>
@@ -244,6 +248,17 @@
       }
       const fullName = [first, last].filter(Boolean).join(" ");
       if (fullName) localStorage.setItem("eleviai_user_name", fullName);
+    }
+
+    // Logout button
+    const btnLogout = document.getElementById("btn-logout");
+    if (btnLogout && session) {
+      btnLogout.style.display = "inline-block";
+      btnLogout.addEventListener("click", async () => {
+        await supabase.auth.signOut();
+        sessionStorage.removeItem("eleviai_token");
+        window.location.href = "auth.html";
+      });
     }
 
     // Show continue banner if there's a saved masterclass
