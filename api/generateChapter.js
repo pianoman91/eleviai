@@ -125,9 +125,11 @@ Write only the text of chapter ${chapterRef}.
     const data = await response.json();
 
     if (!response.ok) {
-      res.status(500).json({
-        error: data?.error?.message || `API error (status ${response.status})`
-      });
+      const raw = data?.error?.message || `API error (status ${response.status})`;
+      const safe = raw.includes("requires more credits")
+        ? "Insufficient AI credits. Please contact support."
+        : raw.replace(/https?:\/\/\S+/g, "").trim();
+      res.status(500).json({ error: safe });
       return;
     }
 
