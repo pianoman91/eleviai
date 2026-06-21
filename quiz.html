@@ -575,7 +575,7 @@
               "Content-Type": "application/json",
               "Authorization": "Bearer " + token,
             },
-            body: JSON.stringify({ imageBase64, courseTitle }),
+            body: JSON.stringify({ imageBase64, courseTitle, language: localStorage.getItem("eleviai_language") || "Italiano" }),
           });
         } catch (e) {
           console.error("Could not send certificate email:", e);

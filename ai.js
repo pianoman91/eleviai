@@ -18,7 +18,7 @@ async function handleUpgrade(plan) {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token,
       },
-      body: JSON.stringify({ plan, promoCode }),
+      body: JSON.stringify({ plan, promoCode, language: localStorage.getItem("eleviai_language") || "Italiano" }),
     });
     const data = await res.json().catch(() => ({}));
 

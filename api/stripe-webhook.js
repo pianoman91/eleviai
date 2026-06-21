@@ -72,13 +72,14 @@ export default async function handler(req, res) {
       }
     }
 
-    await sendPurchaseEmail(session, supabase, credits);
+    const language = session.metadata?.language || "Italiano";
+    await sendPurchaseEmail(session, supabase, credits, language);
   }
 
   return res.status(200).json({ received: true });
 }
 
-async function sendPurchaseEmail(session, supabase, credits) {
+async function sendPurchaseEmail(session, supabase, credits, language) {
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
 
   const uid = session.metadata?.supabase_uid;
@@ -91,7 +92,7 @@ async function sendPurchaseEmail(session, supabase, credits) {
   const meta = authUser.user.user_metadata || {};
   const name = [meta.first_name, meta.last_name].filter(Boolean).join(" ") || "there";
 
-  const isIt = true; // send in Italian by default; could detect from user metadata if needed
+  const isIt = (language || "Italiano").toLowerCase() !== "english";
   const subject = isIt
     ? `✅ Acquisto confermato – ${credits} Masterclass PNL`
     : `✅ Purchase confirmed – ${credits} PNL Masterclass`;

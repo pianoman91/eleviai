@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   }
 
   // Determine which plan was requested
-  const { plan, promoCode } = req.body || {};
+  const { plan, promoCode, language } = req.body || {};
   const planKey = plan === "pack3" ? "pack3" : "single";
   const planInfo = PLANS[planKey];
 
@@ -91,6 +91,7 @@ export default async function handler(req, res) {
     metadata: {
       supabase_uid: user.id,
       credits: String(planInfo.credits),
+      language: (language && typeof language === "string") ? language.trim() : "Italiano",
     },
   };
 
