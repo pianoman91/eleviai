@@ -100,12 +100,12 @@ async function sendPurchaseEmail(session, supabase, credits, language) {
   const body = isIt
     ? `<p>Ciao ${name},</p>
        <p>Il tuo acquisto è stato completato con successo. Hai ricevuto <strong>${credits} Masterclass</strong> aggiuntive sul tuo account PNL.</p>
-       <p>Puoi generare le tue Masterclass accedendo a <a href="https://eleviai.vercel.app/prova.html">eleviai.vercel.app</a>.</p>
+       <p>Puoi generare le tue Masterclass accedendo a <a href="https://pnl-masterclass.com/prova.html">pnl-masterclass.com</a>.</p>
        <p>Grazie per aver scelto PNL!</p>
        <p style="color:#888; font-size:12px;">PNL – Masterclass AI personalizzate</p>`
     : `<p>Hi ${name},</p>
        <p>Your purchase was completed successfully. You received <strong>${credits} Masterclass</strong> on your PNL account.</p>
-       <p>You can generate your Masterclass at <a href="https://eleviai.vercel.app/prova.html">eleviai.vercel.app</a>.</p>
+       <p>You can generate your Masterclass at <a href="https://pnl-masterclass.com/prova.html">pnl-masterclass.com</a>.</p>
        <p>Thank you for choosing PNL!</p>
        <p style="color:#888; font-size:12px;">PNL – Personalised AI Masterclass</p>`;
 
