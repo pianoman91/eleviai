@@ -142,7 +142,7 @@ Rules:
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "openai/gpt-4o-mini",
+        model: "openai/gpt-4o",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1200
       })
@@ -151,8 +151,11 @@ Rules:
     const data = await r.json().catch(() => null);
 
     if (!r.ok) {
-      const msg = data?.error?.message || `OpenRouter error ${r.status}`;
-      return res.status(500).json({ error: msg });
+      const raw = data?.error?.message || `OpenRouter error ${r.status}`;
+      const safe = raw.includes("requires more credits")
+        ? "Insufficient AI credits. Please contact support."
+        : raw.replace(/https?:\/\/\S+/g, "").trim();
+      return res.status(500).json({ error: safe });
     }
 
     const text = data?.choices?.[0]?.message?.content;
